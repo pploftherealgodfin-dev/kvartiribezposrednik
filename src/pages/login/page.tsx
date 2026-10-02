@@ -1,10 +1,11 @@
 import ProfileRecovery from '@/components/feature/ProfileRecovery';
 import PageLoading from '@/components/feature/PageLoading';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { useAuth } from '@/hooks/useAuth';
+import { isValidOtp, isValidPhone, normalizePhone, safeReturnPath } from '@/lib/authValidation';
 import { dashboardPath, readPendingRole, setPendingRole, type RegisterRole } from '@/lib/roles';
 
 interface RoleCardProps {
@@ -54,7 +55,7 @@ export default function Login() {
   const location = useLocation();
   const [params] = useSearchParams();
   const requested = params.get('next') ?? (location.state as {from?: string} | null)?.from ?? (() => { try { return window.sessionStorage.getItem('kb_return_to') ?? ''; } catch { return ''; } })();
-  const from = requested.startsWith('/') && !requested.startsWith('//') && !requested.includes('\\') && !Array.from(requested).some(char => char.charCodeAt(0) <= 32) && !/^\/vhod(?:[/?]|$)/.test(requested) ? requested : '';
+  const from = safeReturnPath(requested);
   const { session, profile, loading, profileError, signInWithGoogle, signInWithPhone, verifyPhoneOtp } = useAuth();
 
   const [role, setRole] = useState<RegisterRole>(() => readPendingRole() ?? (from.startsWith('/kachi-obiava') ? 'owner' : 'tenant'));
@@ -62,7 +63,15 @@ export default function Login() {
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+  const pending = useRef(false);
+  const setWorking = (value: boolean) => { pending.current = value; setBusy(value); };
+  const [cooldown, setCooldown] = useState(0);
+  useEffect(() => {
+    if (!cooldown) return;
+    const timer = window.setTimeout(() => setCooldown(value => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
+  const [error, setError] = useState(() => params.has('error') ? 'Входът не е завършен. Избери метод и опитай отново.' : '');
   const [notice, setNotice] = useState('');
 
   if (session && profileError) return <ProfileRecovery />;
@@ -80,52 +89,53 @@ export default function Login() {
   };
 
   const handleGoogle = async () => {
-    if (busy || loading) return;
+    if (pending.current || loading) return;
     setError('');
     setNotice('');
     setPendingRole(role);
-    setBusy(true);
+    setWorking(true);
     try { if (from) window.sessionStorage.setItem('kb_return_to', from); } catch { /* Browser can disable storage. */ }
     const { error: err } = await signInWithGoogle();
     if (err) {
       setError(err);
-      setBusy(false);
+      setWorking(false);
     }
   };
 
-  const handleSendCode = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (busy || loading) return;
+  const handleSendCode = async (event?: FormEvent<HTMLFormElement>) => {
+    event?.preventDefault();
+    if (cooldown > 0) return;
+    if (pending.current || loading) return;
     setError('');
-    const normalized = phone.replace(/[\s()-]/g, '');
-    if (!/^\+[1-9]\d{7,14}$/.test(normalized)) {
+    const normalized = normalizePhone(phone);
+    if (!isValidPhone(normalized)) {
       setError('Въведи телефон с код на държавата, например +359888123456.');
       return;
     }
     setPendingRole(role);
-    setBusy(true);
+    setWorking(true);
     const { error: err } = await signInWithPhone(normalized);
-    setBusy(false);
+    setWorking(false);
     if (err) {
       setError(err);
       return;
     }
     setPhone(normalized);
-    setStep('otp');
+    setStep('otp'); setOtp(''); setCooldown(60);
     setNotice(t('auth.codeSent'));
   };
 
   const handleVerify = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (busy || loading) return;
+    if (pending.current || loading) return;
     setError('');
-    if (!otp.trim()) {
-      setError(t('auth.otpRequired'));
+    if (!isValidOtp(otp)) {
+      setError('Въведи числовия код от SMS (6–10 цифри).');
       return;
     }
-    setBusy(true);
+    setWorking(true);
     const { error: err } = await verifyPhoneOtp(phone.trim(), otp.trim());
-    setBusy(false);
+    setWorking(false);
     if (err) {
       setError(err);
     }
@@ -196,14 +206,14 @@ export default function Login() {
                 <p className="mt-2 text-xs text-foreground-500">{t('auth.phoneHint')}</p>
                 <button
                   type="submit"
-                  disabled={busy || loading}
+                  disabled={busy || loading || cooldown > 0}
                   className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-4 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <i
                     className={busy ? 'ri-loader-4-line animate-spin text-base' : 'ri-send-plane-line text-base'}
                     aria-hidden="true"
                   />
-                  {busy ? t('auth.sending') : t('auth.sendCode')}
+                  {busy ? t('auth.sending') : cooldown ? `Нов код след ${cooldown} сек.` : t('auth.sendCode')}
                 </button>
               </form>
             ) : (
@@ -217,9 +227,9 @@ export default function Login() {
                   type="text"
                   inputMode="numeric"
                   autoComplete="one-time-code"
-                  maxLength={6}
+                  maxLength={10}
                   value={otp}
-                  onChange={(event) => setOtp(event.target.value)}
+                  onChange={(event) => setOtp(event.target.value.replace(/\D/g, ''))}
                   placeholder={t('auth.otpPlaceholder')}
                   className="mt-2 w-full rounded-md border border-background-300 bg-background-50 px-3 py-2.5 text-center text-lg tracking-[0.3em] text-foreground-950 outline-none transition-colors focus:border-primary-400 focus:ring-2 focus:ring-primary-200"
                 />
@@ -235,8 +245,10 @@ export default function Login() {
                   />
                   {busy ? t('auth.verifying') : t('auth.verify')}
                 </button>
+                <button type="button" disabled={busy || cooldown > 0} onClick={() => void handleSendCode()} className="mt-3 w-full min-h-11 text-center text-sm text-primary-700 underline disabled:opacity-50">{cooldown ? `Изпрати нов код след ${cooldown} сек.` : 'Изпрати нов код'}</button>
                 <button
                   type="button"
+                  disabled={busy}
                   onClick={() => {
                     setStep('phone');
                     setOtp('');

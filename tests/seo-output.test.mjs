@@ -48,6 +48,7 @@ test('all 257 towns are crawlable from the HTML directory; Byala URLs are distin
 });
 
 test('sitemap includes only content-ready pages and accurate stable lastmod values', () => {
+  assert.equal(read('public/sitemap.xml'), read('out/sitemap.xml'), 'standard Vite builds must copy the same sitemap');
   const expected = paths.filter(path => !path.startsWith('/kvartiri-bez-posrednik/') || ready(catalog.cities.find(city => cityPath(city) === path)));
   assert.equal(urls.length, 74); assert.equal(new Set(urls).size, urls.length);
   assert.deepEqual(new Set(urls), new Set(expected.map(path => origin + path)));

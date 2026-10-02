@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 import AutoImport from "unplugin-auto-import/vite";
+import { publicSeoPlugin } from './scripts/seo-plugin.ts';
 // import { readdyJsxRuntimeProxyPlugin } from "./vite.jsx-runtime-proxy";
 
 const base = process.env.BASE_PATH || "/";
@@ -18,6 +19,7 @@ export default defineConfig({
   },
   plugins: [
     // ...proxyPlugins,
+    publicSeoPlugin(),
     react(),
     AutoImport({
       imports: [
@@ -73,6 +75,7 @@ export default defineConfig({
   build: {
     sourcemap: false,
     outDir: 'out',
+    emptyOutDir: true,
   },
   resolve: {
     alias: {

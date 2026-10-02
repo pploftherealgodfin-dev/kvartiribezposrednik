@@ -13,7 +13,7 @@ const fieldCls =
 export default function Contact() {
   const { t } = useTranslation();
   const [message, setMessage] = useState('');
-  const { status, error, submit } = useFormSubmit({
+  const { status, error, submit, reset } = useFormSubmit({
     endpoint: ENDPOINT,
     honeypotField: 'contact_alt',
     genericError: t('contact.error'),
@@ -55,7 +55,7 @@ export default function Contact() {
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary-600 text-background-50">
               <i className="ri-check-line text-2xl" aria-hidden="true" />
             </span>
-            <p className="mt-4 text-sm font-medium text-foreground-800">{t('contact.success')}</p>
+            <p role="status" className="mt-4 text-sm font-medium text-foreground-800">{t('contact.success')}</p><button type="button" onClick={reset} className="ui-secondary mt-4">Ново запитване</button>
           </div>
         ) : (
           <form
@@ -64,7 +64,7 @@ export default function Contact() {
             onSubmit={handleSubmit}
             className="mt-8 space-y-5 rounded-lg border border-background-200 bg-background-100 p-5 md:p-6"
           >
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <fieldset disabled={submitting} className="space-y-5"><div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
                 <label className={labelCls} htmlFor="contact-name">
                   {t('contact.name')}
@@ -165,8 +165,8 @@ export default function Contact() {
                 className={submitting ? 'ri-loader-4-line animate-spin text-base' : 'ri-send-plane-line text-base'}
                 aria-hidden="true"
               />
-              {t('contact.submit')}
-            </button>
+              {submitting ? 'Изпращане…' : t('contact.submit')}
+            </button></fieldset>
           </form>
         )}
 

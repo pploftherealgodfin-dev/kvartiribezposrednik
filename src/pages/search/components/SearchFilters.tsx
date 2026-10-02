@@ -1,6 +1,7 @@
 import CityLocationFields from '@/components/feature/CityLocationFields';
 import type { City, Neighborhood, University } from '@/lib/types';
-export interface SearchFilterValues { citySlug:string; neighborhoodSlug:string; universitySlug:string; type:string; rooms:string; priceMin:string; priceMax:string; areaMin:string; areaMax:string; floorMin:string; floorMax:string; furnished:string; pets:string; availableFrom:string; text:string }
+import type { SearchFilterValues } from '@/lib/searchParams';
+export type { SearchFilterValues } from '@/lib/searchParams';
 interface Props { cities:City[]; neighborhoods:Neighborhood[]; universities:University[]; values:SearchFilterValues; onChange:(field:keyof SearchFilterValues,value:string)=>void; onReset:()=>void; onApply:()=>void }
 export default function SearchFilters({ cities, neighborhoods, universities, values, onChange, onReset, onApply }: Props) {
   const rooms=values.rooms.split(',').filter(Boolean);

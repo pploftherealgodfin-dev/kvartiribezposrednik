@@ -1,3 +1,4 @@
+import ListingImage from '@/components/feature/ListingImage';
 import { useState } from 'react';
 import type { ListingPhoto } from '@/lib/types';
 
@@ -27,7 +28,8 @@ export default function ListingGallery({ photos, title, location }: ListingGalle
   return (
     <div>
       <div className="relative h-72 w-full overflow-hidden rounded-lg border border-background-200 bg-background-100 md:h-[420px]">
-        <img
+        <ListingImage key={current.id}
+          photoId={current.id} retryable
           src={current.url}
           width={960} height={640} decoding="async" fetchPriority="high"
           alt={`${title} — ${location}`}
@@ -74,7 +76,8 @@ export default function ListingGallery({ photos, title, location }: ListingGalle
                   index === safeActive ? 'border-primary-500' : 'border-background-200 hover:border-primary-300'
                 }`}
               >
-                <img
+                <ListingImage
+                  photoId={photo.id}
                   src={photo.url}
                   width={120} height={80} loading="lazy" decoding="async"
                   alt={`${title} — снимка ${index + 1}`}

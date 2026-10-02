@@ -1,3 +1,4 @@
+import ListingImage from '@/components/feature/ListingImage';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -26,7 +27,7 @@ export default function PhotoSortGrid({ items, onReorder, onRemove, disabled }: 
   const [overIndex, setOverIndex] = useState<number | null>(null);
 
   const move = (from: number, to: number) => {
-    if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return;
+    if (disabled || from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return;
     const next = items.slice();
     const [moved] = next.splice(from, 1);
     next.splice(to, 0, moved);
@@ -67,7 +68,8 @@ export default function PhotoSortGrid({ items, onReorder, onRemove, disabled }: 
               disabled ? '' : 'cursor-grab active:cursor-grabbing',
             ].join(' ')}
           >
-            <img
+            <ListingImage
+              photoId={item.id}
               src={item.url}
               alt=""
               draggable={false}

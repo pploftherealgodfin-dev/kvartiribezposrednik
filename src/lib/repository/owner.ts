@@ -48,8 +48,6 @@ export async function getOwnerStats(ownerId: string): Promise<OwnerStats> {
   if (error) throw error;
 
   const rows = (data ?? []) as OwnerListingRaw[];
-  const ids = rows.map((row) => row.id);
-
   const { data: metrics, error: metricsError } = await supabase.rpc('owner_metrics');
   if (metricsError) throw metricsError;
   const byId = new Map<string, any>((metrics ?? []).map((item: any) => [item.listing_id, item]));
@@ -167,17 +165,21 @@ export async function resubmitListing(id: string) { await changeOwnerListingStat
 /** Добавя снимки към съществуваща обява, продължавайки номерата по позиция. */
 export async function addListingPhotos(listingId: string, urls: string[]): Promise<void> {
   if (urls.length === 0) return;
-
+  const paths = [...new Set(urls)];
+  try {
   const { data: positions, error: countError } = await supabase
     .from('listing_photos')
-    .select('position')
+    .select('storage_path,position')
     .eq('listing_id', listingId);
   if (countError) throw countError;
 
+  const linked = new Set((positions ?? []).map(row => row.storage_path));
+  const missing = paths.filter(path => !linked.has(path));
+  if (!missing.length) return;
   const occupied = new Set((positions ?? []).map(row => row.position));
   const free = Array.from({ length: 15 }, (_, i) => i).filter(i => !occupied.has(i));
-  if (urls.length > free.length) throw new Error('Максимум 15 снимки.');
-  const rows = urls.map((url, index) => ({
+  if (missing.length > free.length) throw new Error('Максимум 15 снимки.');
+  const rows = missing.map((url, index) => ({
     id: crypto.randomUUID(),
     listing_id: listingId,
     storage_path: url,
@@ -186,8 +188,15 @@ export async function addListingPhotos(listingId: string, urls: string[]): Promi
 
   const { error } = await supabase.from('listing_photos').insert(rows);
   if (error) {
-    // A response can be lost after a successful insert. RLS refuses deletion of linked paths.
-    await Promise.allSettled(urls.map(removePhotoObject));
+    // Recover a lost response instead of inviting the owner to upload duplicates.
+    const { data, error: recoveryError } = await supabase.from('listing_photos').select('storage_path').eq('listing_id', listingId).in('storage_path', paths);
+    if (!recoveryError && paths.every(path => data?.some(row => row.storage_path === path))) return;
+    throw error;
+  }
+  } catch (error) {
+    // Also clean uploads when the pre-insert read or capacity check fails.
+    // Server policies refuse removal of a path already linked to a listing.
+    await Promise.allSettled(paths.map(removePhotoObject));
     throw error;
   }
 }
@@ -219,12 +228,15 @@ export async function reorderListingPhotos(listingId: string, orderedIds: string
   if (error) throw error;
 }
 
-export async function deleteListingPhoto(photoId: string): Promise<void> {
+export async function deleteListingPhoto(photoId: string): Promise<boolean> {
   const { data, error: readError } = await supabase.from('listing_photos').select('storage_path').eq('id', photoId).single();
   if (readError) throw readError;
-  const { error } = await supabase.from('listing_photos').delete().eq('id', photoId);
+  const { data: deleted, error } = await supabase.from('listing_photos').delete().eq('id', photoId).select('id').maybeSingle();
   if (error) throw error;
-  await removePhotoObject(data.storage_path);
+  if (!deleted) throw new Error('Снимката не е премахната. Обнови списъка и провери правата си.');
+  // Once unlinked, a storage cleanup failure cannot restore the database row.
+  try { await removePhotoObject(data.storage_path); return true; }
+  catch { return false; }
 }
 
 export interface DailyPoint {

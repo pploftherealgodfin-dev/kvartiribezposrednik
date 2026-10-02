@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { Fragment, type ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import PageLoading from '@/components/feature/PageLoading';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,5 +29,5 @@ export default function RequireAuth({ children }: RequireAuthProps) {
     );
   }
 
-  return <>{children}</>;
+  return <Fragment key={session.user.id}>{children}</Fragment>;
 }

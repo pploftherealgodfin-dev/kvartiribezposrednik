@@ -1,3 +1,4 @@
+import ListingImage from './ListingImage';
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +24,7 @@ export default function ListingCard({ view }: ListingCardProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { session } = useAuth();
-  const { isFavorite, toggle, busyIds, loading } = useFavorites();
+  const { isFavorite, toggle, busyIds, loading, error } = useFavorites();
   const [photoIndex, setPhotoIndex] = useState(0);
 
   const favorite = isFavorite(listing.id);
@@ -55,7 +56,8 @@ export default function ListingCard({ view }: ListingCardProps) {
       <div className="relative h-52 w-full overflow-hidden bg-background-200">
         <Link to={detailPath} className="block h-full w-full" aria-label={listing.title}>
           {currentPhoto ? (
-            <img
+            <ListingImage
+              photoId={currentPhoto.id}
               src={currentPhoto.url}
               width={480} height={320} loading="lazy" decoding="async"
               alt={`${listing.title} — ${locationLabel}`}
@@ -93,7 +95,7 @@ export default function ListingCard({ view }: ListingCardProps) {
         <button
           type="button"
           onClick={toggleFavorite}
-          disabled={loading || busyIds.includes(listing.id)}
+          disabled={loading || Boolean(error) || busyIds.includes(listing.id)}
           aria-label={t('nav.favorites')}
           aria-pressed={favorite}
           className="absolute right-3 top-3 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-700 transition-colors hover:text-primary-600"

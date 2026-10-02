@@ -7,7 +7,9 @@ import { PAGINATION } from '@/lib/config';
 import { SORT_KEYS, type SortKey } from '@/lib/ranking';
 import type { ListingFilters } from '@/lib/search';
 import { applyPageMeta } from '@/lib/seo';
-import type { City, ListingType, ListingView, Neighborhood, University } from '@/lib/types';
+import type { City, ListingView, Neighborhood, University } from '@/lib/types';
+import { FIELD_PARAM, parseFilters, parseValues, validateSearchParams } from '@/lib/searchParams';
+import { useAuth } from '@/hooks/useAuth';
 import { validateSearchFilters } from '@/lib/searchValidation';
 import SearchFilters, { type SearchFilterValues } from './components/SearchFilters';
 import SearchResults from './components/SearchResults';
@@ -15,94 +17,9 @@ import SearchResults from './components/SearchResults';
 const PAGE_PARAM = 'stranica';
 const SORT_PARAM = 'sort';
 
-const FIELD_PARAM: Record<keyof SearchFilterValues, string> = {
-  citySlug: 'grad',
-  neighborhoodSlug: 'kvartal',
-  universitySlug: 'universitet',
-  type: 'tip',
-  rooms: 'stai',
-  priceMin: 'cena-ot',
-  priceMax: 'cena-do',
-  areaMin: 'plosht-ot',
-  areaMax: 'plosht-do',
-  floorMin: 'etazh-ot',
-  floorMax: 'etazh-do',
-  furnished: 'obzavedena',
-  pets: 'domashni',
-  availableFrom: 'ot',
-  text: 't',
-};
-
-function parseNumberParam(sp: URLSearchParams, key: string): number | null {
-  const raw = sp.get(key);
-  if (raw === null || raw === '') return null;
-  const value = Number(raw);
-  return Number.isFinite(value) ? value : null;
-}
-
-function parseFilters(sp: URLSearchParams): ListingFilters {
-  const rooms: number[] = [];
-  let roomsMin: number | null = null;
-  const roomsRaw = sp.get('stai');
-  if (roomsRaw) {
-    for (const part of roomsRaw.split(',')) {
-      const token = part.trim();
-      if (!token) continue;
-      if (token === '4+') {
-        roomsMin = 4;
-        continue;
-      }
-      const value = Number(token);
-      if (Number.isFinite(value) && value > 0) rooms.push(value);
-    }
-  }
-
-  const furnishedRaw = sp.get('obzavedena');
-  const petsRaw = sp.get('domashni');
-  const typeRaw = sp.get('tip');
-
-  return {
-    citySlug: sp.get('grad') ?? undefined,
-    neighborhoodSlug: sp.get('kvartal') ?? undefined,
-    universitySlug: sp.get('universitet') ?? undefined,
-    type: (typeRaw as ListingType | null) ?? 'all',
-    priceMin: parseNumberParam(sp, 'cena-ot'),
-    priceMax: parseNumberParam(sp, 'cena-do'),
-    rooms,
-    roomsMin,
-    areaMin: parseNumberParam(sp, 'plosht-ot'),
-    areaMax: parseNumberParam(sp, 'plosht-do'),
-    floorMin: parseNumberParam(sp, 'etazh-ot'),
-    floorMax: parseNumberParam(sp, 'etazh-do'),
-    furnished: furnishedRaw === '1' ? true : furnishedRaw === '0' ? false : undefined,
-    petsAllowed: petsRaw === '1' ? true : petsRaw === '0' ? false : undefined,
-    availableFrom: sp.get('ot') ?? null,
-    text: sp.get('t') ?? undefined,
-  };
-}
-
-function parseValues(sp: URLSearchParams): SearchFilterValues {
-  return {
-    citySlug: sp.get('grad') ?? '',
-    neighborhoodSlug: sp.get('kvartal') ?? '',
-    universitySlug: sp.get('universitet') ?? '',
-    type: sp.get('tip') ?? 'all',
-    rooms: sp.get('stai') ?? '',
-    priceMin: sp.get('cena-ot') ?? '',
-    priceMax: sp.get('cena-do') ?? '',
-    areaMin: sp.get('plosht-ot') ?? '',
-    areaMax: sp.get('plosht-do') ?? '',
-    floorMin: sp.get('etazh-ot') ?? '',
-    floorMax: sp.get('etazh-do') ?? '',
-    furnished: sp.get('obzavedena') ?? '',
-    pets: sp.get('domashni') ?? '',
-    availableFrom: sp.get('ot') ?? '',
-    text: sp.get('t') ?? '',
-  };
-}
-
 export default function SearchPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const paramsKey = searchParams.toString();
 
@@ -115,12 +32,15 @@ export default function SearchPage() {
   const [resultPage, setResultPage] = useState(page);
   const [draftValues, setDraftValues] = useState(values);
   const [draftIssue, setDraftIssue] = useState('');
-  const filterIssue = validateSearchFilters(filters);
+  const [catalogReady, setCatalogReady] = useState(false);
   const [catalogError, setCatalogError] = useState(false);
   const [catalogRetry, setCatalogRetry] = useState(0);
   const [cities, setCities] = useState<City[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [universities, setUniversities] = useState<University[]>([]);
+  const catalog = { cities, neighborhoods, universities };
+  const catalogStatus = !filters.citySlug || catalogReady ? 'ready' : catalogError ? 'error' : 'loading';
+  const filterIssue = validateSearchParams(searchParams) || validateSearchFilters(filters, catalogReady ? catalog : undefined);
 
   const [listings, setListings] = useState<ListingView[]>([]);
   const [total, setTotal] = useState(0);
@@ -150,7 +70,7 @@ export default function SearchPage() {
         if (!active) return;
         setCities(cityItems);
         setNeighborhoods(hoodItems);
-        setUniversities(uniItems);
+        setUniversities(uniItems); setCatalogReady(true);
       })
       .catch(() => {
         if (active) setCatalogError(true);
@@ -161,6 +81,7 @@ export default function SearchPage() {
   }, [catalogRetry]);
 
   useEffect(() => {
+    if (catalogStatus !== 'ready') { setLoading(catalogStatus === 'loading'); setError(catalogStatus === 'error'); return; }
     if (filterIssue) { setListings([]); setTotal(0); setTotalPages(1); setResultPage(1); setLoading(false); setError(false); return; }
     let active = true;
     setLoading(true);
@@ -182,7 +103,7 @@ export default function SearchPage() {
     return () => {
       active = false;
     };
-  }, [filters, sort, page, reloadKey, filterIssue]);
+  }, [filters, sort, page, reloadKey, filterIssue, catalogStatus, user?.id]);
 
   const patchParams = useCallback(
     (mutate: (next: URLSearchParams) => void) => {
@@ -210,7 +131,7 @@ export default function SearchPage() {
       if (value && !(field === 'type' && value === 'all')) next.set(param, value); else next.delete(param);
     });
     next.delete(PAGE_PARAM);
-    const problem = validateSearchFilters(parseFilters(next));
+    const problem = validateSearchParams(next) || validateSearchFilters(parseFilters(next), catalogReady ? catalog : undefined);
     if (problem) { setDraftIssue(problem); return; }
     setSearchParams(next); setShowMobileFilters(false);
   };
@@ -319,7 +240,7 @@ export default function SearchPage() {
               error={error}
               onSortChange={handleSortChange}
               onPageChange={handlePageChange}
-              onRetry={() => setReloadKey((key) => key + 1)}
+              onRetry={() => { setReloadKey(key => key + 1); if (catalogError) setCatalogRetry(key => key + 1); }}
               onReset={handleReset}
             />
           </div>

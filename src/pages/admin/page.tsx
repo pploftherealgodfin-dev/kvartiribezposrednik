@@ -103,7 +103,7 @@ function AdminPanelContent() {
           </div>
         ) : (
           <>
-            {tab === 'users' && <AdminUsers users={users} onChanged={load} />}
+            {tab === 'users' && <AdminUsers users={users} onChanged={load} canManage={profile?.role === 'admin'} currentUserId={adminId} />}
             {tab === 'listings' && <AdminListings listings={listings} onChanged={load} />}
             {tab === 'reports' && (
               <AdminReports reports={reports} adminId={adminId} onChanged={load} />

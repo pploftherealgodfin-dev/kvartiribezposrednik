@@ -25,7 +25,7 @@ export default function ListingDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isFavorite, toggle, busyIds, loading: favoritesLoading } = useFavorites();
+  const { isFavorite, toggle, busyIds, loading: favoritesLoading, error: favoritesError } = useFavorites();
 
   const [view, setView] = useState<ListingView | null>(null);
   const [neighborhoodListings, setNeighborhoodListings] = useState<ListingView[]>([]);
@@ -39,6 +39,14 @@ export default function ListingDetailPage() {
   const [reportReceipt, setReportReceipt] = useState('');
   const [reportState, setReportState] = useState<'idle' | 'open' | 'sending' | 'done'>('idle');
   const viewedRef = useRef(false);
+  const reportLocked = useRef(false);
+  const reportGeneration = useRef(0);
+  const [reportActor, setReportActor] = useState('');
+  useEffect(() => {
+    const generation = ++reportGeneration.current;
+    setReportState('idle'); setReportDetails(''); setReportError(''); setReportReceipt(''); setReportActor(''); reportLocked.current = false;
+    return () => { reportGeneration.current = generation + 1; };
+  }, [slug, user?.id]);
 
   useEffect(() => {
     let active = true;
@@ -124,21 +132,22 @@ export default function ListingDetailPage() {
       navigate('/vhod', { state: { from: `/obiava/${slug}` } });
       return;
     }
-    setReportState('open');
+    setReportActor(user.id); setReportState('open');
   };
 
   const handleReportSubmit = async () => {
-    if (!view || !user) return;
+    if (!view || !user || reportLocked.current) return;
     if (reportDetails.trim().length < 10) { setReportError('Опиши случая с поне 10 знака.'); return; }
+    reportLocked.current = true;
+    const generation = reportGeneration.current;
     setReportError('');
     setReportState('sending');
     try {
-      setReportReceipt(await createReport(view.listing.id, user.id, reason, reportDetails));
-      setReportState('done');
-    } catch (e) {
-      setReportError((e as {message?: string}).message ?? 'Сигналът не е записан.');
-      setReportState('open');
-    }
+      const receipt = await createReport(view.listing.id, user.id, reason, reportDetails);
+      if (generation === reportGeneration.current) { setReportReceipt(receipt); setReportState('done'); }
+    } catch {
+      if (generation === reportGeneration.current) { setReportError('Сигналът не е потвърден. Провери връзката и лимита от 5 сигнала за 24 часа.'); setReportState('open'); }
+    } finally { if (generation === reportGeneration.current) reportLocked.current = false; }
   };
 
   if (loading) {
@@ -256,7 +265,7 @@ export default function ListingDetailPage() {
 
               <button
                 type="button"
-                disabled={favoritesLoading || busyIds.includes(listing.id)}
+                disabled={favoritesLoading || Boolean(favoritesError) || busyIds.includes(listing.id)}
                 onClick={handleFavorite}
                 className={`mt-5 flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-3 text-sm font-semibold transition-colors ${
                   saved
@@ -268,7 +277,7 @@ export default function ListingDetailPage() {
                 {saved ? t('detail.saved') : t('detail.favorite')}
               </button>
 
-              {reportState === 'done' ? (
+              {user && reportActor === user.id && reportState === 'done' ? (
                 <p className="mt-3 rounded-md bg-primary-50 px-3.5 py-2.5 text-xs font-medium text-primary-800">
                   {t('report.success')} Номер: {reportReceipt}
                 </p>

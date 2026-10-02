@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -29,20 +29,23 @@ export function useFormSubmit({
 }: UseFormSubmitOptions): UseFormSubmitResult {
   const [status, setStatus] = useState<FormStatus>('idle');
   const [error, setError] = useState('');
+  const request = useRef<AbortController | null>(null);
+  useEffect(() => () => { request.current?.abort(); request.current = null; }, []);
 
   const submit = useCallback(
     async (form: HTMLFormElement) => {
+      if (request.current) return;
       // 1) Четем директно от DOM (хваща и стойности от autofill).
       const data = new FormData(form);
       const honeypot = String(data.get(honeypotField) ?? '').trim();
 
-      // 2) Honeypot попълнен → не изпращаме нищо, показваме общ успех.
+      // 2) Honeypot попълнен → няма изпращане или фалшиво потвърждение.
       if (honeypot) {
-        setStatus('success');
-        form.reset();
+        setStatus('error'); setError(genericError);
         return;
       }
       data.delete(honeypotField);
+      if (!String(data.get('name') ?? '').trim() || !String(data.get('message') ?? '').trim()) { setStatus('error'); setError('Въведи име и съобщение. Полетата не могат да съдържат само интервали.'); return; }
 
       setStatus('submitting');
       setError('');
@@ -50,18 +53,23 @@ export function useFormSubmit({
       const body = new URLSearchParams();
       data.forEach((value, key) => {
         if (typeof value === 'string' && value !== '') {
-          body.append(key, value);
+          body.append(key, value.trim());
         }
       });
 
+      const controller = new AbortController();
+      request.current = controller;
+      const timeout = window.setTimeout(() => controller.abort(), 25000);
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: body.toString(),
+          signal: controller.signal,
         });
 
         const responseText = await response.text();
+        if (request.current !== controller) return;
         let parsed: {
           code?: string;
           message?: string;
@@ -87,14 +95,17 @@ export function useFormSubmit({
           );
         }
       } catch {
-        setStatus('error');
-        setError(genericError);
+        if (request.current === controller) { setStatus('error'); setError(genericError); }
+      } finally {
+        window.clearTimeout(timeout);
+        if (request.current === controller) request.current = null;
       }
     },
     [endpoint, honeypotField, genericError],
   );
 
   const reset = useCallback(() => {
+    request.current?.abort(); request.current = null;
     setStatus('idle');
     setError('');
   }, []);

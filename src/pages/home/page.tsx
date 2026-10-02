@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { repository } from '@/lib/repository';
 import type { City } from '@/lib/types';
-import { applyPageMeta, setJsonLd, removeJsonLd, absoluteUrl } from '@/lib/seo';
+import { applyPageMeta, setJsonLd, removeJsonLd } from '@/lib/seo';
+import { websiteJsonLd, organizationJsonLd } from '@/lib/siteIdentity';
 import HomeHero from '@/pages/home/components/HomeHero';
 import LatestListingsSection from '@/pages/home/components/LatestListingsSection';
 import HowItWorks from '@/pages/home/components/HowItWorks';
@@ -25,7 +26,6 @@ export default function Home() {
   }, [load]);
 
   useEffect(() => {
-    const brand = t('brand.name');
     applyPageMeta({
       title: 'Квартири под наем без посредник — директно от собственик',
       description:
@@ -33,21 +33,8 @@ export default function Home() {
       canonicalPath: '/',
     });
 
-    const origin = absoluteUrl('');
-    setJsonLd('ld-website', {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: brand,
-      url: origin || '/',
-      inLanguage: 'bg-BG',
-    });
-    setJsonLd('ld-organization', {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: brand,
-      url: origin || '/',
-      areaServed: { '@type': 'Country', name: 'България' },
-    });
+    setJsonLd('ld-website', websiteJsonLd());
+    setJsonLd('ld-organization', organizationJsonLd());
     return () => { removeJsonLd('ld-website'); removeJsonLd('ld-organization'); };
   }, [t]);
 

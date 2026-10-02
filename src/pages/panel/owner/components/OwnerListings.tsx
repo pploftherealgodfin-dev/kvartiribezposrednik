@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatEur, formatNumber, formatShortDate } from '@/lib/format';
@@ -39,9 +39,13 @@ export default function OwnerListings({
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState('');
+  const locked = useRef(false);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
 
   const handleAction = async (id: string, action: 'rented' | 'deactivate' | 'resubmit') => {
-    if (busyId) return;
+    if (busyId || locked.current) return;
+    locked.current = true;
     setBusyId(id);
     setError('');
     try {
@@ -52,11 +56,12 @@ export default function OwnerListings({
       } else {
         await deactivateListing(id);
       }
-      onChanged();
+      if (alive.current) onChanged();
     } catch {
-      setError(t('common.error'));
+      if (alive.current) setError(t('common.error'));
     } finally {
-      setBusyId('');
+      locked.current = false;
+      if (alive.current) setBusyId('');
     }
   };
 
@@ -130,6 +135,7 @@ export default function OwnerListings({
                 </div>
 
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  {!['flagged','removed'].includes(status) && <Link to={'/kachi-obiava?redaktirai='+item.id} className="ui-secondary text-xs"><i className="ri-edit-line" aria-hidden="true" />Редактирай</Link>}
                   <Link
                     to={`/obiava/${item.slug}`}
                     className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md border border-background-300 px-3 py-2 text-xs font-semibold text-foreground-800 transition-colors hover:border-primary-400 hover:text-primary-700"
@@ -146,7 +152,7 @@ export default function OwnerListings({
                     <i className="ri-image-2-line text-sm" aria-hidden="true" />
                     {t('owner.photos')} ({item.photos})
                   </button>
-                  {['draft','deactivated','expired','rejected'].includes(status) && <button disabled={Boolean(busyId)} onClick={() => handleAction(item.id, 'resubmit')} className="rounded border p-2 text-xs">Изпрати отново за преглед</button>}
+                  {['draft','deactivated','expired','rejected','rented'].includes(status) && <button disabled={Boolean(busyId)} onClick={() => handleAction(item.id, 'resubmit')} className="ui-secondary text-xs">{status==='rented'?'Отново свободна — изпрати за преглед':'Изпрати отново за преглед'}</button>}
                   {status === 'active' && (
                     <>
                       <button
@@ -177,7 +183,7 @@ export default function OwnerListings({
                     {t('owner.managePhotos')}
                   </h3>
                   <div className="mt-3">
-                    {['draft','pending_review','rejected','deactivated','expired'].includes(status) ? <Suspense fallback={<p role="status" className="min-h-24">Зареждаме управлението на снимките…</p>}><ListingPhotosManager listingId={item.id} ownerId={ownerId} onChanged={onChanged} /></Suspense> : <p className="text-sm">За промяна на снимките първо деактивирай обявата. След редакция е необходим нов преглед.</p>}
+                    {['draft','pending_review','rejected','deactivated','expired'].includes(status) ? <Suspense fallback={<p role="status" className="min-h-24">Зареждаме управлението на снимките…</p>}><ListingPhotosManager listingId={item.id} ownerId={ownerId} onChanged={onChanged} /></Suspense> : <p className="text-sm">{status==='rented'?'Когато имотът отново е свободен, редактирай същата обява или я изпрати за преглед.':status==='flagged'||status==='removed'?'Обявата е ограничена от екипа. Свържи се с нас за уточнение.':'За промяна на снимките първо деактивирай обявата. След редакция е необходим нов преглед.'}</p>}
                   </div>
                 </div>
               )}

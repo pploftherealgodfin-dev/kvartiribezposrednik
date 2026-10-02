@@ -475,7 +475,7 @@ test('off-screen latest listings do not fetch until intersection and empty resul
     await render(h(api.LatestListingsSection),auth(null));assert.equal(api.calls.length,0);
     await act(async()=>observe([{isIntersecting:false}]));assert.equal(api.calls.length,0);
     await act(async()=>observe([{isIntersecting:true}]));await flush();await flush();
-    assert.equal(api.calls.filter(c=>c.name==='listings').length,1);assert.equal(api.calls.filter(c=>c.name==='neighborhoods').length,0);assert.ok(text().includes('Няма намерени обяви'));assert.ok(disconnected>0);
+    assert.equal(api.calls.filter(c=>c.name==='listings').length,1);assert.equal(api.calls.filter(c=>c.name==='neighborhoods').length,0);assert.ok(text().includes('Още няма публични обяви'));assert.ok(document.querySelector('a[href="/kachi-obiava"]'));assert.ok(disconnected>0);
   }finally{globalThis.IntersectionObserver=original;}
 });
 
@@ -519,4 +519,89 @@ test('logout removes an authorized private listing before passive effects can cl
     const guest=snapshots.find(item=>item.actor==='guest');assert.ok(guest);assert.ok(!guest.value.includes('PRIVATE LISTING TITLE'));assert.ok(!guest.value.includes('Private owner name'));
     await act(async()=>pending.resolve(null));await flush();
   }finally{api.repository.getListingViewBySlug=original;}
+});
+
+const pilotId='acacacac-acac-4cac-8cac-acacacacacac';
+const pilotRow={id:pilotId,slug:'pilot',status:'pending_review',title:'Светло пилотно студио',description:'Светло жилище с отделна кухня и удобен градски транспорт. Огледи по уговорка.',type:'studio',price_eur:'450.50',area_m2:'38',rooms:1,city_id:'sofia',neighborhood_id:null,nearby_university_ids:[],available_from:'2026-10-10',deposit:0,floor:0,total_floors:null,furnished:true,pets_allowed:false,utilities_included:false,photos:[{id:'photo'}]};
+async function editablePilot(){api.handlers.query=()=>({data:pilotRow,error:null});return api.getCurrentOwnerListing('alice');}
+const editConfirmation=()=>[...document.querySelectorAll('form label')].find(label=>label.textContent.includes('Приемам повторния преглед'))?.querySelector('input');
+test('the current listing read scopes the account, retains zero values and excludes removed history',async()=>{
+  const listing=await editablePilot(),call=api.calls[0];
+  assert.equal(eq(call,'owner_id'),'alice');assert.ok(call.steps.some(([op,args])=>op==='neq'&&args[0]==='status'&&args[1]==='removed'));
+  assert.equal(listing.draft.price,'450.50');assert.equal(listing.draft.deposit,'0');assert.equal(listing.draft.floor,'0');assert.equal(listing.draft.totalFloors,'');assert.equal(listing.photoCount,1);
+});
+test('an existing listing and a failed quota read both keep the new publication form closed',async()=>{
+  api.handlers.query=()=>({data:pilotRow,error:null});
+  await render(h(api.UploadPage),auth('alice','owner'));await flush();
+  assert.ok(text().includes('Светло пилотно студио'));assert.equal(document.getElementById('nf-title'),null);assert.ok(document.querySelector(`a[href="/kachi-obiava?redaktirai=${pilotId}"]`));
+  api.handlers.query=()=>({data:null,error:new Error('read unavailable')});
+  await render(h(api.UploadPage),auth('bob','owner'));await flush();
+  assert.ok(text().includes('не създавай втора обява'));assert.equal(document.getElementById('nf-title'),null);
+});
+test('switching publishing accounts clears the old listing before a late read resolves',async()=>{
+  const next=deferred(),snapshots=[];
+  api.handlers.query=call=>eq(call,'owner_id')==='alice'?{data:pilotRow,error:null}:next.promise;
+  function Probe({actor}){React.useLayoutEffect(()=>{snapshots.push({actor,value:text()});},[actor]);return null;}
+  const page=actor=>h(React.Fragment,null,h(api.UploadPage),h(Probe,{actor}));
+  await render(page('alice'),auth('alice','owner'));await flush();assert.ok(text().includes(pilotRow.title));
+  await render(page('bob'),auth('bob','owner'));assert.ok(!snapshots.find(item=>item.actor==='bob').value.includes(pilotRow.title));
+  await act(async()=>next.resolve({data:null,error:new Error('offline')}));await flush();assert.ok(!text().includes(pilotRow.title));
+});
+test('editing uses a whitelisted RPC, serializes double submissions and reuses a failed request',async()=>{
+  const listing=await editablePilot(),waiting=deferred();let saved=0;
+  api.handlers.rpc=()=>waiting.promise;
+  await render(h(api.EditListingForm,{listing,...catalog,onSaved:()=>saved++,onCancel:()=>{}}),auth('alice','owner'));
+  await click(editConfirmation());
+  await act(async()=>{const form=document.querySelector('form');form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));});
+  const edits=()=>api.calls.filter(call=>call.name==='owner_edit_listing');assert.equal(edits().length,1);
+  const first=edits()[0].args;assert.equal(first.p_id,pilotId);assert.equal(first.p_input.floor,0);assert.equal(first.p_input.deposit,0);assert.equal(first.p_input.price_eur,450.5);
+  for(const key of ['status','owner_id','ownership_verified_at','verification_expires_at'])assert.equal(key in first.p_input,false);
+  await act(async()=>waiting.resolve({data:null,error:new Error('response lost')}));await flush();
+  assert.ok(text().includes('Записът не е потвърден'));assert.equal(saved,0);
+  api.handlers.rpc=()=>({data:null,error:null});await submit(document.querySelector('form'));
+  assert.equal(edits().length,2);assert.equal(edits()[1].args.p_request_id,first.p_request_id);assert.equal(saved,1);assert.equal(api.calls.filter(call=>call.kind==='insert').length,0);
+});
+test('changed edit data clears confirmation and starts a new request without a second listing',async()=>{
+  const listing=await editablePilot();api.handlers.rpc=()=>({data:null,error:new Error('response lost')});
+  await render(h(api.EditListingForm,{listing,...catalog,onSaved:()=>{},onCancel:()=>{}}),auth('alice','owner'));
+  await click(editConfirmation());await submit(document.querySelector('form'));
+  const first=api.calls.find(call=>call.name==='owner_edit_listing').args.p_request_id;
+  await fill(document.getElementById('nf-price'),'460');assert.equal(editConfirmation().checked,false);
+  await submit(document.querySelector('form'));assert.equal(api.calls.filter(call=>call.name==='owner_edit_listing').length,1);
+  await click(editConfirmation());await submit(document.querySelector('form'));
+  const edits=api.calls.filter(call=>call.name==='owner_edit_listing');assert.notEqual(edits[1].args.p_request_id,first);assert.equal(edits[1].args.p_input.price_eur,460);
+});
+test('the database quota error sends concurrent publication attempts to the existing listing',async()=>{
+  api.handlers.query=call=>({data:null,error:call.kind==='insert'?{code:'23505',message:'duplicate key violates unique constraint listings_one_current_per_owner'}:null});
+  const input={title:pilotRow.title,description:pilotRow.description,type:'studio',cityId:'sofia',neighborhoodId:null,nearbyUniversityIds:[],priceEur:450.5,areaM2:38,rooms:1,availableFrom:'2026-10-10',floor:0,totalFloors:null,deposit:0,furnished:true,petsAllowed:false,utilitiesIncluded:false};
+  await assert.rejects(api.createOwnerListing('alice',input,crypto.randomUUID()),/една обява.*Редактирай/);
+});
+test('owner status actions cannot dispatch twice before React renders the busy state',async()=>{
+  const waiting=deferred();api.handlers.rpc=()=>waiting.promise;let changed=0;
+  await render(h(api.OwnerListings,{ownerId:'alice',loading:false,onChanged:()=>changed++,listings:[{id:pilotId,slug:'pilot',title:'Пилотно студио',status:'active',priceEur:450,createdAt:'2026-10-02',views:0,uniqueViews:0,favorites:0,photos:1}]}),auth('alice','owner'));
+  const rented=button('Отбележи като наета')??button('Нает');assert.ok(rented);
+  await act(async()=>{rented.dispatchEvent(new MouseEvent('click',{bubbles:true}));rented.dispatchEvent(new MouseEvent('click',{bubbles:true}));});
+  assert.equal(api.calls.filter(call=>call.name==='owner_set_listing_status').length,1);
+  await act(async()=>waiting.resolve({data:null,error:null}));assert.equal(changed,1);
+});
+test('moderation shows photo readiness and a separate truthful property-verification status',async()=>{
+  api.handlers.query=call=>({data:call.name==='listings'?[{...pilotRow,owner_id:'alice',created_at:'2026-10-02',ownership_verified_at:null,verification_expires_at:null}]:[{id:'alice',name:'Собственик'}],error:null});
+  const rows=await api.getAdminListings();assert.equal(rows[0].photoCount,1);assert.equal(rows[0].propertyVerified,false);
+  await render(h(api.AdminListings,{listings:rows,onChanged:()=>{}}),auth('moderator','moderator'));
+  assert.ok(text().includes('без документна проверка'));assert.ok(text().includes('Правото за отдаване не е проверено'));assert.ok(!text().includes('pending_review'));
+  await render(h(api.AdminListings,{listings:[{...rows[0],photoCount:0}],onChanged:()=>{}}),auth('moderator','moderator'));
+  assert.ok(text().includes('поне една реална снимка'));
+});
+test('official social links match Organization sameAs and metadata retains the Readdy image after navigation',async()=>{
+  await render(h(api.SiteFooter),auth(null));
+  const schema=api.organizationJsonLd();assert.deepEqual(schema.sameAs,api.SOCIAL_PROFILES.map(profile=>profile.url));
+  for(const profile of api.SOCIAL_PROFILES){const link=[...document.querySelectorAll('a')].find(item=>item.href===profile.url);assert.ok(link);assert.equal(link.target,'_blank');assert.ok(link.rel.includes('noopener'));}
+  const oldPath=window.location.pathname;
+  try{
+    window.history.replaceState(null,'','/obiava/pilot');api.applyPageMeta({title:'Реална обява',ogImage:'https://images.invalid/actual.jpg'});
+    assert.equal(document.querySelector('meta[property="og:image"]').content,'https://images.invalid/actual.jpg');
+    window.history.replaceState(null,'','/');api.applyPageMeta({title:'Начало'});
+    assert.equal(document.querySelector('meta[property="og:image"]').content,api.SITE_SOCIAL_IMAGE);assert.equal(document.querySelector('meta[name="twitter:image"]').content,api.SITE_SOCIAL_IMAGE);
+    assert.equal(document.querySelector('meta[property="og:locale"]').content,'bg_BG');
+  }finally{window.history.replaceState(null,'',oldPath);}
 });

@@ -77,21 +77,21 @@ do $$ begin
 end $$;
 
 select set_config('request.jwt.claims','{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated","aal":"aal1"}',true);
-do $$ declare bad_hood uuid; bad_uni uuid; cid uuid; begin
+do $$ declare bad_hood uuid; bad_uni uuid; cid uuid; payload jsonb; begin
  if (select count(*) from public.messages)<>1 then raise exception 'Owner cannot read message'; end if;
  select id into cid from public.conversations where listing_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
  perform public.send_message(cid,'Отговор от собственика','dddddddd-dddd-4ddd-8ddd-dddddddddddd');
  begin perform public.start_conversation('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'); raise exception 'Owner started conversation with self'; exception when check_violation then null; end;
+ select jsonb_build_object('title',l.title,'description',l.description,'type',l.type,'price_eur',l.price_eur,'area_m2',l.area_m2,'rooms',l.rooms,
+ 'city_id',l.city_id,'neighborhood_id',l.neighborhood_id,'nearby_university_ids',l.nearby_university_ids,'available_from',l.available_from,
+ 'furnished',l.furnished,'pets_allowed',l.pets_allowed,'utilities_included',l.utilities_included) into payload from public.listings l where id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
  select n.id into bad_hood from public.neighborhoods n join public.cities c on c.id=n.city_id where c.slug='varna' limit 1;
- begin insert into public.listings(slug,owner_id,type,title,description,price_eur,area_m2,rooms,available_from,city_id,neighborhood_id)
- select 'bad-city-hood-fixture',auth.uid(),'room','Невалиден квартал','Достатъчно дълъг текст само за тест на комбинирания външен ключ.',200,20,1,current_date,id,bad_hood from public.cities where slug='sofia';
+ begin perform public.owner_edit_listing('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',payload||jsonb_build_object('neighborhood_id',bad_hood),'a1212121-1212-4212-8212-121212121212');
  raise exception 'Mismatched neighborhood accepted'; exception when foreign_key_violation then null; end;
  select u.id into bad_uni from public.universities u join public.cities c on c.id=u.city_id where c.slug='varna' limit 1;
- begin insert into public.listings(slug,owner_id,type,title,description,price_eur,area_m2,rooms,available_from,city_id,nearby_university_ids)
- select 'bad-city-uni-fixture',auth.uid(),'room','Невалиден университет','Достатъчно дълъг текст само за тест на университета в друг град.',200,20,1,current_date,id,array[bad_uni] from public.cities where slug='sofia';
+ begin perform public.owner_edit_listing('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',payload||jsonb_build_object('nearby_university_ids',array[bad_uni]),'a1313131-1313-4313-8313-131313131313');
  raise exception 'Mismatched university accepted'; exception when check_violation then null; end;
- begin insert into public.listings(slug,owner_id,type,title,description,price_eur,area_m2,rooms,available_from,city_id)
- select 'public-phone-fixture',auth.uid(),'room','Телефон в публичен текст','Публичното описание не трябва да съдържа телефон +359 888 123 456.',200,20,1,current_date,id from public.cities where slug='sofia';
+ begin perform public.owner_edit_listing('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',payload||jsonb_build_object('description','Публичното описание не трябва да съдържа телефон +359 888 123 456.'),'a1414141-1414-4414-8414-141414141414');
  raise exception 'Public phone accepted'; exception when check_violation then null; end;
  begin perform public.moderate_listing('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','active','Опит за самостоятелно одобрение'); raise exception 'Owner self-approval allowed'; exception when insufficient_privilege then null; end;
 end $$;

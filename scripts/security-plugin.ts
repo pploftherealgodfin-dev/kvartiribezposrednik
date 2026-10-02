@@ -20,7 +20,8 @@ export function clientSecurityPlugin(): Plugin {
         `connect-src 'self' ${origin} ${origin.replace('https:', 'wss:')} https://readdy.ai`,
         "frame-src https://www.openstreetmap.org", "form-action 'self'", "worker-src 'self'",
       ].join('; ');
-      return html.replace(/<meta charset="UTF-8"\s*\/?>/i, match => match + '\n    <meta http-equiv="Content-Security-Policy" content="' + policy + '" />');
+      const clean = html.replace(/<meta\s+http-equiv="Content-Security-Policy"[^>]*>/gi, '');
+      return clean.replace(/<meta charset="UTF-8"\s*\/?>/i, match => match + '\n    <meta http-equiv="Content-Security-Policy" content="' + policy + '" />');
     } },
   };
 }

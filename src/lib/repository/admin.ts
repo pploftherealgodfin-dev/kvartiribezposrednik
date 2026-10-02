@@ -71,6 +71,8 @@ export interface AdminListingRow {
   ownerId: string;
   ownerName: string;
   createdAt: string;
+  photoCount: number;
+  propertyVerified: boolean;
 }
 
 interface ListingRaw {
@@ -81,6 +83,9 @@ interface ListingRaw {
   price_eur: number | string;
   owner_id: string;
   created_at: string;
+  ownership_verified_at: string | null;
+  verification_expires_at: string | null;
+  photos: { id: string }[] | null;
 }
 
 /** Всички обяви в системата — само за админ. */
@@ -88,7 +93,7 @@ export async function getAdminListings(): Promise<AdminListingRow[]> {
   const [listingsResult, profilesResult] = await Promise.all([
     supabase
       .from('listings')
-      .select('id, slug, title, status, price_eur, owner_id, created_at')
+      .select('id, slug, title, status, price_eur, owner_id, created_at, ownership_verified_at, verification_expires_at, photos:listing_photos(id)')
       .order('created_at', { ascending: false }),
     supabase.from('profiles').select('id, name'),
   ]);
@@ -109,6 +114,8 @@ export async function getAdminListings(): Promise<AdminListingRow[]> {
     ownerId: row.owner_id,
     ownerName: names.get(row.owner_id) ?? 'Неизвестен',
     createdAt: row.created_at,
+    photoCount: row.photos?.length ?? 0,
+    propertyVerified: Boolean(row.ownership_verified_at && row.verification_expires_at && Date.parse(row.verification_expires_at) > Date.now()),
   }));
 }
 

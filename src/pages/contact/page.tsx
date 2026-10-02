@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { useFormSubmit } from '@/hooks/useFormSubmit';
 import { applyPageMeta } from '@/lib/seo';
+import { SOCIAL_PROFILES } from '@/lib/siteIdentity';
 
 const ENDPOINT = 'https://readdy.ai/api/form/daujbb32asjjtt1skm70';
 
 const labelCls = 'block text-sm font-semibold text-foreground-900';
 const fieldCls =
-  'mt-1.5 w-full rounded-md border border-background-300 bg-background-50 px-3.5 py-2.5 text-sm text-foreground-900 transition-colors placeholder:text-foreground-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-400/40';
+  'ui-field mt-1.5';
 
 export default function Contact() {
   const { t } = useTranslation();
@@ -47,6 +48,7 @@ export default function Contact() {
         <p className="mt-3 text-sm leading-relaxed text-foreground-600 md:text-[15px]">
           {t('contact.intro')}
         </p>
+        <nav aria-label="Официални социални профили" className="mt-5 flex flex-wrap gap-3">{SOCIAL_PROFILES.map(profile=><a key={profile.name} className="ui-secondary" href={profile.url} target="_blank" rel="noopener noreferrer"><i className={profile.icon} aria-hidden="true" />{profile.name}<span className="sr-only"> (нов раздел)</span></a>)}</nav>
 
         <p className="mt-6 rounded-lg border border-background-200 bg-background-100 p-4 text-sm text-foreground-700">За запитване използвай формата по-долу. Не изпращай пароли, банкови кодове или снимки на документи.</p>
 
@@ -62,7 +64,7 @@ export default function Contact() {
             id="contact-form"
             data-readdy-form
             onSubmit={handleSubmit}
-            className="mt-8 space-y-5 rounded-lg border border-background-200 bg-background-100 p-5 md:p-6"
+            className="ui-panel mt-8 space-y-5"
           >
             <fieldset disabled={submitting} className="space-y-5"><div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
@@ -122,7 +124,7 @@ export default function Contact() {
                 rows={5}
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
-                className={`${fieldCls} resize-y`}
+                className={`${fieldCls} h-auto min-h-32 resize-y py-3`}
                 required
               />
               <div className="mt-1.5 flex items-center justify-between gap-3">

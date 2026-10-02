@@ -3,8 +3,9 @@ import { nationalCities } from './locationCatalog';
 import { citySeoSummary } from './citySeoSummary';
 import { editorialSeoIndex } from './editorialSeoIndex';
 import { cityPhotos } from '@/pages/cities/data/photos';
-export const SITE_ORIGIN = 'https://kvartiribezposrednik.com';
-const brand = 'Квартири без посредник';
+import { SITE_NAME, SITE_URL } from './siteIdentity';
+export const SITE_ORIGIN = SITE_URL;
+const brand = SITE_NAME;
 const pages: Record<string, [string, string]> = {
   '/': ['Квартири под наем без посредник — директно от собственик', 'Намери жилище директно от наемодател. Разгледай обяви по град, сравни условията и провери статуса на конкретната обява.'],
   '/kvartiri-bez-posrednik': ['Квартири без посредник по градове', 'Избери град в България и разгледай наличните обяви за директен наем, местна информация и практични съвети.'],

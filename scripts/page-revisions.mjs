@@ -14,8 +14,10 @@ export function createRevision(content, previous, actualDate) {
 export async function sourceModificationDate(paths) {
   let date;
   try {
-    const result = await run('git', ['log', '-1', '--format=%cs', '--', ...paths]);
-    if (validDate(result.stdout.trim())) date = result.stdout.trim();
+    const result = await run('git', ['log', '-1', '--format=%cI', '--', ...paths]);
+    const timestamp = Date.parse(result.stdout.trim());
+    // A committer's local calendar day may be tomorrow in UTC near midnight.
+    if (Number.isFinite(timestamp)) date = new Date(timestamp).toISOString().slice(0, 10);
     const status = await run('git', ['status', '--porcelain', '--untracked-files=all', '--', ...paths]);
     for (const line of status.stdout.split('\n').filter(Boolean)) {
       const name = line.slice(3);

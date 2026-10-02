@@ -2,6 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateListingDraft, toListingInput } from '../src/lib/listingDraft.ts';
 import { referenceCache } from '../src/lib/referenceCache.ts';
+import { sourceModificationDate } from '../scripts/page-revisions.mjs';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const cities = [{id:'sofia'}, {id:'varna'}];
 const neighborhoods = [{id:'s-hood',cityId:'sofia'}, {id:'v-hood',cityId:'varna'}];
@@ -70,4 +75,15 @@ test('a failed catalog request can be retried instead of caching an error', asyn
   const load=async()=>{calls++; if(calls===1) throw new Error('offline'); return ['varna'];};
   await assert.rejects(referenceCache('test:retry',load),/offline/);
   assert.deepEqual(await referenceCache('test:retry',load),['varna']); assert.equal(calls,2);
+});
+test('lastmod uses the actual UTC day when a Git commit crosses local midnight',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'kvartiri-lastmod-')),previous=process.cwd();
+  try{
+    execFileSync('git',['init','-q',directory]);
+    await writeFile(join(directory,'content.txt'),'Transactional date fixture');
+    execFileSync('git',['-C',directory,'add','content.txt']);
+    execFileSync('git',['-C',directory,'-c','user.name=Date fixture','-c','user.email=date@example.invalid','commit','-qm','Fixture near local midnight'],{env:{...process.env,GIT_AUTHOR_DATE:'2026-10-03T00:10:00+02:00',GIT_COMMITTER_DATE:'2026-10-03T00:10:00+02:00'}});
+    process.chdir(directory);
+    assert.equal(await sourceModificationDate(['content.txt']),'2026-10-02');
+  }finally{process.chdir(previous);await rm(directory,{recursive:true,force:true});}
 });

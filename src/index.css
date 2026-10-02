@@ -190,11 +190,11 @@ button, input, select, summary { min-height: 44px; }
 dialog::backdrop { background: rgb(0 0 0 / 0.5); }
 
 @layer components {
-  .ui-field { @apply block h-12 w-full min-w-0 rounded-lg border border-background-300 bg-background-50 px-3 text-sm text-foreground-900 outline-none transition-colors placeholder:text-foreground-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 disabled:bg-background-100 disabled:text-foreground-500; }
+  .ui-field { @apply block h-12 w-full min-w-0 rounded-xl border border-background-300 bg-background-50 px-3 text-sm text-foreground-900 outline-none transition-colors placeholder:text-foreground-500 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 disabled:bg-background-100 disabled:text-foreground-500; }
   .ui-label { @apply mb-2 block text-sm font-medium text-foreground-800; }
-  .ui-button { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-primary-600 px-5 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50; }
-  .ui-secondary { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-background-300 bg-background-50 px-4 py-3 text-sm font-medium text-foreground-800 hover:border-primary-400 hover:bg-primary-50 disabled:opacity-50; }
-  .ui-panel { @apply rounded-xl border border-background-200 bg-background-50 p-5 md:p-7; }
+  .ui-button { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50; }
+  .ui-secondary { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-background-300 bg-background-50 px-4 py-3 text-sm font-medium text-foreground-800 hover:border-primary-400 hover:bg-primary-50 disabled:opacity-50; }
+  .ui-panel { @apply rounded-2xl border border-background-200 bg-background-50 p-5 md:p-7; }
   .ui-note { @apply text-xs leading-relaxed text-foreground-600; }
 }
 input[type="checkbox"], input[type="radio"] { min-height: 0; width: 1rem; height: 1rem; flex-shrink: 0; accent-color: oklch(var(--primary-600)); }

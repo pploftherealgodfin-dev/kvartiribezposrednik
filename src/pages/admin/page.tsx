@@ -1,5 +1,5 @@
 import StaffMfaGate from '@/components/feature/StaffMfaGate';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,8 +33,11 @@ function AdminPanelContent() {
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const alive = useRef(true); const generation = useRef(0);
+  useEffect(() => { alive.current=true;return () => {alive.current=false;}; }, []);
 
   const load = useCallback(async () => {
+    const request = ++generation.current;
     setLoading(true);
     setError(false);
     try {
@@ -43,13 +46,14 @@ function AdminPanelContent() {
         getAdminListings(),
         getAllReports(),
       ]);
+      if (!alive.current || request !== generation.current) return;
       setUsers(userRows);
       setListings(listingRows);
       setReports(reportRows);
     } catch {
-      setError(true);
+      if (alive.current && request===generation.current) setError(true);
     } finally {
-      setLoading(false);
+      if (alive.current && request===generation.current) setLoading(false);
     }
   }, []);
 
@@ -64,6 +68,7 @@ function AdminPanelContent() {
           {t('admin.title')}
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-foreground-600">{t('admin.subtitle')}</p>
+        <button type="button" disabled={loading} onClick={() => void load()} className="ui-secondary mt-4"><i className="ri-refresh-line" aria-hidden="true" />Обнови данните</button>
 
         <div className="mt-6 inline-flex flex-wrap items-center gap-1 rounded-full border border-background-200 bg-background-100 px-1 py-1">
           {TABS.map((item) => (
@@ -71,6 +76,7 @@ function AdminPanelContent() {
               key={item.key}
               type="button"
               onClick={() => setTab(item.key)}
+              aria-pressed={tab===item.key}
               className={`inline-flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                 tab === item.key
                   ? 'bg-primary-600 text-background-50'
@@ -114,5 +120,5 @@ function AdminPanelContent() {
     </SiteLayout>
   );
 }
-export default function AdminPanelPage() { return <StaffMfaGate><AdminPanelContent /></StaffMfaGate>; }
+export default function AdminPanelPage() { const {user}=useAuth();return <StaffMfaGate><AdminPanelContent key={user?.id??'guest'} /></StaffMfaGate>; }
 import '@/i18n/legal';

@@ -1,5 +1,6 @@
 import type { ListingView } from './types';
 import { getPageMeta, isPrivateOrUtilityPath, publicPaths, SITE_ORIGIN } from './pageCatalog';
+import { SITE_NAME, SITE_SOCIAL_IMAGE, SITE_URL } from './siteIdentity';
 
 export interface PageMeta {
   title: string;
@@ -15,8 +16,8 @@ export interface PageMeta {
   markdownPath?: string;
 }
 
-/** Няма демонстрационна снимка по подразбиране. */
-export const DEFAULT_OG_IMAGE = undefined;
+/** Existing Readdy brand card, never a sample property photo. */
+export const DEFAULT_OG_IMAGE = SITE_SOCIAL_IMAGE;
 
 export const SITE_LOCALE = 'bg_BG';
 
@@ -61,16 +62,16 @@ export function applyPageMeta(meta: PageMeta): void {
 
   // OpenGraph
   upsertMeta('property', 'og:title', meta.title);
-  upsertMeta('property', 'og:site_name', 'Квартири под наем без посредник');
+  upsertMeta('property', 'og:site_name', SITE_NAME);
   upsertMeta('property', 'og:locale', SITE_LOCALE);
   upsertMeta('property', 'og:type', meta.ogType ?? 'website');
-  if (image) upsertMeta('property', 'og:image', image);
+  if (image) { upsertMeta('property', 'og:image', image); upsertMeta('property', 'og:image:alt', meta.title); }
   else document.head.querySelector('meta[property="og:image"]')?.remove();
 
   // Twitter
   upsertMeta('name', 'twitter:card', image ? 'summary_large_image' : 'summary');
   upsertMeta('name', 'twitter:title', meta.title);
-  if (image) upsertMeta('name', 'twitter:image', image);
+  if (image) { upsertMeta('name', 'twitter:image', image); upsertMeta('name', 'twitter:image:alt', meta.title); }
   else document.head.querySelector('meta[name="twitter:image"]')?.remove();
 
   if (meta.description !== undefined) {
@@ -185,10 +186,13 @@ export function articleJsonLd(article: {
     inLanguage: 'bg-BG',
     keywords: article.keywords.join(', '),
     mainEntityOfPage: { '@type': 'WebPage', '@id': absoluteUrl(article.path) },
-    author: { '@type': 'Organization', name: 'Квартири под наем без посредник' },
+    author: { '@type': 'Organization', '@id': `${SITE_URL}/#organization`, name: SITE_NAME, url: `${SITE_URL}/` },
     publisher: {
       '@type': 'Organization',
-      name: 'Квартири под наем без посредник',
+      '@id': `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+      url: `${SITE_URL}/`,
+      logo: { '@type': 'ImageObject', url: SITE_SOCIAL_IMAGE },
     },
   };
 }

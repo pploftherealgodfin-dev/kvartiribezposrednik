@@ -14,7 +14,7 @@ interface SiteLayoutProps {
 
 export default function SiteLayout({ children }: SiteLayoutProps) {
   const { t } = useTranslation();
-  const { error: favoriteError } = useFavorites();
+  const { error: favoriteError, reload: reloadFavorites, busyIds } = useFavorites();
   const { pathname, hash } = useLocation();
   useEffect(() => {
     if (!hash) return;
@@ -42,7 +42,7 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
       </a>
       <SiteHeader />
       <AccountNav />
-      {favoriteError && <div role="alert" className="border-b border-accent-200 bg-accent-50 px-4 py-3 text-center text-sm text-foreground-900">{favoriteError}</div>}
+      {favoriteError && <div role="alert" className="border-b border-accent-200 bg-accent-50 px-4 py-3 text-center text-sm text-foreground-900">{favoriteError}<button type="button" disabled={busyIds.length > 0} onClick={reloadFavorites} className="ml-3 min-h-11 text-primary-700 underline disabled:opacity-50">Обнови любимите</button></div>}
       <main id="main-content" tabIndex={-1} className="flex-1">
         {children}
       </main>

@@ -29,37 +29,44 @@ async function ensureProfile(user: User): Promise<void> {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const sessionRef = useRef(session); sessionRef.current = session;
-  const identity = useRef<string | null>(null);
-  const profileKey = [session?.user.id, session?.user.email, session?.user.phone, session?.user.email_confirmed_at, session?.user.phone_confirmed_at].join('|');
-  const [profile, setProfile] = useState<AuthProfile | null>(null);
+  const authSyncKey = [session?.user.id, session?.user.email, session?.user.phone, session?.user.email_confirmed_at, session?.user.phone_confirmed_at].join('|');
+  const profileKey = session?.user.id ?? '';
+  const [profileState, setProfileState] = useState<{ key: string; profile: AuthProfile | null; error: boolean }>({ key: '', profile: null, error: false });
   const [loading, setLoading] = useState(true);
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [profileError, setProfileError] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
-  const retryProfile = useCallback(() => setRetryKey(value => value + 1), []);
+  const retryProfile = useCallback(() => { setProfileState(old => old.profile ? old : { key: '', profile: null, error: false }); setRetryKey(value => value + 1); }, []);
+  // Never expose a profile loaded for a previous session, even before effects run.
+  const profile = profileState.key === profileKey ? profileState.profile : null;
+  const profileError = Boolean(session && profileState.key === profileKey && profileState.error);
+  const profileLoading = Boolean(session && profileState.key !== profileKey);
 
   useEffect(() => {
     let active = true;
+    let observedAuthEvent = false;
+    let identity: string | null = null;
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!active) return;
+      observedAuthEvent = true;
+      const nextIdentity = nextSession?.user.id ?? null;
+      if (identity !== nextIdentity) setProfileState({ key: '', profile: null, error: false });
+      identity = nextIdentity;
+      // Keep this callback synchronous: awaiting Supabase here can deadlock Auth.
+      setSession(nextSession);
+      setLoading(false);
+    });
 
     supabase.auth
       .getSession()
       .then(({ data }) => {
-        if (!active) return;
-        identity.current = data.session?.user.id ?? null;
+        if (!active || observedAuthEvent) return;
+        identity = data.session?.user.id ?? null;
         setSession(data.session);
         setLoading(false);
       })
       .catch(() => {
         if (active) setLoading(false);
       });
-
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (identity.current !== (nextSession?.user.id ?? null)) {
-        setProfile(null); setProfileLoading(Boolean(nextSession)); setProfileError(false);
-      }
-      identity.current = nextSession?.user.id ?? null;
-      setSession(nextSession);
-    });
 
     return () => {
       active = false;
@@ -70,47 +77,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const currentUser = sessionRef.current?.user;
     if (!currentUser) {
-      setProfile(null);
-      setProfileLoading(false);
-      setProfileError(false);
+      setProfileState({ key: profileKey, profile: null, error: false });
       return;
     }
 
     let active = true;
-    setProfileLoading(true);
-    setProfileError(false);
     (async () => {
       try {
         await ensureProfile(currentUser);
         clearPendingRole();
-        const { data } = await supabase
+        const { data, error } = await supabase
           .from('profiles')
           .select('id, role, name, owner_verified')
           .eq('id', currentUser.id)
           .maybeSingle();
         if (!active) return;
+        if (error) throw error;
         if (data) {
-          setProfile({
+          setProfileState({ key: profileKey, error: false, profile: {
             id: data.id as string,
             role: data.role as Role,
             name: (data.name as string) ?? '',
             ownerVerified: Boolean(data.owner_verified),
-          });
+          } });
         } else {
-          setProfile(null);
-          setProfileError(true);
+          setProfileState({ key: profileKey, profile: null, error: true });
         }
       } catch {
-        if (active) { setProfile(null); setProfileError(true); }
-      } finally {
-        if (active) setProfileLoading(false);
+        if (active) setProfileState({ key: profileKey, profile: null, error: true });
       }
     })();
 
     return () => {
       active = false;
     };
-  }, [profileKey, retryKey]);
+  }, [profileKey, authSyncKey, retryKey]);
 
   const signInWithGoogle = useCallback(async (): Promise<AuthResult> => {
     try {
@@ -137,7 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
-    setSession(null); setProfile(null);
+    setSession(null); setProfileState({ key: '', profile: null, error: false });
   }, []);
 
   const value = useMemo<AuthContextValue>(

@@ -2,7 +2,8 @@ import { supabase } from '@/lib/supabase';
 
 export interface ReportRow {
   id: string;
-  listingId: string;
+  listingId: string | null;
+  listingUrl: string | null;
   listingTitle: string;
   listingSlug: string | null;
   reporterId: string | null;
@@ -15,7 +16,8 @@ export interface ReportRow {
 
 interface ReportRaw {
   id: string;
-  listing_id: string;
+  listing_id: string | null;
+  listing_url: string | null;
   reporter_id: string | null;
   reason: string;
   details: string;
@@ -31,10 +33,11 @@ interface ListingMeta {
 }
 
 async function attachListingMeta(rows: ReportRaw[]): Promise<ReportRow[]> {
-  const ids = Array.from(new Set(rows.map((row) => row.listing_id)));
+  const ids = Array.from(new Set(rows.map(row => row.listing_id).filter((id): id is string => Boolean(id))));
   const metaMap = new Map<string, ListingMeta>();
   if (ids.length > 0) {
-    const { data } = await supabase.from('listings').select('id, title, slug').in('id', ids);
+    const { data, error } = await supabase.from('listings').select('id, title, slug').in('id', ids);
+    if (error) throw error;
     for (const item of (data ?? []) as ListingMeta[]) {
       metaMap.set(item.id, item);
     }
@@ -44,7 +47,8 @@ async function attachListingMeta(rows: ReportRaw[]): Promise<ReportRow[]> {
     return {
       id: row.id,
       listingId: row.listing_id,
-      listingTitle: meta?.title ?? 'Изтрита обява',
+      listingTitle: meta?.title ?? (row.listing_id ? 'Обявата вече не е публична' : 'Сигнал за страница или поведение'),
+      listingUrl: row.listing_url,
       listingSlug: meta?.slug ?? null,
       reporterId: row.reporter_id,
       reason: row.reason,
@@ -60,7 +64,7 @@ async function attachListingMeta(rows: ReportRaw[]): Promise<ReportRow[]> {
 export async function getMyReports(userId: string): Promise<ReportRow[]> {
   const { data, error } = await supabase
     .from('reports')
-    .select('id, listing_id, reporter_id, reason, details, resolution_note, status, created_at')
+    .select('id, listing_id, listing_url, reporter_id, reason, details, resolution_note, status, created_at')
     .eq('reporter_id', userId)
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -71,18 +75,26 @@ export async function getMyReports(userId: string): Promise<ReportRow[]> {
 export async function getAllReports(): Promise<ReportRow[]> {
   const { data, error } = await supabase
     .from('reports')
-    .select('id, listing_id, reporter_id, reason, details, resolution_note, status, created_at')
+    .select('id, listing_id, listing_url, reporter_id, reason, details, resolution_note, status, created_at')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return attachListingMeta((data ?? []) as ReportRaw[]);
 }
 
 export async function submitReport(listingId: string | null, reason: string, details: string, listingUrl: string | null = null): Promise<string> {
+  details = details.trim();
+  if (details.length < 10 || details.length > 2000 || !['fake','broker','wrong_info','rented','other'].includes(reason)) throw new Error('Провери причината и описанието на сигнала.');
+  if (listingUrl) {
+    const url = new URL(listingUrl);
+    if (listingUrl.length > 1000 || url.origin !== 'https://kvartiribezposrednik.com' || url.username || url.password) throw new Error('Посочи адрес на страница от платформата.');
+    listingUrl = url.href;
+  }
   const { data, error } = await supabase.rpc('submit_report', {
     p_listing_id: listingId, p_reason: reason, p_details: details, p_listing_url: listingUrl,
   });
   if (error) throw error;
-  return data as string;
+  if (typeof data !== 'string' || !data) throw new Error('Записът на сигнала не е потвърден.');
+  return data;
 }
 export async function createReport(listingId: string, _reporterId: string, reason: string, details: string): Promise<string> {
   return submitReport(listingId, reason, details);

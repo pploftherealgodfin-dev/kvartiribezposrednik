@@ -54,8 +54,8 @@ export function filterListings(
     if (filters.areaMin != null && listing.areaM2 < filters.areaMin) return false;
     if (filters.areaMax != null && listing.areaM2 > filters.areaMax) return false;
 
-    if (filters.floorMin != null && (listing.floor ?? 0) < filters.floorMin) return false;
-    if (filters.floorMax != null && (listing.floor ?? 0) > filters.floorMax) return false;
+    if (filters.floorMin != null && (listing.floor == null || listing.floor < filters.floorMin)) return false;
+    if (filters.floorMax != null && (listing.floor == null || listing.floor > filters.floorMax)) return false;
 
     if (filters.furnished != null && listing.furnished !== filters.furnished) return false;
     if (filters.petsAllowed != null && listing.petsAllowed !== filters.petsAllowed) return false;

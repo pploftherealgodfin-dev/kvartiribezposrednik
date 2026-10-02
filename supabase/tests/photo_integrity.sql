@@ -35,7 +35,10 @@ do $$ begin
  begin perform public.reorder_listing_photos('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',array['77777777-7777-4777-8777-777777777777','88888888-8888-4888-8888-888888888888']::uuid[]); raise exception 'Cross-account reorder accepted'; exception when insufficient_privilege then null; end;
 end $$;
 select set_config('request.jwt.claims','{"sub":"55555555-5555-4555-8555-555555555555","role":"authenticated","aal":"aal1"}',true);
-delete from public.listing_photos where id='77777777-7777-4777-8777-777777777777';
+do $$ declare deleted_id uuid; begin
+ delete from public.listing_photos where id='77777777-7777-4777-8777-777777777777' returning id into deleted_id;
+ if deleted_id is distinct from '77777777-7777-4777-8777-777777777777'::uuid then raise exception 'Photo DELETE RETURNING did not confirm the row'; end if;
+end $$;
 -- Simulates database metadata cleanup performed internally by Storage API.
 select set_config('storage.allow_delete_query','true',true);
 delete from storage.objects where bucket_id='listing-photos' and name='55555555-5555-4555-8555-555555555555/eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee/77777777-7777-4777-8777-777777777777.jpg';

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import PageLoading from '@/components/feature/PageLoading';
 import { useAuth } from '@/hooks/useAuth';
 
 interface RequireAuthProps {
@@ -12,19 +12,11 @@ interface RequireAuthProps {
  * Ако няма сесия — праща към /vhod и помни откъде е дошъл потребителят.
  */
 export default function RequireAuth({ children }: RequireAuthProps) {
-  const { t } = useTranslation();
   const { session, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <span className="flex items-center gap-3 text-sm text-foreground-600">
-          <i className="ri-loader-4-line animate-spin text-xl text-primary-600" />
-          {t('common.loading')}
-        </span>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (!session) {

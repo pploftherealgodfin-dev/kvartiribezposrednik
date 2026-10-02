@@ -34,22 +34,26 @@ export default function TenantPanelPage() {
   const [favorites, setFavorites] = useState<ListingView[]>([]);
   const [reports, setReports] = useState<ReportRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favoritesLoading, setFavoritesLoading] = useState(true);
+  const [favoritesError, setFavoritesError] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     if (favoriteIds.length === 0) {
       setFavorites([]);
+      setFavoritesLoading(false);
       return;
     }
     let active = true;
+    setFavoritesLoading(true); setFavoritesError(false);
     repository
-      .getListingViewsByIds(favoriteIds)
+      .getListingViewsByIds(favoriteIds.slice(0, 6))
       .then((views) => {
         if (active) setFavorites(views);
       })
       .catch(() => {
-        if (active) setFavorites([]);
-      });
+        if (active) setFavoritesError(true);
+      }).finally(() => { if (active) setFavoritesLoading(false); });
     return () => {
       active = false;
     };
@@ -84,21 +88,22 @@ export default function TenantPanelPage() {
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-foreground-600">{t('tenant.subtitle')}</p>
 
+        <nav aria-label="Бързи действия" className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">{[['/tarsene','Търси жилище','ri-search-line'],['/saobshteniya','Съобщения','ri-chat-3-line'],['/lyubimi','Любими','ri-heart-line'],['/kachi-obiava','Публикувай имот','ri-add-circle-line']].map(([to,label,icon]) => <Link key={to} to={to} className="ui-panel flex flex-col gap-3 hover:border-primary-400"><i className={icon+' text-xl text-primary-700'} aria-hidden="true" /><span className="text-sm font-medium">{label}</span></Link>)}</nav>
         <section className="mt-8">
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-heading text-lg font-extrabold text-foreground-950">
               {t('tenant.favoritesTitle')}
             </h2>
             <Link
-              to="/tarsene"
+              to="/lyubimi"
               className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border border-background-300 px-3.5 py-2 text-xs font-semibold text-foreground-800 transition-colors hover:border-primary-400 hover:text-primary-700"
             >
               <i className="ri-search-line text-sm" aria-hidden="true" />
-              {t('tenant.browse')}
+              Всички любими
             </Link>
           </div>
 
-          {favorites.length === 0 ? (
+          {favoritesLoading ? <p role="status" className="mt-4">Зареждаме запазените обяви…</p> : favoritesError ? <p role="alert" className="mt-4 text-sm">Любимите не се заредиха. <Link to="/lyubimi" className="underline">Отвори любимите и опитай отново</Link>.</p> : favorites.length === 0 ? (
             <p className="mt-4 rounded-lg border border-background-200 bg-background-100 p-6 text-center text-sm text-foreground-600">
               {t('tenant.favoritesEmpty')}
             </p>

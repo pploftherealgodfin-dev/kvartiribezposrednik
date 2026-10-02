@@ -1,4 +1,5 @@
 import ProfileRecovery from '@/components/feature/ProfileRecovery';
+import PageLoading from '@/components/feature/PageLoading';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
@@ -12,22 +13,24 @@ interface RoleCardProps {
   title: string;
   description: string;
   onClick: () => void;
+  disabled: boolean;
 }
 
-function RoleCard({ active, icon, title, description, onClick }: RoleCardProps) {
+function RoleCard({ active, icon, title, description, onClick, disabled }: RoleCardProps) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       aria-pressed={active}
-      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 text-left transition-colors ${
+      className={`relative flex cursor-pointer flex-col items-start gap-2 rounded-lg border p-3 text-left transition-colors disabled:opacity-60 sm:flex-row sm:gap-3 sm:p-4 ${
         active
           ? 'border-primary-500 bg-primary-50'
           : 'border-background-300 bg-background-50 hover:border-primary-300'
       }`}
     >
       <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md ${
+        className={`flex h-8 w-8 shrink-0 sm:h-10 sm:w-10 items-center justify-center rounded-md ${
           active ? 'bg-primary-600 text-background-50' : 'bg-background-100 text-foreground-700'
         }`}
       >
@@ -35,12 +38,12 @@ function RoleCard({ active, icon, title, description, onClick }: RoleCardProps) 
       </span>
       <span className="min-w-0">
         <span className="block text-sm font-bold text-foreground-950">{title}</span>
-        <span className="mt-1 block text-xs leading-relaxed text-foreground-600">
+        <span className="mt-1 hidden text-xs leading-relaxed text-foreground-600 sm:block">
           {description}
         </span>
       </span>
       {active && (
-        <i className="ri-checkbox-circle-fill ml-auto text-lg text-primary-600" aria-hidden="true" />
+        <i className="ri-checkbox-circle-fill absolute right-3 top-3 text-lg text-primary-600" aria-hidden="true" />
       )}
     </button>
   );
@@ -54,7 +57,7 @@ export default function Login() {
   const from = requested.startsWith('/') && !requested.startsWith('//') && !requested.includes('\\') && !Array.from(requested).some(char => char.charCodeAt(0) <= 32) && !/^\/vhod(?:[/?]|$)/.test(requested) ? requested : '';
   const { session, profile, loading, profileError, signInWithGoogle, signInWithPhone, verifyPhoneOtp } = useAuth();
 
-  const [role, setRole] = useState<RegisterRole>(() => readPendingRole() ?? 'tenant');
+  const [role, setRole] = useState<RegisterRole>(() => readPendingRole() ?? (from.startsWith('/kachi-obiava') ? 'owner' : 'tenant'));
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -68,14 +71,7 @@ export default function Login() {
       try { window.sessionStorage.removeItem('kb_return_to'); } catch { /* unavailable */ }
       return <Navigate to={from || dashboardPath(profile.role)} replace />;
     }
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <span className="flex items-center gap-3 text-sm text-foreground-600">
-          <i className="ri-loader-4-line animate-spin text-xl text-primary-600" />
-          {t('common.loading')}
-        </span>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   const chooseRole = (next: RegisterRole) => {
@@ -84,6 +80,7 @@ export default function Login() {
   };
 
   const handleGoogle = async () => {
+    if (busy || loading) return;
     setError('');
     setNotice('');
     setPendingRole(role);
@@ -98,6 +95,7 @@ export default function Login() {
 
   const handleSendCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (busy || loading) return;
     setError('');
     const normalized = phone.replace(/[\s()-]/g, '');
     if (!/^\+[1-9]\d{7,14}$/.test(normalized)) {
@@ -112,12 +110,14 @@ export default function Login() {
       setError(err);
       return;
     }
+    setPhone(normalized);
     setStep('otp');
     setNotice(t('auth.codeSent'));
   };
 
   const handleVerify = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (busy || loading) return;
     setError('');
     if (!otp.trim()) {
       setError(t('auth.otpRequired'));
@@ -138,16 +138,17 @@ export default function Login() {
           <h1 className="text-center font-heading text-2xl font-extrabold tracking-tight text-foreground-950 md:text-3xl">
             {t('auth.title')}
           </h1>
-          <p className="mt-2 text-center text-sm text-foreground-600">{t('auth.subtitle')}</p>
+          <p className="mt-2 text-center text-sm text-foreground-600">Един акаунт за търсене, контакт и публикуване.</p>
 
-          <p className="mt-8 text-xs font-semibold text-foreground-600">{t('auth.chooseRole')}</p>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <p className="mt-8 text-xs font-semibold text-foreground-600">Започвам с</p>
+          <div className="mt-3 grid grid-cols-2 gap-3">
             <RoleCard
               active={role === 'tenant'}
               icon="ri-user-search-line"
               title={t('auth.roleTenant')}
               description={t('auth.roleTenantDesc')}
               onClick={() => chooseRole('tenant')}
+              disabled={busy || loading}
             />
             <RoleCard
               active={role === 'owner'}
@@ -155,6 +156,7 @@ export default function Login() {
               title={t('auth.roleOwner')}
               description={t('auth.roleOwnerDesc')}
               onClick={() => chooseRole('owner')}
+              disabled={busy || loading}
             />
           </div>
 
@@ -162,7 +164,7 @@ export default function Login() {
             <button
               type="button"
               onClick={handleGoogle}
-              disabled={busy}
+              disabled={busy || loading}
               className="flex w-full cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded-md border border-background-300 bg-background-50 px-4 py-3 text-sm font-semibold text-foreground-900 transition-colors hover:bg-background-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <i className="ri-google-fill text-lg" aria-hidden="true" />
@@ -194,7 +196,7 @@ export default function Login() {
                 <p className="mt-2 text-xs text-foreground-500">{t('auth.phoneHint')}</p>
                 <button
                   type="submit"
-                  disabled={busy}
+                  disabled={busy || loading}
                   className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-4 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <i
@@ -224,7 +226,7 @@ export default function Login() {
                 <p className="mt-2 text-xs text-foreground-500">{phone}</p>
                 <button
                   type="submit"
-                  disabled={busy}
+                  disabled={busy || loading}
                   className="mt-4 flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-4 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <i

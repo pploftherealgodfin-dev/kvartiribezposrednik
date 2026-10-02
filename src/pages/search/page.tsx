@@ -113,9 +113,8 @@ export default function SearchPage() {
   const sort: SortKey = (SORT_KEYS as string[]).includes(sortRaw) ? (sortRaw as SortKey) : 'relevance';
   const page = Math.min(10000, Math.max(1, Math.floor(Number(searchParams.get(PAGE_PARAM))) || 1));
   const [resultPage, setResultPage] = useState(page);
-  const urlText = searchParams.get('t') ?? '';
-
-  const [textValue, setTextValue] = useState(urlText);
+  const [draftValues, setDraftValues] = useState(values);
+  const [draftIssue, setDraftIssue] = useState('');
   const filterIssue = validateSearchFilters(filters);
   const [catalogError, setCatalogError] = useState(false);
   const [catalogRetry, setCatalogRetry] = useState(0);
@@ -199,41 +198,43 @@ export default function SearchPage() {
     [setSearchParams],
   );
 
-  useEffect(() => {
-    setTextValue(urlText);
-  }, [urlText]);
+  useEffect(() => { setDraftValues(values); setDraftIssue(''); }, [values]);
+  const handleFieldChange = (field: keyof SearchFilterValues, value: string) => {
+    setDraftIssue('');
+    setDraftValues(old => field === 'citySlug' ? { ...old, citySlug: value, neighborhoodSlug: '', universitySlug: '' } : { ...old, [field]: value });
+  };
+  const applyFilters = () => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(FIELD_PARAM).forEach(([field, param]) => {
+      const value = draftValues[field as keyof SearchFilterValues].trim();
+      if (value && !(field === 'type' && value === 'all')) next.set(param, value); else next.delete(param);
+    });
+    next.delete(PAGE_PARAM);
+    const problem = validateSearchFilters(parseFilters(next));
+    if (problem) { setDraftIssue(problem); return; }
+    setSearchParams(next); setShowMobileFilters(false);
+  };
 
-  useEffect(() => {
-    if (textValue === urlText) return;
-    const timer = window.setTimeout(() => {
-      patchParams((next) => {
-        if (textValue) next.set('t', textValue);
-        else next.delete('t');
-        next.delete(PAGE_PARAM);
-      });
-    }, 350);
-    return () => window.clearTimeout(timer);
-  }, [textValue, urlText, patchParams]);
-
-  const handleFieldChange = useCallback(
-    (field: keyof SearchFilterValues, value: string) => {
-      if (field === 'text') {
-        setTextValue(value);
-        return;
-      }
-      patchParams((next) => {
-        const key = FIELD_PARAM[field];
-        if (field === 'citySlug') { next.delete('kvartal'); next.delete('universitet'); }
-        if (value) next.set(key, value);
-        else next.delete(key);
-        next.delete(PAGE_PARAM);
-      });
-    },
-    [patchParams],
-  );
+  const activeFilters = Object.entries(values).filter(([field,value]) => value && !(field === 'type' && value === 'all')).map(([field,value]) => {
+    const labels: Record<string,string> = {citySlug:'Град',neighborhoodSlug:'Квартал',universitySlug:'Учебна локация',type:'Тип',rooms:'Стаи',priceMin:'Наем от',priceMax:'Наем до',areaMin:'Площ от',areaMax:'Площ до',floorMin:'Етаж от',floorMax:'Етаж до',furnished:'Обзавеждане',pets:'Любимци',availableFrom:'Свободно до',text:'Дума'};
+    const names: Record<string,string | undefined> = {
+      citySlug:cities.find(item => item.slug === value)?.name,
+      neighborhoodSlug:neighborhoods.find(item => item.slug === value && item.cityId === cities.find(city => city.slug === values.citySlug)?.id)?.name,
+      universitySlug:universities.find(item => item.slug === value)?.name,
+      type:({apartment:'Апартамент',room:'Стая',studio:'Студио',house:'Къща'} as Record<string,string>)[value],
+      furnished:value === '1' ? 'Обзаведено' : 'Необзаведено',
+      pets:value === '1' ? 'Позволени' : 'Непозволени',
+    };
+    const suffix = field.startsWith('price') ? ' €' : field.startsWith('area') ? ' m²' : '';
+    return {field:field as keyof SearchFilterValues,label:labels[field]+': '+(names[field] ?? value)+suffix};
+  });
+  const removeFilter = (field: keyof SearchFilterValues) => patchParams(next => {
+    next.delete(FIELD_PARAM[field]); next.delete(PAGE_PARAM);
+    if (field === 'citySlug') { next.delete(FIELD_PARAM.neighborhoodSlug); next.delete(FIELD_PARAM.universitySlug); }
+  });
 
   const handleReset = useCallback(() => {
-    setTextValue('');
+    setDraftValues(parseValues(new URLSearchParams())); setDraftIssue('');
     patchParams((next) => {
       Object.values(FIELD_PARAM).forEach((key) => next.delete(key));
       next.delete(PAGE_PARAM);
@@ -273,13 +274,14 @@ export default function SearchPage() {
         </div>
 
         {catalogError && <div role="alert" className="mb-5 rounded-md border p-4">Каталогът с градове и райони не се зареди. <button onClick={() => setCatalogRetry(v => v + 1)} className="text-primary-700 underline">Опитай отново</button></div>}
-        {filterIssue && <p role="alert" className="mb-5 rounded-md border border-accent-300 bg-accent-50 p-4">{filterIssue}</p>}
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr]">
-          <aside className="lg:sticky lg:top-24 lg:self-start">
+        {(draftIssue || filterIssue) && <p role="alert" className="mb-5 rounded-md border border-accent-300 bg-accent-50 p-4">{draftIssue || filterIssue}</p>}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[340px_minmax(0,1fr)]">
+          <aside className="min-w-0 lg:self-start">
             <button
               type="button"
               onClick={() => setShowMobileFilters((value) => !value)}
               aria-expanded={showMobileFilters}
+              aria-controls="search-filter-panel"
               className="mb-3 flex w-full cursor-pointer items-center justify-between rounded-lg border border-background-300 bg-background-50 px-4 py-3 text-sm font-semibold text-foreground-900 lg:hidden"
             >
               <span className="flex items-center gap-2">
@@ -292,19 +294,21 @@ export default function SearchPage() {
               />
             </button>
 
-            <div className={showMobileFilters ? 'block' : 'hidden lg:block'}>
+            <div id="search-filter-panel" className={showMobileFilters ? 'block' : 'hidden lg:block'}>
               <SearchFilters
                 cities={cities}
                 neighborhoods={neighborhoods}
                 universities={universities}
-                values={{ ...values, text: textValue }}
+                values={draftValues}
                 onChange={handleFieldChange}
                 onReset={handleReset}
+                onApply={applyFilters}
               />
             </div>
           </aside>
 
-          <div>
+          <div className="min-w-0">
+            {activeFilters.length > 0 && <div aria-label="Приложени филтри" className="mb-5 flex flex-wrap gap-2">{activeFilters.map(item => <button type="button" key={item.field} onClick={() => removeFilter(item.field)} aria-label={'Премахни филтъра '+item.label} className="inline-flex max-w-full items-center gap-2 rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-left text-xs text-primary-800"><span className="break-words">{item.label}</span><i aria-hidden="true" className="ri-close-line shrink-0" /></button>)}</div>}
             <SearchResults
               listings={listings}
               total={total}

@@ -5,13 +5,8 @@ import { repository } from '@/lib/repository';
 import type { City, ListingView, Neighborhood, University } from '@/lib/types';
 import { applyPageMeta, setJsonLd, removeJsonLd, absoluteUrl } from '@/lib/seo';
 import HomeHero from '@/pages/home/components/HomeHero';
-import TrustStrip from '@/pages/home/components/TrustStrip';
-import Audiences from '@/pages/home/components/Audiences';
 import LatestListings from '@/pages/home/components/LatestListings';
-import UniversityChips from '@/pages/home/components/UniversityChips';
-import PopularAreas from '@/pages/home/components/PopularAreas';
 import HowItWorks from '@/pages/home/components/HowItWorks';
-import BrokerTeaser from '@/pages/home/components/BrokerTeaser';
 import GuidesTeaser from '@/pages/home/components/GuidesTeaser';
 import FinalCta from '@/pages/home/components/FinalCta';
 
@@ -23,26 +18,17 @@ export default function Home() {
   const [listings, setListings] = useState<ListingView[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [catalogError, setCatalogError] = useState(false);
 
   const load = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const [cityItems, neighborhoodItems, universityItems, listingItems] = await Promise.all([
-        repository.getCities(),
-        repository.getNeighborhoods(),
-        repository.getUniversities(),
-        repository.getLatestListings(8),
-      ]);
-      setCities(cityItems);
-      setNeighborhoods(neighborhoodItems);
-      setUniversities(universityItems);
-      setListings(listingItems);
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true); setError(false); setCatalogError(false);
+    await Promise.allSettled([
+      Promise.all([repository.getCities(), repository.getNeighborhoods(), repository.getUniversities()])
+        .then(([cityItems, neighborhoodItems, universityItems]) => {
+          setCities(cityItems); setNeighborhoods(neighborhoodItems); setUniversities(universityItems);
+        }).catch(() => setCatalogError(true)),
+      repository.getLatestListings(6).then(setListings).catch(() => setError(true)).finally(() => setLoading(false)),
+    ]);
   }, []);
 
   useEffect(() => {
@@ -83,8 +69,8 @@ export default function Home() {
 
   return (
     <SiteLayout>
-      <HomeHero cities={cities} />
-      <TrustStrip />
+      <HomeHero cities={cities} neighborhoods={neighborhoods} universities={universities} />
+      {catalogError && <div role="alert" className="mx-auto max-w-6xl px-4 py-4 text-sm">Градовете не се заредиха. <button onClick={load} className="min-h-11 text-primary-700 underline">Опитай отново</button></div>}
 
       {error ? (
         <section className="mx-auto w-full max-w-6xl px-4 py-14 md:px-6">
@@ -105,13 +91,9 @@ export default function Home() {
           <LatestListings listings={listings} loading={loading} />
         </>
       )}
-          <Audiences />
-          <BrokerTeaser />
-          <GuidesTeaser />
-          <UniversityChips universities={universities} cities={cities} />
-          <PopularAreas cities={cities} neighborhoods={neighborhoods} />
-          <HowItWorks />
-          <FinalCta />
+      <div className="below-fold"><GuidesTeaser /></div>
+      <div className="below-fold"><HowItWorks /></div>
+      <div className="below-fold"><FinalCta /></div>
     </SiteLayout>
   );
 }

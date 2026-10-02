@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PHOTO_LIMITS, validatePhotoFile, type PhotoValidationError } from '@/lib/storage';
+import { PHOTO_LIMITS, prepareListingPhoto, validatePhotoFile, type PhotoValidationError } from '@/lib/storage';
 import PhotoSortGrid, { type PhotoSortItem } from './PhotoSortGrid';
 
 export interface PickedPhoto {
@@ -13,6 +13,7 @@ interface PhotoPickerProps {
   photos: PickedPhoto[];
   onChange: (photos: PickedPhoto[]) => void;
   disabled?: boolean;
+  onProcessingChange?: (processing: boolean) => void;
 }
 
 const ERROR_KEY: Record<PhotoValidationError, string> = {
@@ -20,42 +21,63 @@ const ERROR_KEY: Record<PhotoValidationError, string> = {
   tooLarge: 'owner.form.photoTooLarge',
 };
 
-export default function PhotoPicker({ photos, onChange, disabled }: PhotoPickerProps) {
+export default function PhotoPicker({ photos, onChange, disabled, onProcessingChange }: PhotoPickerProps) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
+  const [processing, setProcessing] = useState(false);
+  const processingRef = useRef(false);
+  const mounted = useRef(true);
 
   const photosRef = useRef(photos);
   photosRef.current = photos;
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
       photosRef.current.forEach((photo) => URL.revokeObjectURL(photo.url));
-    },
-    [],
-  );
+    };
+  }, []);
 
-  const handleSelect = (list: FileList | null) => {
-    if (!list) return;
+  const handleSelect = async (list: FileList | null) => {
+    if (!list || disabled || processingRef.current) return;
+    const files = Array.from(list);
+    processingRef.current = true;
+    setProcessing(true);
+    onProcessingChange?.(true);
     setError('');
     const accepted: PickedPhoto[] = [];
-    let firstError: PhotoValidationError | null = null;
-
-    for (const file of Array.from(list)) {
+    let firstError = '';
+    const room = Math.max(0, PHOTO_LIMITS.maxCount - photosRef.current.length);
+    for (const file of files) {
+      if (accepted.length >= room) {
+        firstError ||= `Можеш да добавиш до ${PHOTO_LIMITS.maxCount} снимки. Останалите не са добавени.`;
+        break;
+      }
       const problem = validatePhotoFile(file);
       if (problem) {
-        if (!firstError) firstError = problem;
+        firstError ||= t(ERROR_KEY[problem]);
         continue;
       }
-      accepted.push({ id: crypto.randomUUID(), file, url: URL.createObjectURL(file) });
+      try {
+        const prepared = await prepareListingPhoto(file);
+        if (!mounted.current) break;
+        accepted.push({ id: crypto.randomUUID(), file: prepared, url: URL.createObjectURL(prepared) });
+      } catch {
+        firstError ||= 'Една от снимките не може да се обработи. Избери валидна JPEG, PNG или WebP снимка до 5 MB и 40 мегапиксела.';
+      }
+      if (!mounted.current) break;
     }
-
-    const room = PHOTO_LIMITS.maxCount - photos.length;
-    const kept = accepted.slice(0, Math.max(0, room));
-    accepted.slice(kept.length).forEach((photo) => URL.revokeObjectURL(photo.url));
-    if (kept.length > 0) onChange([...photos, ...kept]);
-
-    if (firstError) setError(t(ERROR_KEY[firstError]));
+    processingRef.current = false;
+    if (!mounted.current) {
+      accepted.forEach(photo => URL.revokeObjectURL(photo.url));
+      return;
+    }
+    if (accepted.length) onChange([...photosRef.current, ...accepted]);
+    setError(firstError);
+    setProcessing(false);
+    onProcessingChange?.(false);
     if (inputRef.current) inputRef.current.value = '';
   };
 
@@ -80,7 +102,7 @@ export default function PhotoPicker({ photos, onChange, disabled }: PhotoPickerP
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="button"
-          disabled={disabled || photos.length >= PHOTO_LIMITS.maxCount}
+          disabled={disabled || processing || photos.length >= PHOTO_LIMITS.maxCount}
           onClick={() => inputRef.current?.click()}
           className="inline-flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-md border border-background-300 bg-background-50 px-4 py-2.5 text-sm font-semibold text-foreground-800 transition-colors hover:border-primary-400 hover:text-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
@@ -97,12 +119,14 @@ export default function PhotoPicker({ photos, onChange, disabled }: PhotoPickerP
         type="file"
         accept="image/jpeg,image/png,image/webp"
         multiple
+        disabled={disabled || processing}
         className="hidden"
         onChange={(event) => handleSelect(event.target.files)}
       />
 
       <p className="mt-2 text-xs text-foreground-500">{t('owner.form.photosHint')}</p>
       <p className="mt-1 text-xs text-foreground-500">{t('owner.form.reorderHint')}</p>
+      {processing && <p role="status" className="mt-2 text-sm text-primary-700">Подготвяме снимките…</p>}
 
       {error && (
         <p role="alert" className="mt-2 text-xs font-medium text-accent-800">
@@ -116,7 +140,7 @@ export default function PhotoPicker({ photos, onChange, disabled }: PhotoPickerP
             items={items}
             onReorder={handleReorder}
             onRemove={handleRemove}
-            disabled={disabled}
+            disabled={disabled || processing}
           />
         </div>
       )}

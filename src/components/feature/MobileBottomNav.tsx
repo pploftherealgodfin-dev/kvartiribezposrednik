@@ -1,48 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
-
-export default function MobileBottomNav() {
-  const { t } = useTranslation();
-  const { session } = useAuth();
-
-
-  const tabs = [
-    { to: '/tarsene', key: 'nav.search', icon: 'ri-search-line' },
-    { to: '/kvartiri-bez-posrednik', key: 'nav.cities', icon: 'ri-map-pin-line' },
-    { to: '/kachi-obiava', key: 'nav.uploadListing', icon: 'ri-add-line' },
-    session
-      ? { to: '/moi-profil', key: 'auth.account', icon: 'ri-user-line' }
-      : { to: '/vhod', key: 'nav.login', icon: 'ri-user-line' },
-  ];
-
-  return (
-    <nav
-      aria-label={t('nav.menu')}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-background-200 bg-background-50/95 backdrop-blur lg:hidden"
-    >
-      <div className="pb-safe">
-        <div className="flex h-[62px] items-stretch px-1">
-          {tabs.map((tab) => (
-            <NavLink
-              key={`${tab.to}-${tab.key}`}
-              to={tab.to}
-              className={({ isActive }) =>
-                `flex flex-1 cursor-pointer flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${
-                  isActive ? 'text-primary-700' : 'text-foreground-500'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <i className={`${tab.icon} text-xl ${isActive ? 'text-primary-700' : ''}`} />
-                  <span className="whitespace-nowrap">{t(tab.key)}</span>
-                </>
-              )}
-            </NavLink>
-          ))}
-        </div>
-      </div>
-    </nav>
-  );
+export default function MobileBottomNav(){
+  const {session}=useAuth();
+  const tabs=[{to:'/tarsene',label:'Търси',icon:'ri-search-line'},{to:'/lyubimi',label:'Любими',icon:'ri-heart-line'},{to:'/kachi-obiava',label:'Обява',icon:'ri-add-circle-line'},session?{to:'/saobshteniya',label:'Съобщения',icon:'ri-chat-3-line'}:{to:'/kvartiri-bez-posrednik',label:'Градове',icon:'ri-map-pin-line'},{to:session?'/moi-profil':'/vhod',label:session?'Акаунт':'Вход',icon:'ri-user-line'}];
+  return <nav aria-label="Бърза навигация" className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t border-background-200 bg-background-50 lg:hidden"><div className="mx-auto flex h-[62px] max-w-lg">{tabs.map(tab=><NavLink key={tab.to} to={tab.to} className={({isActive})=>'flex min-w-0 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium '+(isActive?'text-primary-800':'text-foreground-600')}><i className={tab.icon+' text-xl'} aria-hidden="true" /><span>{tab.label}</span></NavLink>)}</div></nav>;
 }

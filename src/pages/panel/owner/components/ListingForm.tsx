@@ -1,334 +1,88 @@
-import LocationSelect from '@/components/feature/LocationSelect';
-import { useRef, useState, type FormEvent } from 'react';
-import { useTranslation } from 'react-i18next';
-import { addListingPhotos, createOwnerListing, type NewListingInput } from '@/lib/repository/owner';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import CityLocationFields from '@/components/feature/CityLocationFields';
+import { addListingPhotos, createOwnerListing } from '@/lib/repository/owner';
 import { uploadListingPhotos } from '@/lib/storage';
-import type { City, ListingType, Neighborhood, University } from '@/lib/types';
+import { validateListingDraft, toListingInput, type ListingDraft, type DraftIssue } from '@/lib/listingDraft';
+import type { City, Neighborhood, University, ListingType } from '@/lib/types';
 import PhotoPicker, { type PickedPhoto } from './PhotoPicker';
-
-interface ListingFormProps {
-  ownerId: string;
-  cities: City[];
-  neighborhoods: Neighborhood[];
-  universities: University[];
-  onCreated: () => void;
-  onCancel: () => void;
-}
-
-const fieldCls =
-  'mt-1.5 w-full rounded-md border border-background-300 bg-background-50 px-3.5 py-2.5 text-sm text-foreground-900 transition-colors placeholder:text-foreground-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-400/40';
-const labelCls = 'block text-sm font-semibold text-foreground-900';
-
-const TYPES: ListingType[] = ['apartment', 'room', 'studio', 'house'];
-
-export default function ListingForm({
-  ownerId,
-  cities,
-  neighborhoods,
-  universities,
-  onCreated,
-  onCancel,
-}: ListingFormProps) {
-  const { t } = useTranslation();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [type, setType] = useState<ListingType>('apartment');
-  const [price, setPrice] = useState('');
-  const [area, setArea] = useState('');
-  const [rooms, setRooms] = useState('1');
-  const [floor, setFloor] = useState('');
-  const [totalFloors, setTotalFloors] = useState('');
-  const [deposit, setDeposit] = useState('');
-  const [cityId, setCityId] = useState('');
-  const [neighborhoodId, setNeighborhoodId] = useState('');
-  const [universityIds, setUniversityIds] = useState<string[]>([]);
-  const [availableFrom, setAvailableFrom] = useState(new Date().toISOString().slice(0, 10));
-  const [furnished, setFurnished] = useState(true);
-  const [pets, setPets] = useState(false);
-  const [utilities, setUtilities] = useState(false);
+interface Props { ownerId: string; cities: City[]; neighborhoods: Neighborhood[]; universities: University[]; onCreated: () => void; onCancel: () => void }
+const steps = ['Локация', 'Жилище и условия', 'Снимки', 'Преглед'];
+const types: {value: ListingType; label: string}[] = [{value:'apartment',label:'Апартамент'},{value:'room',label:'Стая'},{value:'studio',label:'Студио'},{value:'house',label:'Къща'}];
+export default function ListingForm({ ownerId, cities, neighborhoods, universities, onCreated, onCancel }: Props) {
+  const [draft, setDraft] = useState<ListingDraft>(() => { const now = new Date(); return { cityId:'', neighborhoodId:'', universityIds:[], title:'', description:'', type:'apartment', price:'', area:'', rooms:'1', floor:'', totalFloors:'', deposit:'', availableFrom: now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0'), furnished:true, pets:false, utilities:false }; });
+  const [step, setStep] = useState(0);
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  const [confirmed, setConfirmed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [progress, setProgress] = useState('');
+  const [error, setError] = useState('');
+  const [issue, setIssue] = useState<DraftIssue | null>(null);
   const [createdId, setCreatedId] = useState('');
   const requestId = useRef('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-
-  const cityNeighborhoods = neighborhoods.filter((item) => item.cityId === cityId);
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError('');
-    if (createdId) { onCreated(); return; }
-
-    const priceValue = Number(price);
-    const areaValue = Number(area);
-    const roomsValue = Number(rooms);
-
-    if (
-      title.trim().length < 5 || description.trim().length < 30 ||
-      !title.trim() ||
-      !cityId ||
-      !availableFrom ||
-      !(priceValue > 0) ||
-      !(areaValue > 0) ||
-      !(roomsValue > 0)
-    ) {
-      setError(t('owner.form.required'));
-      return;
-    }
-
-    if (photos.length === 0) { setError('Добави поне една реална снимка на жилището.'); return; }
-    if (!Number.isInteger(roomsValue) || roomsValue > 100 || (deposit && !(Number(deposit) >= 0)) || (floor && (!Number.isInteger(Number(floor)) || Number(floor) < -5 || Number(floor) > 200)) || (totalFloors && (!Number.isInteger(Number(totalFloors)) || Number(totalFloors) < 1 || Number(totalFloors) > 200 || (floor && Number(floor) > Number(totalFloors))))) { setError('Провери стаите, етажа, общия брой етажи и депозита.'); return; }
-    if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(title + ' ' + description) || /(\+?359|00359|0)[ -]?[0-9]([ ()-]*[0-9]){7,8}/.test(title + ' ' + description)) { setError('Премахни телефона и имейла от публичния текст. Контактите се показват защитено след вход.'); return; }
-    const input: NewListingInput = {
-      title: title.trim(),
-      description: description.trim(),
-      type,
-      priceEur: priceValue,
-      areaM2: areaValue,
-      rooms: roomsValue,
-      cityId,
-      neighborhoodId: neighborhoodId || null,
-      nearbyUniversityIds: universityIds,
-      availableFrom,
-      deposit: deposit ? Number(deposit) : null,
-      floor: floor ? Number(floor) : null,
-      totalFloors: totalFloors ? Number(totalFloors) : null,
-      furnished,
-      petsAllowed: pets,
-      utilitiesIncluded: utilities,
-    };
-
-    setBusy(true);
+  const section = useRef<HTMLDivElement>(null);
+  const update = <K extends keyof ListingDraft>(key: K, value: ListingDraft[K]) => setDraft(old => ({ ...old, [key]: value }));
+  useEffect(() => { if (issue) document.getElementById(issue.field)?.focus(); }, [issue]);
+  useEffect(() => {
+    if (!draft.title && !draft.cityId && !photos.length) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn);
+  }, [draft.title, draft.cityId, photos.length]);
+  const move = (next: number) => { setStep(next); setError(''); setIssue(null); requestAnimationFrame(() => section.current?.focus()); };
+  const check = (index: number) => {
+    const problem = validateListingDraft(draft, index, cities, neighborhoods, universities, photos.length);
+    if (problem) { setStep(index); setIssue(problem); setError(problem.message); return false; } return true;
+  };
+  const submit = async (event: FormEvent) => {
+    event.preventDefault(); if (busy || photoBusy) return;
+    if (createdId) { onCancel(); return; }
+    if (step < 3) { if (check(step)) move(step + 1); return; }
+    for (let index=0; index<3; index++) if (!check(index)) return;
+    if (!confirmed) { setError('Потвърди, че описанието и снимките са на реалния имот.'); return; }
+    if (!navigator.onLine) { setError('Няма връзка с интернет. Данните са запазени в тази форма; опитай отново при свързване.'); return; }
+    setBusy(true); setError(''); setProgress('Записваме обявата…');
     try {
       if (!requestId.current) requestId.current = crypto.randomUUID();
-      const created = await createOwnerListing(ownerId, input, requestId.current);
-      if (photos.length > 0) {
-        try {
-          const urls = await uploadListingPhotos(photos.map((photo) => photo.file), ownerId, created.id);
-          await addListingPhotos(created.id, urls);
-        } catch {
-          setError('Обявата е създадена, но записът на снимките не е потвърден. Затвори формата и ги провери в панела.');
-          setCreatedId(created.id);
-          return;
-        }
-      }
+      const listing = await createOwnerListing(ownerId, toListingInput(draft), requestId.current);
+      try {
+        setProgress('Качваме снимките…');
+        const urls = await uploadListingPhotos(photos.map(photo => photo.file), ownerId, listing.id);
+        await addListingPhotos(listing.id, urls);
+      } catch { setCreatedId(listing.id); setError('Обявата е записана, но качването на снимките не е потвърдено. Провери я в „Моите обяви“, преди да добавяш снимките отново.'); return; }
       onCreated();
-    } catch (issue) {
-      if (issue instanceof Error && issue.message.startsWith('Тази обява вече е записана')) { setError(issue.message); return; }
-      setError('Записът на обявата не е потвърден. Провери връзката и данните. Ако имаш грешка за лимит или роля, свържи се с екипа.');
-    } finally {
-      setBusy(false);
-    }
+    } catch (err) { setError(err instanceof Error && err.message.startsWith('Тази обява вече е записана') ? err.message : 'Записът не е потвърден. Провери връзката и опитай отново; данните остават във формата.'); }
+    finally { setBusy(false); setProgress(''); }
   };
-
-  const checkboxCls =
-    'flex cursor-pointer items-center gap-2.5 rounded-md border border-background-300 px-3.5 py-2.5 text-sm font-medium text-foreground-800 transition-colors hover:border-primary-300';
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="mt-4 rounded-lg border border-background-200 bg-background-100 p-5 md:p-6"
-      aria-busy={busy}
-    >
-      <p className="mb-4 text-sm text-foreground-600">Попълни локацията, цената и условията. Добави реални снимки, без телефони, документи или точен адрес върху тях. Контактът се настройва отделно и е защитен с вход.</p>
-      <h2 className="font-heading text-lg font-extrabold text-foreground-950">
-        {t('owner.form.title')}
-      </h2>
-
-      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="md:col-span-2">
-          <label className={labelCls} htmlFor="nf-title">
-            {t('owner.form.listingTitle')}
-          </label>
-          <input
-            id="nf-title"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            className={fieldCls}
-            maxLength={120} minLength={5} required
-          />
-        </div>
-
-        <div className="md:col-span-2">
-          <label className={labelCls} htmlFor="nf-description">
-            {t('owner.form.description')}
-          </label>
-          <textarea
-            id="nf-description"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            rows={4}
-            maxLength={5000} minLength={30} required
-            className={`${fieldCls} resize-y`}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-type">
-            {t('owner.form.type')}
-          </label>
-          <select
-            id="nf-type"
-            value={type}
-            onChange={(event) => setType(event.target.value as ListingType)}
-            className={fieldCls}
-          >
-            {TYPES.map((item) => (
-              <option key={item} value={item}>
-                {t(`type.${item}`)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-price">
-            {t('owner.form.price')}
-          </label>
-          <input
-            id="nf-price"
-            type="number"
-            min={0.01} step="0.01" required
-            value={price}
-            onChange={(event) => setPrice(event.target.value)}
-            className={fieldCls}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-area">
-            {t('owner.form.area')}
-          </label>
-          <input
-            id="nf-area"
-            type="number"
-            min={0.01} step="0.01" required
-            value={area}
-            onChange={(event) => setArea(event.target.value)}
-            className={fieldCls}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-rooms">
-            {t('owner.form.rooms')}
-          </label>
-          <input
-            id="nf-rooms"
-            type="number"
-            min={1} max={100} step={1} required
-            value={rooms}
-            onChange={(event) => setRooms(event.target.value)}
-            className={fieldCls}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-floor">
-            {t('owner.form.floor')}
-          </label>
-          <input
-            id="nf-floor"
-            type="number"
-            min={-5} max={200} step={1}
-            value={floor}
-            onChange={(event) => setFloor(event.target.value)}
-            className={fieldCls}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-total-floors">
-            {t('owner.form.totalFloors')}
-          </label>
-          <input
-            id="nf-total-floors"
-            type="number"
-            min={1} max={200} step={1}
-            value={totalFloors}
-            onChange={(event) => setTotalFloors(event.target.value)}
-            className={fieldCls}
-          />
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-deposit">
-            {t('owner.form.deposit')}
-          </label>
-          <input
-            id="nf-deposit"
-            type="number"
-            min={0} step="0.01"
-            value={deposit}
-            onChange={(event) => setDeposit(event.target.value)}
-            className={fieldCls}
-          />
-        </div>
-
-        <LocationSelect id="nf-city" label={t('owner.form.city')} value={cityId} required placeholder="Избери град" options={cities.map(city => ({ value: city.id, label: `${city.name}${city.region ? ` · ${city.region}` : ''}`, priority: city.isUniversityCity }))} onChange={value => { setCityId(value); setNeighborhoodId(''); setUniversityIds([]); }} />
-        <LocationSelect key={"nf-neighborhood-" + cityId} id="nf-neighborhood" label={t('owner.form.neighborhood')} value={neighborhoodId} placeholder={cityId ? 'Избери квартал (по избор)' : 'Избери град първо'} options={cityNeighborhoods.map(item => ({ value: item.id, label: item.name + (item.associationMethod === 'nearest_town_approximate' ? ' · приблизителен район' : '') }))} disabled={!cityId} onChange={setNeighborhoodId} />
-        {cityId && !cityNeighborhoods.length && <p className="text-sm text-foreground-600 md:col-span-2">Каталогът няма потвърдени квартали за този град. Можеш да публикуваш на ниво град. За добавяне на квартал пиши чрез „Контакти“.</p>}
-        {universities.some(item => item.cityId === cityId) && <fieldset className="rounded-lg border border-background-300 p-4 md:col-span-2"><legend className="px-2 font-semibold">Университети наблизо (по избор, до 3)</legend><p className="mb-3 text-xs text-foreground-600">Посочи само достъпни от жилището университети. Това е твоя оценка за близост, а не измерено разстояние.</p><div className="max-h-48 space-y-2 overflow-y-auto">{universities.filter(item => item.cityId === cityId).map(item => <label key={item.id} className="flex gap-3 text-sm"><input type="checkbox" checked={universityIds.includes(item.id)} disabled={!universityIds.includes(item.id) && universityIds.length >= 3} onChange={e => setUniversityIds(prev => e.target.checked ? [...prev, item.id] : prev.filter(id => id !== item.id))} />{item.name}</label>)}</div></fieldset>}
-        <div>
-          <label className={labelCls} htmlFor="nf-available">
-            {t('owner.form.availableFrom')}
-          </label>
-          <input
-            id="nf-available"
-            type="date"
-            value={availableFrom}
-            onChange={(event) => setAvailableFrom(event.target.value)}
-            className={fieldCls}
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 md:col-span-2">
-          <label className={checkboxCls}>
-            <input type="checkbox" checked={furnished} onChange={(e) => setFurnished(e.target.checked)} />
-            {t('owner.form.furnished')}
-          </label>
-          <label className={checkboxCls}>
-            <input type="checkbox" checked={pets} onChange={(e) => setPets(e.target.checked)} />
-            {t('owner.form.pets')}
-          </label>
-          <label className={checkboxCls}>
-            <input type="checkbox" checked={utilities} onChange={(e) => setUtilities(e.target.checked)} />
-            {t('owner.form.utilities')}
-          </label>
-        </div>
-
-        <div className="md:col-span-2">
-          <span className={labelCls}>{t('owner.form.photos')}</span>
-          <div className="mt-1.5">
-            <PhotoPicker photos={photos} onChange={setPhotos} disabled={busy} />
-          </div>
-        </div>
-      </div>
-
-      {error && (
-        <p role="alert" className="mt-4 rounded-md border border-background-300 bg-background-50 px-3.5 py-2.5 text-sm text-foreground-900">
-          {error}
-        </p>
-      )}
-
-      <div className="mt-5 flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={busy}
-          className="inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-5 py-2.5 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <i className={busy ? 'ri-loader-4-line animate-spin text-base' : 'ri-add-line text-base'} aria-hidden="true" />
-          {t('owner.form.submit')}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-md border border-background-300 px-5 py-2.5 text-sm font-semibold text-foreground-700 transition-colors hover:bg-background-50"
-        >
-          {t('owner.form.cancel')}
-        </button>
-      </div>
-    <p className="mt-5 text-xs text-foreground-600">Квартали: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline">© OpenStreetMap contributors, ODbL</a>. Каталогът може да е непълен; <a href="/kontakti" className="underline">предложи корекция</a>.</p>
-</form>
-  );
+  const city = cities.find(item => item.id === draft.cityId);
+  const hood = neighborhoods.find(item => item.id === draft.neighborhoodId);
+  const uniNames = universities.filter(item => draft.universityIds.includes(item.id)).map(item => item.name);
+  const input = (key: 'title'|'price'|'area'|'rooms'|'floor'|'totalFloors'|'deposit'|'availableFrom', label: string, attrs: Record<string, string | number> = {}) => <div><label htmlFor={'nf-' + (key === 'availableFrom' ? 'available' : key === 'totalFloors' ? 'total-floors' : key)} className="ui-label">{label}</label><input id={'nf-' + (key === 'availableFrom' ? 'available' : key === 'totalFloors' ? 'total-floors' : key)} className="ui-field" value={draft[key]} onChange={event => update(key,event.target.value)} {...attrs} /></div>;
+  return <form onSubmit={submit} noValidate aria-busy={busy} className="ui-panel mt-6">
+    <ol aria-label="Стъпки за качване" className="mb-7 grid grid-cols-4 gap-2">{steps.map((label,index) => <li key={label}><button type="button" disabled={busy || photoBusy || index > step} onClick={() => move(index)} aria-current={index === step ? 'step' : undefined} className={'w-full border-b-2 pb-3 text-left text-xs sm:text-sm ' + (index === step ? 'border-primary-600 font-semibold text-primary-800' : 'border-background-200 text-foreground-500')}><span className="block mb-1">{index+1}</span>{label}</button></li>)}</ol>
+    <div ref={section} tabIndex={-1} className="outline-none"><p className="ui-note">Стъпка {step+1} от 4</p><h2 className="mt-1 mb-6 font-heading text-xl font-semibold">{steps[step]}</h2></div>
+    <fieldset disabled={busy} hidden={step !== 0}>
+      <CityLocationFields id="nf" cities={cities} neighborhoods={neighborhoods} universities={universities} cityValue={draft.cityId} neighborhoodValue={draft.neighborhoodId} universityValues={draft.universityIds} keyMode="id" required multipleUniversities onCityChange={value => setDraft(old => ({...old, cityId:value, neighborhoodId:'', universityIds:[]}))} onNeighborhoodChange={value => update('neighborhoodId', value)} onUniversitiesChange={value => update('universityIds',value)} />
+      <p className="ui-note mt-5">Публично се показват градът и кварталът. Не въвеждай точен адрес в описанието или върху снимките.</p>
+    </fieldset>
+    <fieldset disabled={busy} hidden={step !== 1} className="space-y-5">
+      <div className="grid gap-4 sm:grid-cols-2">{input('title','Заглавие *',{maxLength:120,placeholder:'Например: Светло студио до университета'})}<div><label className="ui-label" htmlFor="nf-type">Тип жилище</label><select className="ui-field" id="nf-type" value={draft.type} onChange={event => update('type',event.target.value as ListingType)}>{types.map(type => <option value={type.value} key={type.value}>{type.label}</option>)}</select></div></div>
+      <div><label htmlFor="nf-description" className="ui-label">Описание *</label><textarea id="nf-description" className="ui-field h-auto min-h-32 py-3" rows={4} minLength={30} maxLength={5000} value={draft.description} onChange={event => update('description',event.target.value)} placeholder="Разпределение, състояние, транспорт и условия. Без телефон или имейл." /><p className="ui-note mt-2">{draft.description.length}/5000 · минимум 30 знака</p></div>
+      <div className="grid gap-4 sm:grid-cols-2">{input('price','Месечен наем (€) *',{type:'number',min:0.01,step:0.01,inputMode:'decimal'})}{input('area','Площ (m²) *',{type:'number',min:0.01,step:0.01,inputMode:'decimal'})}{input('rooms','Брой стаи *',{type:'number',min:1,max:100,step:1,inputMode:'numeric'})}{input('availableFrom','Свободно от *',{type:'date'})}</div>
+      <div className="flex flex-wrap gap-3">{([['furnished','Обзаведено'],['pets','Домашни любимци'],['utilities','Разходите са включени']] as const).map(([key,label]) => <label key={key} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-background-300 px-3 text-sm"><input type="checkbox" checked={draft[key]} onChange={event => update(key,event.target.checked)} />{label}</label>)}</div>
+      <details className="rounded-lg border border-background-200 p-4" open={Boolean(issue && ['nf-floor','nf-total-floors','nf-deposit'].includes(issue.field)) || undefined}><summary className="font-medium text-sm">Етаж и депозит · по желание</summary><div className="mt-4 grid gap-4 sm:grid-cols-3">{input('floor','Етаж',{type:'number',min:-5,max:200,step:1})}{input('totalFloors','Етажи в сградата',{type:'number',min:1,max:200,step:1})}{input('deposit','Депозит (€)',{type:'number',min:0,step:0.01})}</div></details>
+    </fieldset>
+    <fieldset disabled={busy} hidden={step !== 2}><div id="nf-photos" tabIndex={-1}><PhotoPicker photos={photos} onChange={setPhotos} onProcessingChange={setPhotoBusy} disabled={busy} /></div><p className="ui-note mt-4">Първата снимка е корицата. Използвай реални снимки, без документи, контакти и лични данни.</p></fieldset>
+    <fieldset disabled={busy} hidden={step !== 3}>
+      <div className="rounded-lg bg-background-100 p-5"><p className="text-xs text-foreground-600">{city?.name}{hood ? ' · ' + hood.name : ''}</p><h3 className="mt-2 text-lg font-semibold break-words">{draft.title}</h3><p className="mt-3 font-semibold text-primary-800">{draft.price} € / месец · {draft.area} m² · {draft.rooms} стаи</p><p className="mt-3 whitespace-pre-wrap break-words text-sm text-foreground-700">{draft.description}</p><p className="ui-note mt-3">Свободно от: {draft.availableFrom} · Депозит: {draft.deposit === '' ? 'не е посочен' : draft.deposit + ' €'}</p>{uniNames.length > 0 && <p className="ui-note mt-3">Учебни локации: {uniNames.join('; ')}</p>}{photos[0] && <img src={photos[0].url} alt="Корична снимка на обявата" className="mt-4 aspect-video max-h-52 w-full rounded-lg object-cover" />}</div>
+      <label className="mt-5 flex min-h-12 items-start gap-3 text-sm"><input className="mt-1" type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /><span>Описанието и снимките са на реалния имот и условията са точни. Обявата ще стане публична след преглед.</span></label><p className="ui-note mt-3">Телефонът и имейлът се показват само след вход. <Link to="/nastroyki" target="_blank" rel="noopener noreferrer" className="underline">Настройки на контакта (нов раздел)</Link></p>
+    </fieldset>
+    {error && <p role="alert" className="mt-5 rounded-lg border border-accent-200 bg-accent-50 p-4 text-sm">{error}</p>}
+    <div className="mt-7 flex flex-wrap items-center gap-3 border-t border-background-200 pt-5">
+      {step > 0 && !createdId && <button type="button" disabled={busy || photoBusy} onClick={() => move(step-1)} className="ui-secondary">Назад</button>}
+      <button type="submit" disabled={busy || photoBusy} className="ui-button flex-1 sm:flex-none">{busy ? progress : createdId ? 'Към моите обяви' : step < 3 ? 'Продължи' : 'Изпрати за преглед'}</button>
+      <button type="button" disabled={busy} onClick={onCancel} className="ml-auto px-2 text-sm text-foreground-600">Отказ</button>
+    </div>
+    <p className="ui-note mt-5">Квартали: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline">© OpenStreetMap contributors, ODbL</a>. Каталогът може да е непълен.</p>
+  </form>;
 }

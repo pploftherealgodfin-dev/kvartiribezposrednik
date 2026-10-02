@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import HomeSearchForm from './HomeSearchForm';
-import type { City } from '@/lib/types';
+import type { City, Neighborhood, University } from '@/lib/types';
 
 interface HomeHeroProps {
   cities: City[];
+  neighborhoods: Neighborhood[];
+  universities: University[];
 }
 
-export default function HomeHero({ cities }: HomeHeroProps) {
+export default function HomeHero({ cities, neighborhoods, universities }: HomeHeroProps) {
   const { t } = useTranslation();
 
   return (
@@ -23,7 +25,7 @@ export default function HomeHero({ cities }: HomeHeroProps) {
         </p>
 
         <div className="mt-8 w-full">
-          <HomeSearchForm cities={cities} />
+          <HomeSearchForm cities={cities} neighborhoods={neighborhoods} universities={universities} />
         </div>
       </div>
 

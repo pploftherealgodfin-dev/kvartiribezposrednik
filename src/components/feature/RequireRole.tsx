@@ -1,7 +1,7 @@
 import ProfileRecovery from '@/components/feature/ProfileRecovery';
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import PageLoading from '@/components/feature/PageLoading';
 import { useAuth } from '@/hooks/useAuth';
 import { dashboardPath } from '@/lib/roles';
 import type { Role } from '@/lib/types';
@@ -16,20 +16,12 @@ interface RequireRoleProps {
  * Ако ролята е друга — праща потребителя в неговия собствен панел.
  */
 export default function RequireRole({ allow, children }: RequireRoleProps) {
-  const { t } = useTranslation();
   const { session, profile, loading, profileLoading, profileError } = useAuth();
   const location = useLocation();
 
   if (session && profileError) return <ProfileRecovery />;
   if (loading || (session && profileLoading)) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <span className="flex items-center gap-3 text-sm text-foreground-600">
-          <i className="ri-loader-4-line animate-spin text-xl text-primary-600" />
-          {t('common.loading')}
-        </span>
-      </div>
-    );
+    return <PageLoading />;
   }
 
   if (!session) {

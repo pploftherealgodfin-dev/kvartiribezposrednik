@@ -6,16 +6,13 @@ import {
   deactivateListing,
   resubmitListing,
   markListingRented,
-  type ListingTrend,
   type OwnerListingRow,
 } from '@/lib/repository/owner';
 import type { ListingStatus } from '@/lib/types';
 import ListingPhotosManager from './ListingPhotosManager';
-import ListingSparkline from './ListingSparkline';
 
 interface OwnerListingsProps {
   listings: OwnerListingRow[];
-  trends: Record<string, ListingTrend>;
   loading: boolean;
   onChanged: () => void;
   ownerId: string;
@@ -34,7 +31,6 @@ const STATUS_STYLE: Record<string, string> = {
 
 export default function OwnerListings({
   listings,
-  trends,
   loading,
   onChanged,
   ownerId,
@@ -45,6 +41,7 @@ export default function OwnerListings({
   const [expandedId, setExpandedId] = useState('');
 
   const handleAction = async (id: string, action: 'rented' | 'deactivate' | 'resubmit') => {
+    if (busyId) return;
     setBusyId(id);
     setError('');
     try {
@@ -91,8 +88,6 @@ export default function OwnerListings({
       <ul className="divide-y divide-background-200">
         {listings.map((item) => {
           const status = item.status as ListingStatus;
-          const trend = trends[item.id];
-          const trendValues = trend?.views ?? [];
           const isExpanded = expandedId === item.id;
           return (
             <li key={item.id} className="bg-background-50 p-4 md:p-5">
@@ -130,10 +125,7 @@ export default function OwnerListings({
                       <span className="font-semibold text-foreground-900">{formatNumber(item.favorites)}</span>
                       {t('owner.favoritesLabel')}
                     </span>
-                    <span className="flex items-center gap-2">
-                      <ListingSparkline values={trendValues} label={t('owner.trendLabel')} />
-                      <span className="text-[11px] text-foreground-500">{t('owner.trendHint')}</span>
-                    </span>
+
                   </div>
                 </div>
 
@@ -154,12 +146,12 @@ export default function OwnerListings({
                     <i className="ri-image-2-line text-sm" aria-hidden="true" />
                     {t('owner.photos')} ({item.photos})
                   </button>
-                  {['draft','deactivated','expired','rejected'].includes(status) && <button disabled={busyId === item.id} onClick={() => handleAction(item.id, 'resubmit')} className="rounded border p-2 text-xs">Изпрати отново за преглед</button>}
+                  {['draft','deactivated','expired','rejected'].includes(status) && <button disabled={Boolean(busyId)} onClick={() => handleAction(item.id, 'resubmit')} className="rounded border p-2 text-xs">Изпрати отново за преглед</button>}
                   {status === 'active' && (
                     <>
                       <button
                         type="button"
-                        disabled={busyId === item.id}
+                        disabled={Boolean(busyId)}
                         onClick={() => handleAction(item.id, 'rented')}
                         className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md bg-primary-600 px-3 py-2 text-xs font-semibold text-background-50 transition-colors hover:bg-primary-700 disabled:opacity-60"
                       >
@@ -168,7 +160,7 @@ export default function OwnerListings({
                       </button>
                       <button
                         type="button"
-                        disabled={busyId === item.id}
+                        disabled={Boolean(busyId)}
                         onClick={() => handleAction(item.id, 'deactivate')}
                         className="inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md border border-background-300 px-3 py-2 text-xs font-semibold text-foreground-700 transition-colors hover:bg-background-100 disabled:opacity-60"
                       >

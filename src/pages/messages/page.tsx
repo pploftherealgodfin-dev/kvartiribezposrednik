@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,6 +18,8 @@ export default function MessagesPage() {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [messages, setMessages] = useState<ThreadMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [threadLoading, setThreadLoading] = useState(Boolean(selected));
+  const [messagesLoading, setMessagesLoading] = useState(Boolean(selected));
   const [historyLoading, setHistoryLoading] = useState(false);
   const [threadsLoading, setThreadsLoading] = useState(false);
   const [threadOffset, setThreadOffset] = useState(100);
@@ -28,6 +30,10 @@ export default function MessagesPage() {
   const [busy, setBusy] = useState(false);
   const [retry, setRetry] = useState(0);
   const request = useRef({ id: '', body: '', thread: '' });
+  const draftThread = useRef(selected);
+  const history = useRef<HTMLOListElement>(null);
+  const latestShown = useRef('');
+  const previousScroll = useRef<{height: number; top: number; thread: string} | null>(null);
   const refresh = useCallback(async () => { const rows = await getThreads(); setThreads(old => mergeThreads(old,rows)); }, []);
   useEffect(() => {
     let live = true; setLoading(true); setError('');
@@ -37,20 +43,48 @@ export default function MessagesPage() {
     return () => { live = false; };
   }, [retry]);
   useEffect(() => {
-    let live = true; setMessages([]); setBody(''); setMoreMessages(false); setError('');
+    let live = true;
+    setMessages([]); setMoreMessages(false); setError('');
+    if (draftThread.current !== selected) { setBody(''); draftThread.current = selected; }
+    setHistoryLoading(false); latestShown.current = ''; previousScroll.current = null;
+    setThreadLoading(Boolean(selected)); setMessagesLoading(Boolean(selected));
     if (!selected) return;
-    const load = (initial = false) => getThreadMessages(selected).then(rows => { if (live) { setMessages(old => mergeMessages(old,rows)); if (initial) setMoreMessages(rows.length === 100); } }).catch(() => { if (live) setError('Съобщенията не се заредиха. Опитай отново.'); });
-    void getThread(selected).then(item => { if (live && item) setThreads(old => mergeThreads(old,[item])); }).catch(() => { if (live) setError('Разговорът не се зареди.'); });
+    const load = (initial = false) => getThreadMessages(selected).then(rows => {
+      if (live) { setMessages(old => mergeMessages(old,rows)); if (initial) setMoreMessages(rows.length === 100); }
+    }).catch(() => { if (live) setError('Съобщенията не се заредиха. Опитай отново.'); })
+      .finally(() => { if (live && initial) setMessagesLoading(false); });
+    void getThread(selected).then(item => {
+      if (live) setThreads(old => item ? mergeThreads(old,[item]) : old.filter(row => row.id !== selected));
+    }).catch(() => { if (live) setError('Разговорът не се зареди.'); })
+      .finally(() => { if (live) setThreadLoading(false); });
     void load(true);
     const timer = window.setInterval(() => { if (document.visibilityState === 'visible') { void load(); void refresh().catch(() => undefined); } }, 15000);
     return () => { live = false; window.clearInterval(timer); };
   }, [selected, refresh, retry]);
+  useLayoutEffect(() => {
+    const list = history.current;
+    if (!list) return;
+    const previous = previousScroll.current;
+    if (previous?.thread === selected) {
+      list.scrollTop = previous.top + list.scrollHeight - previous.height;
+      previousScroll.current = null;
+    } else {
+      const last = messages.at(-1);
+      if (last && last.id !== latestShown.current && (!latestShown.current || last.sender_id === user?.id || list.scrollHeight - list.scrollTop - list.clientHeight < 100)) list.scrollTop = list.scrollHeight;
+    }
+    latestShown.current = messages.at(-1)?.id ?? '';
+  }, [messages, selected, threadLoading, user?.id]);
   const older = async () => {
     if (!messages.length || historyLoading) return;
     const threadId = selected; setHistoryLoading(true);
-    try { const rows = await getThreadMessages(threadId,messages[0]); if (currentThread.current === threadId) { setMessages(old => mergeMessages(old,rows)); setMoreMessages(rows.length === 100); } }
-    catch { setError('По-старите съобщения не се заредиха. Опитай отново.'); }
-    finally { setHistoryLoading(false); }
+    try {
+      const rows = await getThreadMessages(threadId,messages[0]);
+      if (currentThread.current === threadId) {
+        if (history.current) previousScroll.current = { height:history.current.scrollHeight, top:history.current.scrollTop, thread:threadId };
+        setMessages(old => mergeMessages(old,rows)); setMoreMessages(rows.length === 100);
+      }
+    } catch { if (currentThread.current === threadId) setError('По-старите съобщения не се заредиха. Опитай отново.'); }
+    finally { if (currentThread.current === threadId) setHistoryLoading(false); }
   };
   const loadThreads = async () => {
     if (threadsLoading) return; setThreadsLoading(true);
@@ -59,7 +93,7 @@ export default function MessagesPage() {
     finally { setThreadsLoading(false); }
   };
   const send = async (event: FormEvent) => {
-    event.preventDefault(); if (!body.trim() || busy) return;
+    event.preventDefault(); if (!body.trim() || busy || threadLoading || messagesLoading || !selected) return;
     const text = body.trim(); const threadId = selected; setBusy(true); setError('');
     if (request.current.body !== text || request.current.thread !== threadId) request.current = { id: crypto.randomUUID(), body: text, thread: threadId };
     try {
@@ -70,21 +104,31 @@ export default function MessagesPage() {
         const rows = await getThreadMessages(threadId);
         if (currentThread.current === threadId) setMessages(old => mergeMessages(old,rows));
         await refresh();
-      } catch { setError('Съобщението е изпратено, но историята не се обнови. Избери „Опитай отново“.'); }
-    } catch { setError('Изпращането не е потвърдено. Текстът е запазен; опитай отново.'); }
+      } catch { if (currentThread.current === threadId) setError('Съобщението е изпратено, но историята не се обнови. Избери „Опитай отново“.'); }
+    } catch { if (currentThread.current === threadId) setError('Изпращането не е потвърдено. Текстът е запазен; опитай отново.'); }
     finally { setBusy(false); }
   };
   const thread = threads.find(item => item.id === selected);
-  return <SiteLayout><div className="mx-auto max-w-6xl px-4 py-10">
-    <h1 className="text-3xl font-bold">Съобщения</h1><p className="mt-3 text-foreground-600">Разговорите са видими само за теб и другия участник.</p>
-    {error && <div role="alert" className="my-4 rounded-md bg-background-100 p-3">{error}<button className="ml-3 text-primary-700 underline" onClick={() => setRetry(value => value + 1)}>Опитай отново</button></div>}
-    <div className="mt-8 grid gap-5 lg:grid-cols-[280px_1fr]">
-      <aside aria-label="Разговори" className="space-y-2">{loading ? <p role="status">Зареждане…</p> : !threads.length ? <p>Няма започнати разговори. Отвори обява и избери „Пиши на наемодателя“.</p> : threads.map(item => <button key={item.id} onClick={() => setParams({ razgovor: item.id })} aria-pressed={selected === item.id} className={`block w-full rounded-lg border p-4 text-left ${selected === item.id ? 'border-primary-500 bg-primary-50' : 'border-background-300'}`}><span className="block font-semibold">{item.listing?.title ?? 'Обява'}</span><span className="mt-1 block text-xs">{item.owner_id === user?.id ? 'Кандидат наемател' : 'Наемодател'} · {new Date(item.updated_at).toLocaleDateString('bg-BG')}</span></button>)}{moreThreads && <button disabled={threadsLoading} onClick={loadThreads} className="w-full rounded-md border px-4 py-3">{threadsLoading ? 'Зареждане…' : 'Още разговори'}</button>}</aside>
-      <section className="rounded-lg border border-background-200 bg-background-50 p-5">{thread ? <>
-        <h2 className="text-xl font-bold">{thread.listing?.title ?? 'Разговор'}</h2>{thread.listing?.slug && <Link to={`/obiava/${thread.listing.slug}`} className="mt-2 inline-block text-sm text-primary-700 underline">Виж обявата</Link>}
-        {moreMessages && <button disabled={historyLoading} onClick={older} className="mt-4 rounded-md border px-4 py-2">{historyLoading ? 'Зареждане…' : 'По-стари съобщения'}</button>}
-        <ol aria-label="Съобщения в разговора" className="my-5 max-h-[50dvh] space-y-3 overflow-y-auto">{messages.map(message => <li key={message.id} className={`max-w-[90%] rounded-lg p-3 ${message.sender_id === user?.id ? 'ml-auto bg-primary-50' : 'bg-background-100'}`}><p className="whitespace-pre-wrap break-words">{message.body}</p><p className="mt-2 text-xs text-foreground-600">{message.sender_id === user?.id ? 'Ти' : 'Другият участник'} · {new Date(message.created_at).toLocaleString('bg-BG')}</p></li>)}</ol>
-        <form onSubmit={send}><label htmlFor="message-body" className="block font-semibold">Твоето съобщение</label><textarea id="message-body" required minLength={1} maxLength={2000} value={body} onChange={e => setBody(e.target.value)} className="mt-2 w-full rounded-md border border-background-300 bg-background-50 p-3" rows={3} /><p className="text-xs text-foreground-600">{body.length}/2000 · Пази разговора и не изпращай банкови кодове.</p><button disabled={busy || !body.trim()} className="mt-3 rounded-md bg-primary-600 px-5 py-3 font-semibold text-background-50 disabled:opacity-50">{busy ? 'Изпращане…' : 'Изпрати'}</button></form>
-      </> : <p>{selected && !loading ? 'Този разговор не е достъпен за твоя акаунт.' : 'Избери разговор или намери жилище, за което да попиташ.'}</p>}</section>
+  return <SiteLayout><div className="mx-auto max-w-6xl px-4 py-8 sm:py-10">
+    <h1 className="font-heading text-2xl font-semibold sm:text-3xl">Съобщения</h1>
+    <p className="ui-note mt-2">Разговорите са видими само за теб и другия участник.</p>
+    {error && <div role="alert" className="my-4 rounded-lg border border-accent-200 bg-accent-50 p-4 text-sm">{error}<button className="ml-3 min-h-11 text-primary-700 underline" onClick={() => setRetry(value => value + 1)}>Опитай отново</button></div>}
+    <div className="mt-6 grid min-w-0 gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <aside aria-label="Разговори" className={`space-y-2 ${selected ? 'hidden lg:block' : ''}`}>
+        {loading ? <p role="status" className="ui-note">Зареждаме разговорите…</p> : !threads.length ? <div className="ui-panel"><h2 className="font-semibold">Тук започва разговорът</h2><p className="ui-note mt-2">Отвори обява и избери „Пиши на наемодателя“.</p><Link to="/tarsene" className="ui-button mt-4">Намери жилище</Link></div> : threads.map(item => <button key={item.id} onClick={() => setParams({ razgovor: item.id })} aria-pressed={selected === item.id} className={`block w-full rounded-lg border p-4 text-left ${selected === item.id ? 'border-primary-500 bg-primary-50' : 'border-background-300 bg-background-50 hover:border-primary-300'}`}><span className="block break-words text-sm font-semibold">{item.listing?.title ?? 'Обява'}</span><span className="mt-2 block text-xs text-foreground-600">{item.owner_id === user?.id ? 'Кандидат наемател' : 'Наемодател'} · {new Date(item.updated_at).toLocaleDateString('bg-BG')}</span></button>)}
+        {moreThreads && <button disabled={threadsLoading} onClick={loadThreads} className="ui-secondary w-full">{threadsLoading ? 'Зареждане…' : 'Още разговори'}</button>}
+      </aside>
+      <section className={`ui-panel min-w-0 ${selected ? '' : 'hidden lg:block'}`}>
+        {selected && <button onClick={() => setParams({})} className="mb-4 flex min-h-11 items-center gap-2 text-sm text-primary-700 lg:hidden"><i aria-hidden="true" className="ri-arrow-left-line" />Всички разговори</button>}
+        {threadLoading ? <p role="status" className="ui-note">Зареждаме разговора…</p> : thread ? <>
+          <h2 className="break-words text-lg font-semibold">{thread.listing?.title ?? 'Разговор'}</h2>
+          {thread.listing?.slug && <Link to={`/obiava/${thread.listing.slug}`} className="mt-2 inline-flex min-h-11 items-center text-sm text-primary-700 underline">Виж обявата</Link>}
+          {moreMessages && <button disabled={historyLoading} onClick={older} className="ui-secondary mt-4">{historyLoading ? 'Зареждане…' : 'По-стари съобщения'}</button>}
+          {messagesLoading && <p role="status" className="ui-note mt-4">Зареждаме съобщенията…</p>}
+          {!messagesLoading && !messages.length && <p className="ui-note my-6">Попитай за условията или уговори оглед.</p>}
+          <ol ref={history} aria-label="Съобщения в разговора" className="my-5 max-h-[50dvh] space-y-3 overflow-y-auto overscroll-contain">{messages.map(message => <li key={message.id} className={`max-w-[90%] rounded-lg p-3 ${message.sender_id === user?.id ? 'ml-auto bg-primary-50' : 'bg-background-100'}`}><p className="whitespace-pre-wrap break-words text-sm">{message.body}</p><p className="mt-2 text-xs text-foreground-600">{message.sender_id === user?.id ? 'Ти' : 'Другият участник'} · {new Date(message.created_at).toLocaleString('bg-BG')}</p></li>)}</ol>
+          <form onSubmit={send}><label htmlFor="message-body" className="ui-label">Твоето съобщение</label><textarea id="message-body" required minLength={1} maxLength={2000} value={body} disabled={busy || messagesLoading} onChange={e => setBody(e.target.value)} className="ui-field h-auto py-3" rows={3} /><p className="ui-note mt-2">{body.length}/2000 · Не изпращай банкови кодове.</p><button disabled={busy || messagesLoading || !body.trim()} className="ui-button mt-4">{busy ? 'Изпращане…' : 'Изпрати'}</button></form>
+        </> : <div className="py-8 text-center"><p className="ui-note">{selected ? 'Този разговор не е достъпен за твоя акаунт.' : 'Избери разговор, за да видиш съобщенията.'}</p>{selected && <button onClick={() => setParams({})} className="ui-secondary mt-4">Към разговорите</button>}</div>}
+      </section>
     </div></div></SiteLayout>;
 }

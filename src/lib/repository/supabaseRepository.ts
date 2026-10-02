@@ -1,3 +1,4 @@
+import { referenceCache } from '@/lib/referenceCache';
 import { signPhotoPaths } from '@/lib/storage';
 import { LISTING_EXPIRY } from '@/lib/config';
 import { diffInDays } from '@/lib/date';
@@ -199,7 +200,7 @@ class SupabaseRepository implements Repository {
     query = query.order('created_at', { ascending: false }).limit(filter?.limit ?? 50);
     const [listingsResult, citiesResult, neighborhoodsResult] = await Promise.all([
       query,
-      supabase.from('cities').select('*'),
+      this.getCities().then(items => ({data:items.map(item=>({...item,is_university_city:item.isUniversityCity})),error:null})),
       this.getNeighborhoods().then(items => ({ data: items.map(item => ({...item, city_id: item.cityId})), error: null })),
     ]);
 
@@ -249,29 +250,34 @@ class SupabaseRepository implements Repository {
   }
 
   async getCities(): Promise<City[]> {
+    return referenceCache('cities',async()=>{
     const { data, error } = await supabase.from('cities').select('*');
     if (error) throw error;
     return ((data ?? []) as CityRow[]).map(mapCity).sort((a,b) => Number(b.isUniversityCity) - Number(a.isUniversityCity) || a.name.localeCompare(b.name,'bg') || (a.region ?? '').localeCompare(b.region ?? '', 'bg'));
+      });
   }
 
   async getNeighborhoods(cityId?: string): Promise<Neighborhood[]> {
+    const items = await referenceCache('neighborhoods',async()=>{
     const rows: NeighborhoodRow[] = [];
     for (let offset = 0; ; offset += 1000) {
       let query = supabase.from('neighborhoods').select('*').order('id').range(offset, offset + 999);
-      if (cityId) query = query.eq('city_id', cityId);
       const { data, error } = await query;
       if (error) throw error;
       rows.push(...(data ?? []) as NeighborhoodRow[]);
       if ((data?.length ?? 0) < 1000) break;
     }
     return rows.map(row => ({ id: row.id, cityId: row.city_id, slug: row.slug, name: row.name, lat: row.lat, lng: row.lng, associationMethod: row.association_method, sourceUrl: row.source_url })).sort((a,b) => a.name.localeCompare(b.name,'bg'));
+      });
+    return cityId ? items.filter(item=>item.cityId===cityId) : items;
   }
 
   async getUniversities(cityId?: string): Promise<University[]> {
+    const items = await referenceCache('universities',async()=>{
     const { data, error } = await supabase.from('universities').select('*');
     if (error) throw error;
     const rows = (data ?? []) as UniversityRow[];
-    return (cityId ? rows.filter((row) => row.city_id === cityId) : rows).map((row) => ({
+    return rows.map((row) => ({
       id: row.id,
       cityId: row.city_id,
       kind: row.kind,
@@ -280,6 +286,8 @@ class SupabaseRepository implements Repository {
       lat: row.lat,
       lng: row.lng,
     }));
+      });
+    return cityId ? items.filter(item=>item.cityId===cityId) : items;
   }
 
   async getLatestListings(limit: number, nowIso?: string): Promise<ListingView[]> {

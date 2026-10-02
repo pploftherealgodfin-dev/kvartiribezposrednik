@@ -2,6 +2,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import SiteHeader from './SiteHeader';
+import AccountNav from './AccountNav';
 import SiteFooter from './SiteFooter';
 import MobileBottomNav from './MobileBottomNav';
 import CookieConsent from './CookieConsent';
@@ -23,6 +24,7 @@ export default function SiteLayout({ children }: SiteLayoutProps) {
         {t('a11y.skip')}
       </a>
       <SiteHeader />
+      <AccountNav />
       {favoriteError && <div role="alert" className="border-b border-accent-200 bg-accent-50 px-4 py-3 text-center text-sm text-foreground-900">{favoriteError}</div>}
       <main id="main-content" tabIndex={-1} className="flex-1">
         {children}

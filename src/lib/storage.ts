@@ -46,8 +46,13 @@ function extensionFor(file: File): string {
   return /^[a-z0-9]{1,5}$/.test(raw) ? raw : 'jpg';
 }
 
-/** Decode and re-encode pixels to remove EXIF/GPS and reject disguised non-images. */
-async function sanitizePhoto(file: File): Promise<File> {
+const preparedPhotos = new WeakSet<File>();
+
+/** Decode before creating the listing; re-encode pixels to remove EXIF/GPS. */
+export async function prepareListingPhoto(file: File): Promise<File> {
+  const problem = validatePhotoFile(file);
+  if (problem) throw new Error(problem === 'tooLarge' ? 'Снимката е над 5 MB.' : 'Използвайте JPEG, PNG или WebP.');
+  if (preparedPhotos.has(file)) return file;
   const url = URL.createObjectURL(file);
   try {
     const picture = new Image(); picture.src = url; await picture.decode();
@@ -61,7 +66,9 @@ async function sanitizePhoto(file: File): Promise<File> {
     context.drawImage(picture, 0, 0, canvas.width, canvas.height);
     const encoded = await new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Снимката не може да бъде обработена.')), file.type, 0.9));
     if (encoded.size > PHOTO_LIMITS.maxBytes) throw new Error('Обработената снимка е над 5 MB.');
-    return new File([encoded], 'photo', { type: encoded.type });
+    const prepared = new File([encoded], 'photo', { type: encoded.type });
+    preparedPhotos.add(prepared);
+    return prepared;
   } finally { URL.revokeObjectURL(url); }
 }
 
@@ -71,9 +78,7 @@ export async function uploadListingPhoto(
   ownerId: string,
   listingId: string,
 ): Promise<string> {
-  const problem = validatePhotoFile(file);
-  if (problem) throw new Error(problem === 'tooLarge' ? 'Снимката е над 5 MB.' : 'Използвайте JPEG, PNG или WebP.');
-  const safeFile = await sanitizePhoto(file);
+  const safeFile = await prepareListingPhoto(file);
   const folder = `${sanitizeSegment(ownerId)}/${sanitizeSegment(listingId)}`;
   const name = `${crypto.randomUUID()}.${extensionFor(safeFile)}`;
   const path = `${folder}/${name}`;

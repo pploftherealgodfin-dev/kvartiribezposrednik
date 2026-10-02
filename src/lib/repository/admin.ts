@@ -112,25 +112,22 @@ export async function getAdminListings(): Promise<AdminListingRow[]> {
   }));
 }
 
-export async function setUserRole(userId: string, role: Role): Promise<void> {
-  const { error } = await supabase.from('profiles').update({ role }).eq('id', userId);
+export async function setUserRole(userId: string, role: Role, reason: string): Promise<void> {
+  const { error } = await supabase.rpc('admin_update_user', { p_id: userId, p_role: role, p_status: null, p_reason: reason });
   if (error) throw error;
 }
-
-export async function setUserStatus(userId: string, status: UserStatus): Promise<void> {
-  const { error } = await supabase.from('profiles').update({ status }).eq('id', userId);
+export async function setUserStatus(userId: string, status: UserStatus, reason: string): Promise<void> {
+  const { error } = await supabase.rpc('admin_update_user', { p_id: userId, p_role: null, p_status: status, p_reason: reason });
   if (error) throw error;
 }
-
-export async function setListingStatus(
-  listingId: string,
-  status: ListingStatus,
-): Promise<void> {
-  const { error } = await supabase.from('listings').update({ status }).eq('id', listingId);
+export async function setListingStatus(listingId: string, status: ListingStatus, reason: string): Promise<void> {
+  const { error } = await supabase.rpc('moderate_listing', { p_id: listingId, p_status: status, p_reason: reason });
   if (error) throw error;
 }
-
-export async function deleteListing(listingId: string): Promise<void> {
-  const { error } = await supabase.from('listings').delete().eq('id', listingId);
+export async function deleteListing(listingId: string, reason: string): Promise<void> {
+  await setListingStatus(listingId, 'removed', reason);
+}
+export async function verifyListing(listingId: string, method: string, evidenceReference: string): Promise<void> {
+  const { error } = await supabase.rpc('verify_listing', { p_id: listingId, p_method: method, p_evidence_reference: evidenceReference });
   if (error) throw error;
 }

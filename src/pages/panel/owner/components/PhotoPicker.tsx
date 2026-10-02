@@ -95,7 +95,7 @@ export default function PhotoPicker({ photos, onChange, disabled }: PhotoPickerP
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         multiple
         className="hidden"
         onChange={(event) => handleSelect(event.target.files)}

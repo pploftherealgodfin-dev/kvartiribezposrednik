@@ -1,8 +1,8 @@
+import { signPhotoPaths } from '@/lib/storage';
 import { LISTING_EXPIRY } from '@/lib/config';
 import { diffInDays } from '@/lib/date';
 import { isVisibleInSearch } from '@/lib/listingStateMachine';
 import { sortListings } from '@/lib/ranking';
-import { filterListings, paginate } from '@/lib/search';
 import { supabase } from '@/lib/supabase';
 import type {
   City,
@@ -37,7 +37,10 @@ interface ListingRow {
   min_term_months: number;
   city_id: string;
   neighborhood_id: string | null;
-  address_private: string;
+  nearby_university_ids: string[];
+  ownership_verified_at: string | null;
+  verification_expires_at: string | null;
+  verification_method: string | null;
   lat_approx: number | null;
   lng_approx: number | null;
   created_at: string;
@@ -49,24 +52,31 @@ interface ListingRow {
 interface PhotoRow {
   id: string;
   listing_id: string;
-  url: string;
+  storage_path: string;
+  url?: string;
   position: number;
   phash: string;
 }
 
 interface CityRow {
+  region?: string;
+  ekatte?: string;
+  is_university_city?: boolean;
   id: string;
   slug: string;
   name: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
 }
 
 interface NeighborhoodRow extends CityRow {
+  association_method?: string;
+  source_url?: string;
   city_id: string;
 }
 
 interface UniversityRow extends CityRow {
+  kind?: 'institution' | 'branch';
   city_id: string;
 }
 
@@ -98,7 +108,7 @@ function nowDefault(nowIso?: string): string {
 }
 
 function mapCity(row: CityRow): City {
-  return { id: row.id, slug: row.slug, name: row.name, lat: row.lat, lng: row.lng };
+  return { id: row.id, slug: row.slug, name: row.name, lat: row.lat, lng: row.lng, region: row.region, ekatte: row.ekatte, isUniversityCity: row.is_university_city };
 }
 
 function mapListing(row: ListingRow): Listing {
@@ -108,7 +118,7 @@ function mapListing(row: ListingRow): Listing {
     .map((photo) => ({
       id: photo.id,
       listingId: photo.listing_id,
-      url: photo.url,
+      url: photo.url ?? '',
       position: photo.position,
       phash: photo.phash,
     }));
@@ -134,7 +144,11 @@ function mapListing(row: ListingRow): Listing {
     minTermMonths: row.min_term_months,
     cityId: row.city_id,
     neighborhoodId: row.neighborhood_id,
-    addressPrivate: row.address_private,
+    addressPrivate: '',
+    nearbyUniversityIds: row.nearby_university_ids ?? [],
+    ownershipVerifiedAt: row.ownership_verified_at,
+    verificationExpiresAt: row.verification_expires_at,
+    verificationMethod: row.verification_method,
     latApprox: toNumber(row.lat_approx) ?? 0,
     lngApprox: toNumber(row.lng_approx) ?? 0,
     createdAt: row.created_at,
@@ -155,7 +169,7 @@ function buildView(
     id: listing.ownerId,
     name: profile?.name ?? 'Собственик',
     memberSince: profile?.created_at ?? listing.createdAt,
-    verifiedOwner: profile?.owner_verified ?? false,
+    verifiedOwner: Boolean(listing.ownershipVerifiedAt && listing.verificationExpiresAt && new Date(listing.verificationExpiresAt).getTime() > new Date(nowIso).getTime()),
   };
 
   return {
@@ -172,18 +186,33 @@ function buildView(
 }
 
 class SupabaseRepository implements Repository {
-  private async loadViews(): Promise<ListingView[]> {
-    const [listingsResult, citiesResult, neighborhoodsResult, profilesResult] = await Promise.all([
-      supabase.from('listings').select('*, photos:listing_photos(id, listing_id, url, position, phash)'),
+  private async loadViews(filter?: { ids?: string[]; slug?: string; neighborhoodId?: string; cityId?: string; type?: string; excludeId?: string; limit?: number; publicOnly?: boolean }): Promise<ListingView[]> {
+    const { data: { session } } = await supabase.auth.getSession();
+    let query = supabase.from('listings').select('id,slug,owner_id,type,status,title,description,price_eur,deposit,area_m2,rooms,floor,total_floors,furnished,pets_allowed,utilities_included,available_from,min_term_months,city_id,neighborhood_id,nearby_university_ids,lat_approx,lng_approx,created_at,expires_at,rented_at,ownership_verified_at,verification_expires_at,verification_method,photos:listing_photos(id,listing_id,storage_path,position,phash)');
+    if (filter?.ids) query = query.in('id', filter.ids);
+    if (filter?.slug) query = query.eq('slug', filter.slug);
+    if (filter?.neighborhoodId) query = query.eq('neighborhood_id', filter.neighborhoodId);
+    if (filter?.cityId) query = query.eq('city_id', filter.cityId);
+    if (filter?.type) query = query.eq('type', filter.type);
+    if (filter?.excludeId) query = query.neq('id', filter.excludeId);
+    if (filter?.publicOnly) query = query.eq('status', 'active').gt('expires_at', new Date().toISOString());
+    query = query.order('created_at', { ascending: false }).limit(filter?.limit ?? 50);
+    const [listingsResult, citiesResult, neighborhoodsResult] = await Promise.all([
+      query,
       supabase.from('cities').select('*'),
-      supabase.from('neighborhoods').select('*'),
-      supabase.from('profiles').select('id, name, owner_verified, created_at'),
+      this.getNeighborhoods().then(items => ({ data: items.map(item => ({...item, city_id: item.cityId})), error: null })),
     ]);
 
     if (listingsResult.error) throw listingsResult.error;
     if (citiesResult.error) throw citiesResult.error;
     if (neighborhoodsResult.error) throw neighborhoodsResult.error;
+    const ownerIds = [...new Set((listingsResult.data ?? []).map(row => row.owner_id))];
+    const profilesResult = session && ownerIds.length ? await supabase.from('profiles').select('id,name,owner_verified,created_at').in('id', ownerIds) : { data: [], error: null };
     if (profilesResult.error) throw profilesResult.error;
+
+    const photoRows = (listingsResult.data ?? []).flatMap(row => row.photos ?? []);
+    const signed = await signPhotoPaths(photoRows.map(row => row.storage_path));
+    for (const photo of photoRows) (photo as PhotoRow).url = signed.get(photo.storage_path) ?? '';
 
     const now = nowDefault();
     const cities = (citiesResult.data ?? []) as CityRow[];
@@ -222,21 +251,20 @@ class SupabaseRepository implements Repository {
   async getCities(): Promise<City[]> {
     const { data, error } = await supabase.from('cities').select('*');
     if (error) throw error;
-    return ((data ?? []) as CityRow[]).map(mapCity);
+    return ((data ?? []) as CityRow[]).map(mapCity).sort((a,b) => Number(b.isUniversityCity) - Number(a.isUniversityCity) || a.name.localeCompare(b.name,'bg') || (a.region ?? '').localeCompare(b.region ?? '', 'bg'));
   }
 
   async getNeighborhoods(cityId?: string): Promise<Neighborhood[]> {
-    const { data, error } = await supabase.from('neighborhoods').select('*');
-    if (error) throw error;
-    const rows = (data ?? []) as NeighborhoodRow[];
-    return (cityId ? rows.filter((row) => row.city_id === cityId) : rows).map((row) => ({
-      id: row.id,
-      cityId: row.city_id,
-      slug: row.slug,
-      name: row.name,
-      lat: row.lat,
-      lng: row.lng,
-    }));
+    const rows: NeighborhoodRow[] = [];
+    for (let offset = 0; ; offset += 1000) {
+      let query = supabase.from('neighborhoods').select('*').order('id').range(offset, offset + 999);
+      if (cityId) query = query.eq('city_id', cityId);
+      const { data, error } = await query;
+      if (error) throw error;
+      rows.push(...(data ?? []) as NeighborhoodRow[]);
+      if ((data?.length ?? 0) < 1000) break;
+    }
+    return rows.map(row => ({ id: row.id, cityId: row.city_id, slug: row.slug, name: row.name, lat: row.lat, lng: row.lng, associationMethod: row.association_method, sourceUrl: row.source_url })).sort((a,b) => a.name.localeCompare(b.name,'bg'));
   }
 
   async getUniversities(cityId?: string): Promise<University[]> {
@@ -246,6 +274,7 @@ class SupabaseRepository implements Repository {
     return (cityId ? rows.filter((row) => row.city_id === cityId) : rows).map((row) => ({
       id: row.id,
       cityId: row.city_id,
+      kind: row.kind,
       slug: row.slug,
       name: row.name,
       lat: row.lat,
@@ -255,40 +284,41 @@ class SupabaseRepository implements Repository {
 
   async getLatestListings(limit: number, nowIso?: string): Promise<ListingView[]> {
     const now = nowDefault(nowIso);
-    const views = this.visible(await this.loadViews(), now);
+    const views = this.visible(await this.loadViews({ publicOnly: true, limit }), now);
     return sortListings(views, 'relevance', now).slice(0, limit);
   }
 
-  async search(params: SearchParams, nowIso?: string) {
-    const now = nowDefault(nowIso);
-    const [views, universities] = await Promise.all([this.loadViews(), this.getUniversities()]);
-    const filtered = filterListings(this.visible(views, now), params.filters, universities);
-    const sorted = sortListings(filtered, params.sort, now);
-    return paginate(sorted, { page: params.page, pageSize: params.pageSize });
+  async search(params: SearchParams, _nowIso?: string) {
+    const { data, error } = await supabase.rpc('search_listing_ids', { p_filters: params.filters, p_sort: params.sort, p_page: params.page, p_size: params.pageSize });
+    if (error) throw error;
+    const result = data as { ids: string[]; total: number; page: number };
+    const views = result.ids.length ? await this.loadViews({ ids: result.ids, limit: params.pageSize }) : [];
+    const map = new Map(views.map(view => [view.listing.id, view]));
+    return { items: result.ids.map(id => map.get(id)).filter((view): view is ListingView => Boolean(view)), total: result.total, page: result.page, pageSize: params.pageSize, totalPages: Math.max(1, Math.ceil(result.total / params.pageSize)) };
   }
 
   async getListingViewById(listingId: string): Promise<ListingView | null> {
-    const views = await this.loadViews();
+    const views = await this.loadViews({ ids: [listingId], limit: 1 });
     return views.find((view) => view.listing.id === listingId) ?? null;
   }
 
   async getListingViewBySlug(slug: string): Promise<ListingView | null> {
-    const views = await this.loadViews();
+    const views = await this.loadViews({ slug, limit: 1 });
     return views.find((view) => view.listing.slug === slug) ?? null;
   }
 
   async getListingViewsByIds(ids: string[]): Promise<ListingView[]> {
     if (ids.length === 0) return [];
     const set = new Set(ids);
-    const views = await this.loadViews();
+    const views = await this.loadViews({ ids, limit: Math.min(ids.length, 500) });
     return views.filter((view) => set.has(view.listing.id));
   }
 
   async getSimilarListings(listingId: string, limit: number, nowIso?: string): Promise<ListingView[]> {
     const now = nowDefault(nowIso);
-    const views = this.visible(await this.loadViews(), now);
-    const base = views.find((view) => view.listing.id === listingId);
+    const base = await this.getListingViewById(listingId);
     if (!base) return [];
+    const views = this.visible(await this.loadViews({ publicOnly: true, cityId: base.city.id, type: base.listing.type, excludeId: listingId, limit }), now);
     const similar = views.filter(
       (view) =>
         view.listing.id !== listingId &&
@@ -306,7 +336,7 @@ class SupabaseRepository implements Repository {
   ): Promise<ListingView[]> {
     if (!neighborhoodId) return [];
     const now = nowDefault(nowIso);
-    const views = this.visible(await this.loadViews(), now);
+    const views = this.visible(await this.loadViews({ publicOnly: true, neighborhoodId, excludeId: excludeListingId, limit }), now);
     const matches = views.filter(
       (view) =>
         view.listing.id !== excludeListingId &&

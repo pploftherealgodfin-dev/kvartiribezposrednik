@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { ListingView } from '@/lib/types';
 import { formatArea, formatEur, pricePerM2 } from '@/lib/format';
@@ -21,15 +21,16 @@ export default function ListingCard({ view }: ListingCardProps) {
   const { t } = useTranslation();
   const { listing, city, neighborhood, badges } = view;
   const navigate = useNavigate();
+  const location = useLocation();
   const { session } = useAuth();
-  const { isFavorite, toggle } = useFavorites();
+  const { isFavorite, toggle, busyIds, loading } = useFavorites();
   const [photoIndex, setPhotoIndex] = useState(0);
 
   const favorite = isFavorite(listing.id);
 
   const toggleFavorite = () => {
     if (!session) {
-      navigate('/vhod');
+      navigate('/vhod', { state: { from: location.pathname + location.search } });
       return;
     }
     toggle(listing.id);
@@ -56,6 +57,7 @@ export default function ListingCard({ view }: ListingCardProps) {
           {currentPhoto ? (
             <img
               src={currentPhoto.url}
+              width={480} height={320} loading="lazy" decoding="async"
               alt={`${listing.title} — ${locationLabel}`}
               title={`${listing.title} — ${locationLabel}`}
               className="h-full w-full object-cover object-top"
@@ -91,6 +93,7 @@ export default function ListingCard({ view }: ListingCardProps) {
         <button
           type="button"
           onClick={toggleFavorite}
+          disabled={loading || busyIds.includes(listing.id)}
           aria-label={t('nav.favorites')}
           aria-pressed={favorite}
           className="absolute right-3 top-3 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-700 transition-colors hover:text-primary-600"

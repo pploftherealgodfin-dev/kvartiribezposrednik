@@ -48,20 +48,7 @@ export default function Contact() {
           {t('contact.intro')}
         </p>
 
-        <div className="mt-6 grid grid-cols-1 gap-3 rounded-lg border border-background-200 bg-background-100 p-4 text-sm text-foreground-700 sm:grid-cols-3">
-          <p className="flex items-center gap-2">
-            <i className="ri-mail-line text-base text-foreground-400" aria-hidden="true" />
-            {t('legal.operatorEmail')}
-          </p>
-          <p className="flex items-center gap-2">
-            <i className="ri-phone-line text-base text-foreground-400" aria-hidden="true" />
-            {t('legal.operatorPhone')}
-          </p>
-          <p className="flex items-center gap-2">
-            <i className="ri-map-pin-2-line text-base text-foreground-400" aria-hidden="true" />
-            {t('legal.operatorAddress')}
-          </p>
-        </div>
+        <p className="mt-6 rounded-lg border border-background-200 bg-background-100 p-4 text-sm text-foreground-700">За запитване използвай формата по-долу. Не изпращай пароли, банкови кодове или снимки на документи.</p>
 
         {status === 'success' ? (
           <div className="mt-8 rounded-lg border border-primary-200 bg-primary-50 p-6 text-center">

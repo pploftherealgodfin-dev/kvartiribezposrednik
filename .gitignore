@@ -1,0 +1,12 @@
+node_modules/
+out/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+auto-imports.d.ts
+
+node_modules
+.prerender/
+
+supabase/.temp/

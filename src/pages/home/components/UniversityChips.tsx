@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import LocationSelect from '@/components/feature/LocationSelect';
+import { Link, useNavigate } from 'react-router-dom';
 import type { City, University } from '@/lib/types';
 
 interface UniversityChipsProps {
@@ -9,6 +11,8 @@ interface UniversityChipsProps {
 
 export default function UniversityChips({ universities, cities }: UniversityChipsProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [selected, setSelected] = useState('');
 
   const links = universities
     .map((university) => {
@@ -30,8 +34,9 @@ export default function UniversityChips({ universities, cities }: UniversityChip
         </h2>
         <p className="mt-1 text-sm text-foreground-600">{t('home.universitiesSubtitle')}</p>
 
-        <div className="mt-6 flex flex-wrap gap-2">
-          {links.map((item) => (
+        <div className="mt-6 max-w-2xl"><LocationSelect id="home-university" label="Намери университет или филиал" value={selected} placeholder="Избери учебно заведение" options={links.map(link => ({ value: link.key, label: link.name }))} onChange={value => { setSelected(value); const target = links.find(link => link.key === value); if (target) navigate(target.to); }} /></div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {links.slice(0, 6).map((item) => (
             <Link
               key={item.key}
               to={item.to}
@@ -40,7 +45,7 @@ export default function UniversityChips({ universities, cities }: UniversityChip
               {item.name}
             </Link>
           ))}
-        </div>
+        </div><Link to="/kvartiri-bez-posrednik" className="mt-5 inline-block text-primary-700 underline">Всички университетски градове и останалите градове в България</Link>
       </div>
     </section>
   );

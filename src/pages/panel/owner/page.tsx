@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { repository } from '@/lib/repository';
 import { getOwnerDailyStats, getOwnerListingTrends, getOwnerStats, type DailyPoint, type ListingTrend, type OwnerStats } from '@/lib/repository/owner';
-import type { City, Neighborhood } from '@/lib/types';
+import type { City, Neighborhood, University } from '@/lib/types';
 import OwnerStatsCards from './components/OwnerStatsCards';
 import OwnerListings from './components/OwnerListings';
 import OwnerTrendChart from './components/OwnerTrendChart';
@@ -12,6 +13,7 @@ import ListingForm from './components/ListingForm';
 
 export default function OwnerPanelPage() {
   const { t } = useTranslation();
+  const [params] = useSearchParams();
   const { profile } = useAuth();
   const ownerId = profile?.id ?? '';
 
@@ -20,9 +22,10 @@ export default function OwnerPanelPage() {
   const [trends, setTrends] = useState<Record<string, ListingTrend>>({});
   const [cities, setCities] = useState<City[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(params.get('nova') === '1');
   const [notice, setNotice] = useState('');
 
   const load = useCallback(async () => {
@@ -30,13 +33,15 @@ export default function OwnerPanelPage() {
     setLoading(true);
     setError(false);
     try {
-      const [statData, cityItems, hoodItems, dailyPoints, trendData] = await Promise.all([
+      const [statData, cityItems, hoodItems, dailyPoints, trendData, uniItems] = await Promise.all([
         getOwnerStats(ownerId),
         repository.getCities(),
         repository.getNeighborhoods(),
         getOwnerDailyStats(ownerId),
         getOwnerListingTrends(ownerId),
+        repository.getUniversities(),
       ]);
+      setUniversities(uniItems);
       setStats(statData);
       setCities(cityItems);
       setNeighborhoods(hoodItems);
@@ -61,10 +66,11 @@ export default function OwnerPanelPage() {
             <h1 className="font-heading text-2xl font-extrabold tracking-tight text-foreground-950 md:text-3xl">
               {t('owner.title')}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-foreground-600">{t('owner.subtitle')}</p>
+            <p className="mt-2 max-w-2xl text-sm text-foreground-600">{t('owner.subtitle')}</p><Link to="/nastroyki" className="mt-3 inline-block text-sm text-primary-700 underline">Настрой контактите по обявите</Link>
           </div>
           <button
             type="button"
+            disabled={loading || error}
             onClick={() => {
               setShowForm((value) => !value);
               setNotice('');
@@ -88,6 +94,7 @@ export default function OwnerPanelPage() {
             ownerId={ownerId}
             cities={cities}
             neighborhoods={neighborhoods}
+            universities={universities}
             onCancel={() => setShowForm(false)}
             onCreated={() => {
               setShowForm(false);

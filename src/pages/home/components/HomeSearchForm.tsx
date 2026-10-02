@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import LocationSelect from '@/components/feature/LocationSelect';
 import type { City } from '@/lib/types';
 
 interface HomeSearchFormProps {
@@ -42,24 +43,9 @@ export default function HomeSearchForm({ cities }: HomeSearchFormProps) {
       onSubmit={onSubmit}
       className="w-full rounded-lg border border-background-200/70 bg-background-50 p-4 md:p-5"
     >
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6 lg:items-end">
         <div className="lg:col-span-2">
-          <label className={labelClass} htmlFor="home-search-city">
-            {t('home.searchCity')}
-          </label>
-          <select
-            id="home-search-city"
-            className={fieldClass}
-            value={citySlug}
-            onChange={(e) => setCitySlug(e.target.value)}
-          >
-            <option value="">{t('home.searchCity')}</option>
-            {cities.map((city) => (
-              <option key={city.id} value={city.slug}>
-                {city.name}
-              </option>
-            ))}
-          </select>
+          <LocationSelect id="home-search-city" label={t('home.searchCity')} value={citySlug} options={cities.map(city => ({ value: city.slug, label: `${city.name}${city.region ? ` · ${city.region}` : ''}`, priority: city.isUniversityCity }))} placeholder="Всички градове" onChange={setCitySlug} />
         </div>
 
         <div className="sm:col-span-2 lg:col-span-1">
@@ -68,7 +54,7 @@ export default function HomeSearchForm({ cities }: HomeSearchFormProps) {
           </label>
           <input
             id="home-search-area"
-            type="text"
+            type="text" maxLength={200}
             className={fieldClass}
             placeholder={t('home.areaPlaceholder')}
             value={area}

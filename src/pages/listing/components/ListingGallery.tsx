@@ -29,6 +29,7 @@ export default function ListingGallery({ photos, title, location }: ListingGalle
       <div className="relative h-72 w-full overflow-hidden rounded-lg border border-background-200 bg-background-100 md:h-[420px]">
         <img
           src={current.url}
+          width={960} height={640} decoding="async" fetchPriority="high"
           alt={`${title} — ${location}`}
           title={`${title} — ${location}`}
           className="h-full w-full object-cover object-top"
@@ -75,6 +76,7 @@ export default function ListingGallery({ photos, title, location }: ListingGalle
               >
                 <img
                   src={photo.url}
+                  width={120} height={80} loading="lazy" decoding="async"
                   alt={`${title} — снимка ${index + 1}`}
                   className="h-full w-full object-cover object-top"
                 />

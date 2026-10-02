@@ -1,6 +1,7 @@
+import ProfileRecovery from '@/components/feature/ProfileRecovery';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { useAuth } from '@/hooks/useAuth';
 import { dashboardPath, readPendingRole, setPendingRole, type RegisterRole } from '@/lib/roles';
@@ -47,7 +48,11 @@ function RoleCard({ active, icon, title, description, onClick }: RoleCardProps) 
 
 export default function Login() {
   const { t } = useTranslation();
-  const { session, profile, loading, signInWithGoogle, signInWithPhone, verifyPhoneOtp } = useAuth();
+  const location = useLocation();
+  const [params] = useSearchParams();
+  const requested = params.get('next') ?? (location.state as {from?: string} | null)?.from ?? (() => { try { return window.sessionStorage.getItem('kb_return_to') ?? ''; } catch { return ''; } })();
+  const from = requested.startsWith('/') && !requested.startsWith('//') && !requested.includes('\\') && !Array.from(requested).some(char => char.charCodeAt(0) <= 32) && !/^\/vhod(?:[/?]|$)/.test(requested) ? requested : '';
+  const { session, profile, loading, profileError, signInWithGoogle, signInWithPhone, verifyPhoneOtp } = useAuth();
 
   const [role, setRole] = useState<RegisterRole>(() => readPendingRole() ?? 'tenant');
   const [phone, setPhone] = useState('');
@@ -57,9 +62,11 @@ export default function Login() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
+  if (session && profileError) return <ProfileRecovery />;
   if (!loading && session) {
     if (profile) {
-      return <Navigate to={dashboardPath(profile.role)} replace />;
+      try { window.sessionStorage.removeItem('kb_return_to'); } catch { /* unavailable */ }
+      return <Navigate to={from || dashboardPath(profile.role)} replace />;
     }
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -81,6 +88,7 @@ export default function Login() {
     setNotice('');
     setPendingRole(role);
     setBusy(true);
+    try { if (from) window.sessionStorage.setItem('kb_return_to', from); } catch { /* Browser can disable storage. */ }
     const { error: err } = await signInWithGoogle();
     if (err) {
       setError(err);
@@ -91,9 +99,9 @@ export default function Login() {
   const handleSendCode = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
-    const normalized = phone.trim();
-    if (!normalized) {
-      setError(t('auth.phoneRequired'));
+    const normalized = phone.replace(/[\s()-]/g, '');
+    if (!/^\+[1-9]\d{7,14}$/.test(normalized)) {
+      setError('Въведи телефон с код на държавата, например +359888123456.');
       return;
     }
     setPendingRole(role);

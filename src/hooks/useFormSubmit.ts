@@ -73,8 +73,7 @@ export function useFormSubmit({
           parsed = null;
         }
 
-        const serverMsg =
-          parsed?.meta?.message || parsed?.message || parsed?.meta?.detail || responseText;
+        const serverMsg = parsed?.meta?.message || parsed?.message || parsed?.meta?.detail || '';
         const isSpam =
           typeof serverMsg === 'string' && serverMsg.toLowerCase().includes('spam');
 
@@ -84,7 +83,7 @@ export function useFormSubmit({
         } else {
           setStatus('error');
           setError(
-            typeof serverMsg === 'string' && serverMsg.trim() ? serverMsg : genericError,
+            genericError,
           );
         }
       } catch {

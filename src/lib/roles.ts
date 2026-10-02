@@ -33,6 +33,7 @@ export function clearPendingRole(): void {
 /** Къде води всеки тип акаунт след вход. */
 export function dashboardPath(role: Role | null | undefined): string {
   switch (role) {
+    case 'moderator':
     case 'admin':
       return '/admin';
     case 'owner':

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { formatEur, formatNumber, formatShortDate } from '@/lib/format';
 import {
   deactivateListing,
+  resubmitListing,
   markListingRented,
   type ListingTrend,
   type OwnerListingRow,
@@ -43,12 +44,14 @@ export default function OwnerListings({
   const [error, setError] = useState('');
   const [expandedId, setExpandedId] = useState('');
 
-  const handleAction = async (id: string, action: 'rented' | 'deactivate') => {
+  const handleAction = async (id: string, action: 'rented' | 'deactivate' | 'resubmit') => {
     setBusyId(id);
     setError('');
     try {
       if (action === 'rented') {
         await markListingRented(id);
+      } else if (action === 'resubmit') {
+        await resubmitListing(id);
       } else {
         await deactivateListing(id);
       }
@@ -151,6 +154,7 @@ export default function OwnerListings({
                     <i className="ri-image-2-line text-sm" aria-hidden="true" />
                     {t('owner.photos')} ({item.photos})
                   </button>
+                  {['draft','deactivated','expired','rejected'].includes(status) && <button disabled={busyId === item.id} onClick={() => handleAction(item.id, 'resubmit')} className="rounded border p-2 text-xs">Изпрати отново за преглед</button>}
                   {status === 'active' && (
                     <>
                       <button
@@ -181,7 +185,7 @@ export default function OwnerListings({
                     {t('owner.managePhotos')}
                   </h3>
                   <div className="mt-3">
-                    <ListingPhotosManager listingId={item.id} ownerId={ownerId} onChanged={onChanged} />
+                    {['draft','pending_review','rejected','deactivated','expired'].includes(status) ? <ListingPhotosManager listingId={item.id} ownerId={ownerId} onChanged={onChanged} /> : <p className="text-sm">За промяна на снимките първо деактивирай обявата. След редакция е необходим нов преглед.</p>}
                   </div>
                 </div>
               )}

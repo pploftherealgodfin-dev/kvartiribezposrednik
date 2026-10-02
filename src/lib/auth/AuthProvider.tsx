@@ -1,36 +1,15 @@
-import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AuthContext, type AuthProfile, type AuthResult, type AuthContextValue } from './context';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { clearPendingRole, readPendingRole } from '@/lib/roles';
 import type { Role } from '@/lib/types';
 
-export interface AuthProfile {
-  id: string;
-  role: Role;
-  name: string;
-  ownerVerified: boolean;
-}
 
-export interface AuthResult {
-  error: string | null;
-}
-
-export interface AuthContextValue {
-  session: Session | null;
-  user: User | null;
-  profile: AuthProfile | null;
-  loading: boolean;
-  signInWithGoogle: () => Promise<AuthResult>;
-  signInWithPhone: (phone: string) => Promise<AuthResult>;
-  verifyPhoneOtp: (phone: string, token: string) => Promise<AuthResult>;
-  signOut: () => Promise<void>;
-}
-
-export const AuthContext = createContext<AuthContextValue | null>(null);
 
 function redirectUrl(): string {
   const base = typeof __BASE_PATH__ === 'string' ? __BASE_PATH__ : '/';
-  return `${window.location.origin}${base}`;
+  return `${window.location.origin}${base}vhod`;
 }
 
 /** Създава публичния профил и контактите при първи вход. */
@@ -39,33 +18,25 @@ async function ensureProfile(user: User): Promise<void> {
   const name =
     (typeof metadata.full_name === 'string' && metadata.full_name) ||
     (typeof metadata.name === 'string' && metadata.name) ||
-    user.email ||
-    user.phone ||
     'Потребител';
 
-  await supabase
-    .from('profiles')
-    .upsert(
-      { id: user.id, name, role: readPendingRole() ?? 'tenant' },
-      { onConflict: 'id', ignoreDuplicates: true },
-    );
-
-  const phone = user.phone ?? null;
-  const email = user.email ?? null;
-  if (phone || email) {
-    await supabase
-      .from('profile_contacts')
-      .upsert(
-        { id: user.id, phone, email, phone_verified: Boolean(phone) },
-        { onConflict: 'id' },
-      );
-  }
+  const { error } = await supabase.rpc('ensure_my_profile', {
+    p_name: name, p_role: readPendingRole() ?? 'tenant',
+  });
+  if (error) throw error;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
+  const sessionRef = useRef(session); sessionRef.current = session;
+  const identity = useRef<string | null>(null);
+  const profileKey = [session?.user.id, session?.user.email, session?.user.phone, session?.user.email_confirmed_at, session?.user.phone_confirmed_at].join('|');
   const [profile, setProfile] = useState<AuthProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileError, setProfileError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+  const retryProfile = useCallback(() => setRetryKey(value => value + 1), []);
 
   useEffect(() => {
     let active = true;
@@ -74,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .getSession()
       .then(({ data }) => {
         if (!active) return;
+        identity.current = data.session?.user.id ?? null;
         setSession(data.session);
         setLoading(false);
       })
@@ -82,6 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (identity.current !== (nextSession?.user.id ?? null)) {
+        setProfile(null); setProfileLoading(Boolean(nextSession)); setProfileError(false);
+      }
+      identity.current = nextSession?.user.id ?? null;
       setSession(nextSession);
     });
 
@@ -92,13 +68,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const currentUser = session?.user;
+    const currentUser = sessionRef.current?.user;
     if (!currentUser) {
       setProfile(null);
+      setProfileLoading(false);
+      setProfileError(false);
       return;
     }
 
     let active = true;
+    setProfileLoading(true);
+    setProfileError(false);
     (async () => {
       try {
         await ensureProfile(currentUser);
@@ -118,38 +98,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           });
         } else {
           setProfile(null);
+          setProfileError(true);
         }
       } catch {
-        if (active) setProfile(null);
+        if (active) { setProfile(null); setProfileError(true); }
+      } finally {
+        if (active) setProfileLoading(false);
       }
     })();
 
     return () => {
       active = false;
     };
-  }, [session]);
+  }, [profileKey, retryKey]);
 
   const signInWithGoogle = useCallback(async (): Promise<AuthResult> => {
+    try {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl() },
     });
-    return { error: error ? error.message : null };
+    return { error: error ? 'Google входът не е започнат. Опитай отново.' : null };
+    } catch { return { error: 'Не успяхме да се свържем за Google вход.' }; }
   }, []);
 
   const signInWithPhone = useCallback(async (phone: string): Promise<AuthResult> => {
-    const { error } = await supabase.auth.signInWithOtp({ phone });
-    return { error: error ? error.message : null };
+    try { const { error } = await supabase.auth.signInWithOtp({ phone });
+    return { error: error ? 'Кодът не е изпратен. Провери телефона или използвай Google вход.' : null };
+    } catch { return { error: 'Няма връзка с услугата за вход. Опитай отново.' }; }
   }, []);
 
   const verifyPhoneOtp = useCallback(async (phone: string, token: string): Promise<AuthResult> => {
-    const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
-    return { error: error ? error.message : null };
+    try { const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
+    return { error: error ? 'Кодът е грешен или е изтекъл. Опитай отново.' : null };
+    } catch { return { error: 'Няма връзка с услугата за вход. Опитай отново.' }; }
   }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) throw error;
+    setSession(null); setProfile(null);
   }, []);
 
   const value = useMemo<AuthContextValue>(
@@ -157,13 +145,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       user: session?.user ?? null,
       profile,
-      loading,
+      loading, profileLoading, profileError, retryProfile,
       signInWithGoogle,
       signInWithPhone,
       verifyPhoneOtp,
       signOut,
     }),
-    [session, profile, loading, signInWithGoogle, signInWithPhone, verifyPhoneOtp, signOut],
+    [session, profile, loading, profileLoading, profileError, retryProfile, signInWithGoogle, signInWithPhone, verifyPhoneOtp, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

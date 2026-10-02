@@ -1,5 +1,4 @@
 import { normalizeText } from './antiBroker';
-import { isNearUniversity } from './geo';
 import { sortListings, type SortKey } from './ranking';
 import type { ListingType, ListingView, University } from './types';
 
@@ -67,7 +66,7 @@ export function filterListings(
       }
     }
 
-    if (university && !isNearUniversity(listing, university)) return false;
+    if (filters.universitySlug && (!university || !listing.nearbyUniversityIds.includes(university.id))) return false;
 
     if (filters.text && filters.text.trim().length > 0) {
       const haystack = normalizeText(

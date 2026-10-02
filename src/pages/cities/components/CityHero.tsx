@@ -4,7 +4,7 @@ import type { CityContent } from '@/pages/cities/data';
 
 interface CityHeroProps {
   city: CityContent;
-  listingCount: number;
+  listingCount: number | null;
 }
 
 export default function CityHero({ city, listingCount }: CityHeroProps) {
@@ -12,13 +12,8 @@ export default function CityHero({ city, listingCount }: CityHeroProps) {
 
   return (
     <section className="relative isolate w-full overflow-hidden">
-      <div className="absolute inset-0">
-        <img
-          src={city.heroImage}
-          alt={`Квартири под наем без посредник ${city.inPhrase}`}
-          title={`Квартири под наем без посредник ${city.inPhrase}`}
-          className="h-full w-full object-cover object-top"
-        />
+      <div className="absolute inset-0 bg-primary-900">
+        {city.heroImage && <img src={city.heroImage} alt="" className="h-full w-full object-cover" fetchPriority="high" decoding="async" />}
         <div className="absolute inset-0 bg-gradient-to-b from-foreground-950/60 via-foreground-950/45 to-foreground-950/70" />
       </div>
 
@@ -69,14 +64,11 @@ export default function CityHero({ city, listingCount }: CityHeroProps) {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <i className="ri-home-4-line text-sm" aria-hidden="true" />
-            {listingCount} {t('cities.activeListings')}
+            {listingCount === null ? 'Проверяваме наличните обяви…' : `${listingCount} ${t('cities.activeListings')}`}
           </span>
         </div>
       </div>
-
-      <p className="absolute bottom-2 right-3 z-10 text-[10px] leading-none text-background-50/70 md:bottom-3 md:right-4">
-        {city.heroImageCredit}
-      </p>
+      {city.heroImage && city.heroImageCredit && <p className="absolute bottom-2 right-3 z-10 rounded bg-foreground-950/70 px-2 py-1 text-[10px] leading-snug text-background-50 md:bottom-3 md:right-4">{city.heroImageCredit}</p>}
     </section>
   );
 }

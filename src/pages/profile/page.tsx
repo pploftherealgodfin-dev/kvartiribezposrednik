@@ -1,3 +1,4 @@
+import ProfileRecovery from '@/components/feature/ProfileRecovery';
 import { Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,9 +7,10 @@ import { dashboardPath } from '@/lib/roles';
 /** Пренасочва към панела, който отговаря на ролята на влезлия потребител. */
 export default function ProfileRedirect() {
   const { t } = useTranslation();
-  const { session, profile, loading } = useAuth();
+  const { session, profile, loading, profileLoading, profileError } = useAuth();
 
-  if (loading || (session && !profile)) {
+  if (session && profileError) return <ProfileRecovery />;
+  if (loading || (session && profileLoading)) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <span className="flex items-center gap-3 text-sm text-foreground-600">

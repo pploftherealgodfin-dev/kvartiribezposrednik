@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { repository } from '@/lib/repository';
 import type { City, ListingView, Neighborhood, University } from '@/lib/types';
-import { applyPageMeta, setJsonLd } from '@/lib/seo';
+import { applyPageMeta, setJsonLd, removeJsonLd, absoluteUrl } from '@/lib/seo';
 import HomeHero from '@/pages/home/components/HomeHero';
 import TrustStrip from '@/pages/home/components/TrustStrip';
 import Audiences from '@/pages/home/components/Audiences';
@@ -58,7 +58,7 @@ export default function Home() {
       canonicalPath: '/',
     });
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin = absoluteUrl('');
     setJsonLd('ld-website', {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
@@ -78,6 +78,7 @@ export default function Home() {
       url: origin || '/',
       areaServed: { '@type': 'Country', name: 'България' },
     });
+    return () => { removeJsonLd('ld-website'); removeJsonLd('ld-organization'); };
   }, [t]);
 
   return (
@@ -102,6 +103,8 @@ export default function Home() {
       ) : (
         <>
           <LatestListings listings={listings} loading={loading} />
+        </>
+      )}
           <Audiences />
           <BrokerTeaser />
           <GuidesTeaser />
@@ -109,8 +112,6 @@ export default function Home() {
           <PopularAreas cities={cities} neighborhoods={neighborhoods} />
           <HowItWorks />
           <FinalCta />
-        </>
-      )}
     </SiteLayout>
   );
 }

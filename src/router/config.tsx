@@ -1,30 +1,39 @@
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
-import NotFound from '@/pages/NotFound';
-import Home from '@/pages/home/page';
-import ComingSoon from '@/pages/ComingSoon';
-import Search from '@/pages/search/page';
-import Login from '@/pages/login/page';
-import ProfileRedirect from '@/pages/profile/page';
-import ListingDetailPage from '@/pages/listing/page';
-import OwnerPanelPage from '@/pages/panel/owner/page';
-import TenantPanelPage from '@/pages/panel/tenant/page';
-import AdminPanelPage from '@/pages/admin/page';
+const NotFound = lazy(() => import('@/pages/NotFound'));
+const Home = lazy(() => import('@/pages/home/page'));
+const InfoPage = lazy(() => import('@/pages/info/page'));
+const LocationPage = lazy(() => import('@/pages/cities/location'));
+const Search = lazy(() => import('@/pages/search/page'));
+const Login = lazy(() => import('@/pages/login/page'));
+const ProfileRedirect = lazy(() => import('@/pages/profile/page'));
+const ListingDetailPage = lazy(() => import('@/pages/listing/page'));
+const OwnerPanelPage = lazy(() => import('@/pages/panel/owner/page'));
+const TenantPanelPage = lazy(() => import('@/pages/panel/tenant/page'));
+const AdminPanelPage = lazy(() => import('@/pages/admin/page'));
 import RequireRole from '@/components/feature/RequireRole';
-import PrivacyPolicy from '@/pages/legal/privacy/page';
-import CookiePolicy from '@/pages/legal/cookies/page';
-import Terms from '@/pages/legal/terms/page';
-import LegalNotice from '@/pages/legal/notice/page';
-import Accessibility from '@/pages/legal/accessibility/page';
-import ContentPolicy from '@/pages/legal/content-policy/page';
-import Contact from '@/pages/contact/page';
-import ReportContent from '@/pages/report/page';
-import GuidesPage from '@/pages/guides/page';
-import GuideArticlePage from '@/pages/guides/article/page';
-import CitiesHubPage from '@/pages/cities/page';
-import CityLandingPage from '@/pages/cities/city/page';
+const PrivacyPolicy = lazy(() => import('@/pages/legal/privacy/page'));
+const CookiePolicy = lazy(() => import('@/pages/legal/cookies/page'));
+const Terms = lazy(() => import('@/pages/legal/terms/page'));
+const LegalNotice = lazy(() => import('@/pages/legal/notice/page'));
+const Accessibility = lazy(() => import('@/pages/legal/accessibility/page'));
+const ContentPolicy = lazy(() => import('@/pages/legal/content-policy/page'));
+const Contact = lazy(() => import('@/pages/contact/page'));
+const ReportContent = lazy(() => import('@/pages/report/page'));
+const GuidesPage = lazy(() => import('@/pages/guides/page'));
+const GuideArticlePage = lazy(() => import('@/pages/guides/article/page'));
+const CitiesHubPage = lazy(() => import('@/pages/cities/page'));
+const CityLandingPage = lazy(() => import('@/pages/cities/city/page'));
+
+const FavoritesPage = lazy(() => import('@/pages/favorites/page'));
+const UploadPage = lazy(() => import('@/pages/upload/page'));
+const SettingsPage = lazy(() => import('@/pages/settings/page'));
+const MessagesPage = lazy(() => import('@/pages/messages/page'));
 
 const routes: RouteObject[] = [
+  { path: '/lyubimi', element: <RequireRole allow={['owner','tenant','admin','moderator']}><FavoritesPage /></RequireRole> },
+  { path: '/nastroyki', element: <RequireRole allow={['owner','tenant','admin','moderator']}><SettingsPage /></RequireRole> },
+  { path: '/saobshteniya', element: <RequireRole allow={['owner','tenant','admin','moderator']}><MessagesPage /></RequireRole> },
   {
     path: '/',
     element: <Home />,
@@ -43,17 +52,17 @@ const routes: RouteObject[] = [
   },
   {
     path: '/kak-raboti',
-    element: <ComingSoon title="Как работи" />,
+    element: <InfoPage />,
   },
   {
     path: '/kak-da-razpoznaem-posrednik',
-    element: <ComingSoon title="Как да разпознаем посредник" />,
+    element: <InfoPage />,
   },
   {
     path: '/kachi-obiava',
     element: (
-      <RequireRole allow={['owner', 'admin']}>
-        <Navigate to="/panel/naemodatel" replace />
+      <RequireRole allow={['owner', 'tenant', 'admin']}>
+        <UploadPage />
       </RequireRole>
     ),
   },
@@ -76,7 +85,7 @@ const routes: RouteObject[] = [
   {
     path: '/admin',
     element: (
-      <RequireRole allow={['admin']}>
+      <RequireRole allow={['admin', 'moderator']}>
         <AdminPanelPage />
       </RequireRole>
     ),
@@ -103,23 +112,23 @@ const routes: RouteObject[] = [
   },
   {
     path: '/kvartiri-bez-posrednik/:grad/:kvartal',
-    element: <ComingSoon title="Квартири в квартал" />,
+    element: <LocationPage />,
   },
   {
     path: '/stai-bez-posrednik/:grad',
-    element: <ComingSoon title="Стаи под наем без посредник" />,
+    element: <LocationPage />,
   },
   {
     path: '/kvartiri-bez-posrednik/:grad/pri-universitet/:universitet',
-    element: <ComingSoon title="Квартири до университет" />,
+    element: <LocationPage />,
   },
   {
     path: '/za-nas',
-    element: <ComingSoon title="За нас" />,
+    element: <InfoPage />,
   },
   {
     path: '/faq',
-    element: <ComingSoon title="Често задавани въпроси" />,
+    element: <InfoPage />,
   },
   {
     path: '/obshi-usloviya',

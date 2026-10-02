@@ -127,7 +127,7 @@ export function shouldHideRented(listing: Listing, nowIso: string): boolean {
 }
 
 export function isVisibleInSearch(listing: Listing, nowIso: string): boolean {
-  if (listing.status === 'active') return true;
+  if (listing.status === 'active') return !isExpired(listing, nowIso);
   if (listing.status === 'rented') return !shouldHideRented(listing, nowIso);
   return false;
 }

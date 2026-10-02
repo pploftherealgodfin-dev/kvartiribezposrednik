@@ -24,10 +24,10 @@ export function haversineKm(
 
 export function isNearUniversity(
   listing: { latApprox: number; lngApprox: number },
-  university: { lat: number; lng: number },
+  university: { lat: number | null; lng: number | null },
   maxKm: number = GEO.universityNearbyKm,
 ): boolean {
   return (
-    haversineKm(listing.latApprox, listing.lngApprox, university.lat, university.lng) <= maxKm
+    university.lat !== null && university.lng !== null && haversineKm(listing.latApprox, listing.lngApprox, university.lat, university.lng) <= maxKm
   );
 }

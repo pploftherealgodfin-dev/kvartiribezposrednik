@@ -134,19 +134,10 @@ export default function GuideArticlePage() {
           </p>
         </div>
 
-        <div className="mx-auto mt-7 w-full max-w-4xl px-4 md:px-6">
-          <div className="h-60 w-full overflow-hidden rounded-lg bg-background-200 md:h-96">
-            <img
-              src={guide.heroImage}
-              alt={guide.title}
-              title={`${guide.title} — ${t('brand.name')}`}
-              className="h-full w-full object-cover object-top"
-            />
-          </div>
-          <p className="mt-2 text-right text-[11px] text-foreground-500">
-            {guide.heroImageCredit}
-          </p>
-        </div>
+        {guide.heroImage && <figure className="mx-auto mt-8 w-full max-w-5xl px-4 md:px-6">
+          <div className="aspect-[16/9] overflow-hidden rounded-lg bg-background-100"><img src={guide.heroImage} alt={guide.title} className="h-full w-full object-cover" decoding="async" /></div>
+          {guide.heroImageCredit && <figcaption className="mt-2 text-right text-[11px] text-foreground-600">{guide.heroImageCredit}</figcaption>}
+        </figure>}
 
         <div className="mx-auto w-full max-w-3xl px-4 py-10 md:px-6 md:py-12">
           <GuideBody guide={guide} />

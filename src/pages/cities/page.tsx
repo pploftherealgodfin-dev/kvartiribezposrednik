@@ -14,10 +14,8 @@ import { cityContents } from '@/pages/cities/data';
 import CityDirectory from '@/pages/cities/components/CityDirectory';
 import CityGuides from '@/pages/cities/components/CityGuides';
 
-const HERO_IMAGE =
-  'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Varna_Panorama.jpg/1920px-Varna_Panorama.jpg';
+const HERO_IMAGE = 'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Varna_Panorama.jpg/1920px-Varna_Panorama.jpg';
 const HERO_CREDIT = 'Снимка: Sborisova, Wikimedia Commons';
-
 export default function CitiesHubPage() {
   const { t } = useTranslation();
 
@@ -27,7 +25,6 @@ export default function CitiesHubPage() {
       description:
         'Квартири под наем без посредник в София, Пловдив, Варна, Бургас и още университетски градове. Реални обяви директно от собственик — без комисион и без агенции.',
       canonicalPath: '/kvartiri-bez-posrednik',
-      ogImage: HERO_IMAGE,
     });
 
     setJsonLd(
@@ -84,13 +81,8 @@ export default function CitiesHubPage() {
   return (
     <SiteLayout>
       <section className="relative isolate w-full overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={HERO_IMAGE}
-            alt="Квартири под наем без посредник по градове в България"
-            title="Квартири под наем без посредник по градове"
-            className="h-full w-full object-cover object-top"
-          />
+        <div className="absolute inset-0 bg-primary-900">
+          <img src={HERO_IMAGE} alt="" className="h-full w-full object-cover" fetchPriority="high" decoding="async" />
           <div className="absolute inset-0 bg-gradient-to-b from-foreground-950/60 via-foreground-950/45 to-foreground-950/70" />
         </div>
 
@@ -130,10 +122,7 @@ export default function CitiesHubPage() {
             </Link>
           </div>
         </div>
-
-        <p className="absolute bottom-2 right-3 z-10 text-[10px] leading-none text-background-50/70 md:bottom-3 md:right-4">
-          {HERO_CREDIT}
-        </p>
+        <p className="absolute bottom-2 right-3 z-10 rounded bg-foreground-950/70 px-2 py-1 text-[10px] leading-snug text-background-50 md:bottom-3 md:right-4">{HERO_CREDIT}</p>
       </section>
 
       <section className="border-b border-background-200 bg-background-50">
@@ -245,6 +234,7 @@ export default function CitiesHubPage() {
           </div>
         </div>
       </section>
-    </SiteLayout>
+    <p className="mt-5 text-xs text-foreground-600">Квартали: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline">© OpenStreetMap contributors, ODbL</a>. Каталогът може да е непълен; <a href="/kontakti" className="underline">предложи корекция</a>.</p>
+</SiteLayout>
   );
 }

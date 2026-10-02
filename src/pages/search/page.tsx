@@ -8,6 +8,7 @@ import { SORT_KEYS, type SortKey } from '@/lib/ranking';
 import type { ListingFilters } from '@/lib/search';
 import { applyPageMeta } from '@/lib/seo';
 import type { City, ListingType, ListingView, Neighborhood, University } from '@/lib/types';
+import { validateSearchFilters } from '@/lib/searchValidation';
 import SearchFilters, { type SearchFilterValues } from './components/SearchFilters';
 import SearchResults from './components/SearchResults';
 
@@ -110,10 +111,14 @@ export default function SearchPage() {
 
   const sortRaw = searchParams.get(SORT_PARAM) ?? '';
   const sort: SortKey = (SORT_KEYS as string[]).includes(sortRaw) ? (sortRaw as SortKey) : 'relevance';
-  const page = Math.max(1, Number(searchParams.get(PAGE_PARAM)) || 1);
+  const page = Math.min(10000, Math.max(1, Math.floor(Number(searchParams.get(PAGE_PARAM))) || 1));
+  const [resultPage, setResultPage] = useState(page);
   const urlText = searchParams.get('t') ?? '';
 
   const [textValue, setTextValue] = useState(urlText);
+  const filterIssue = validateSearchFilters(filters);
+  const [catalogError, setCatalogError] = useState(false);
+  const [catalogRetry, setCatalogRetry] = useState(0);
   const [cities, setCities] = useState<City[]>([]);
   const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
   const [universities, setUniversities] = useState<University[]>([]);
@@ -136,6 +141,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     let active = true;
+    setCatalogError(false);
     Promise.all([
       repository.getCities(),
       repository.getNeighborhoods(),
@@ -148,14 +154,15 @@ export default function SearchPage() {
         setUniversities(uniItems);
       })
       .catch(() => {
-        /* референтните данни не са критични за показване на резултатите */
+        if (active) setCatalogError(true);
       });
     return () => {
       active = false;
     };
-  }, []);
+  }, [catalogRetry]);
 
   useEffect(() => {
+    if (filterIssue) { setListings([]); setTotal(0); setTotalPages(1); setResultPage(1); setLoading(false); setError(false); return; }
     let active = true;
     setLoading(true);
     setError(false);
@@ -165,10 +172,10 @@ export default function SearchPage() {
         if (!active) return;
         setListings(result.items);
         setTotal(result.total);
-        setTotalPages(result.totalPages);
+        setTotalPages(result.totalPages); setResultPage(result.page);
       })
       .catch(() => {
-        if (!active) setError(true);
+        if (active) setError(true);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -176,7 +183,7 @@ export default function SearchPage() {
     return () => {
       active = false;
     };
-  }, [filters, sort, page, reloadKey]);
+  }, [filters, sort, page, reloadKey, filterIssue]);
 
   const patchParams = useCallback(
     (mutate: (next: URLSearchParams) => void) => {
@@ -216,6 +223,7 @@ export default function SearchPage() {
       }
       patchParams((next) => {
         const key = FIELD_PARAM[field];
+        if (field === 'citySlug') { next.delete('kvartal'); next.delete('universitet'); }
         if (value) next.set(key, value);
         else next.delete(key);
         next.delete(PAGE_PARAM);
@@ -264,6 +272,8 @@ export default function SearchPage() {
           <p className="max-w-2xl text-sm text-foreground-600">{t('search.subtitle')}</p>
         </div>
 
+        {catalogError && <div role="alert" className="mb-5 rounded-md border p-4">Каталогът с градове и райони не се зареди. <button onClick={() => setCatalogRetry(v => v + 1)} className="text-primary-700 underline">Опитай отново</button></div>}
+        {filterIssue && <p role="alert" className="mb-5 rounded-md border border-accent-300 bg-accent-50 p-4">{filterIssue}</p>}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr]">
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <button
@@ -298,7 +308,7 @@ export default function SearchPage() {
             <SearchResults
               listings={listings}
               total={total}
-              page={page}
+              page={resultPage}
               totalPages={totalPages}
               sort={sort}
               loading={loading}
@@ -306,6 +316,7 @@ export default function SearchPage() {
               onSortChange={handleSortChange}
               onPageChange={handlePageChange}
               onRetry={() => setReloadKey((key) => key + 1)}
+              onReset={handleReset}
             />
           </div>
         </div>

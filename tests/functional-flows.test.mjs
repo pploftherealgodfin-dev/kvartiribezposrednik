@@ -19,7 +19,7 @@ const deferred = () => { let resolve, reject; const promise = new Promise((a,b) 
 const user = id => ({ id, email: `${id}@example.invalid`, email_confirmed_at:'2026-10-02T00:00:00Z', user_metadata:{} });
 const auth = (id='alice', role='tenant') => ({ session:id ? {user:user(id)} : null, user:id ? user(id) : null, profile:id ? {id,role,name:id,ownerVerified:false} : null, loading:false, profileLoading:false, profileError:false, retryProfile:()=>{}, signOut:async()=>{}, signInWithGoogle:async()=>({error:null}), signInWithPhone:async()=>({error:null}), verifyPhoneOtp:async()=>({error:null}) });
 const favorites = {favoriteIds:[],loading:false,error:'',busyIds:[],isFavorite:()=>false,toggle:async()=>{},reload:()=>{}};
-function Observe() { lastAuth = api.useAuth(); lastFavorites = api.useFavorites(); navigate = useNavigate(); const location = useLocation(); return h('output',{'data-path':location.pathname+location.search}); }
+function Observe() { lastAuth = api.useAuth(); lastFavorites = api.useFavorites(); navigate = useNavigate(); const location = useLocation(); return h('output',{'data-path':location.pathname+location.search,'data-hash':location.hash,'data-from':location.state?.from ?? ''}); }
 function wrap(children, identity=auth(), path='/') { return h(MemoryRouter,{initialEntries:[path]},h(api.AuthContext.Provider,{value:identity},h(api.FavoritesContext.Provider,{value:favorites},children))); }
 async function render(children, identity=auth(), path='/') { await act(async()=>root.render(wrap(children,identity,path))); }
 async function flush() { await act(async()=>{ await new Promise(resolve=>setImmediate(resolve)); }); }
@@ -35,6 +35,48 @@ beforeEach(async()=>{
   window.localStorage.clear(); window.sessionStorage.clear(); api.resetBackend(); lastAuth=null; lastFavorites=null;
 });
 after(async()=>{ await act(async()=>root.unmount()); dom.window.close(); });
+
+test('the Readdy navigation bridge becomes ready only after the router mounts',async()=>{
+  let ready=false; api.navigatePromise.then(()=>{ready=true;}); await Promise.resolve();
+  assert.equal(ready,false); assert.equal(window.REACT_APP_NAVIGATE,undefined);
+  await render(h(React.Fragment,null,h(api.AppRoutes),h(Observe)),auth(null),'/faq');
+  assert.equal(ready,true); assert.equal(typeof window.REACT_APP_NAVIGATE,'function');
+  await act(async()=>{window.REACT_APP_NAVIGATE('/kontakti');});
+  assert.equal(document.querySelector('output').dataset.path,'/kontakti');
+});
+test('the promised navigation handle uses the current path and preserves options and history',async()=>{
+  await render(h(React.Fragment,null,h(api.AppRoutes),h(Observe)),auth(null),'/faq');
+  const externalNavigate=await api.navigatePromise;
+  await act(async()=>{externalNavigate('/kvartiri-bez-posrednik/varna');});
+  await act(async()=>{externalNavigate({search:'?sektor=universiteti'});});
+  assert.equal(document.querySelector('output').dataset.path,'/kvartiri-bez-posrednik/varna?sektor=universiteti');
+  await act(async()=>{externalNavigate('/kvartiri-bez-posrednik');});
+  assert.equal(document.querySelector('output').dataset.path,'/kvartiri-bez-posrednik');
+  await act(async()=>{externalNavigate({pathname:'/tarsene',search:'?grad=varna',hash:'#filters'},{replace:true,state:{from:'readdy'}});});
+  const output=document.querySelector('output');
+  assert.equal(output.dataset.path,'/tarsene?grad=varna'); assert.equal(output.dataset.hash,'#filters'); assert.equal(output.dataset.from,'readdy');
+  await act(async()=>{externalNavigate(-1);});
+  assert.equal(document.querySelector('output').dataset.path,'/kvartiri-bez-posrednik/varna?sektor=universiteti');
+});
+test('StrictMode cleanup releases the Readdy bridge and the resolved handle survives remounting',async()=>{
+  const page=h(React.StrictMode,null,h(api.AppRoutes),h(Observe));
+  await render(page,auth(null),'/faq'); const externalNavigate=await api.navigatePromise;
+  await act(async()=>root.render(null));
+  assert.equal(window.REACT_APP_NAVIGATE,undefined);
+  assert.throws(()=>externalNavigate('/kontakti'),/Навигацията още не е готова/);
+  await render(page,auth(null),'/faq');
+  await act(async()=>{externalNavigate('/kontakti');});
+  assert.equal(document.querySelector('output').dataset.path,'/kontakti');
+});
+test('external Readdy navigation respects guest access gates and the login return route',async()=>{
+  await render(h(React.Fragment,null,h(api.AppRoutes),h(Observe)),auth(null),'/faq');
+  const externalNavigate=await api.navigatePromise;
+  for (const path of ['/admin','/saobshteniya','/kachi-obiava']) {
+    await act(async()=>{externalNavigate(path);}); await flush();
+    assert.equal(document.querySelector('output').dataset.path,'/vhod');
+    assert.equal(document.querySelector('output').dataset.from,path);
+  }
+});
 
 test('a late initial session cannot overwrite a newer sign-in event', async()=>{
   const initial=deferred(); api.handlers.auth=()=>initial.promise;

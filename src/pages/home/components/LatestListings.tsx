@@ -33,9 +33,7 @@ export default function LatestListings({ listings, loading }: LatestListingsProp
         {loading ? (
           <p role="status" className="mt-6 flex min-h-24 items-center justify-center rounded-lg border border-background-200 bg-background-100 text-sm text-foreground-600">Подготвяме последните обяви…</p>
         ) : listings.length === 0 ? (
-          <p className="mt-6 flex min-h-24 items-center justify-center rounded-lg border border-background-200/70 bg-background-100 p-6 text-center text-sm text-foreground-600">
-            {t('common.empty')}
-          </p>
+          <div className="ui-panel mt-6 bg-background-100"><h3 className="font-heading text-lg font-semibold">Още няма публични обяви</h3><p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground-600">Имаш свободно жилище? Представи го с ясни условия и реални снимки. Формата ще те насочи стъпка по стъпка.</p><div className="mt-5 flex flex-wrap gap-3"><Link className="ui-button" to="/kachi-obiava">Качи първата си обява</Link><Link className="ui-secondary" to="/kvartiri-bez-posrednik">Разгледай градовете</Link></div></div>
         ) : (
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {listings.map((view) => (

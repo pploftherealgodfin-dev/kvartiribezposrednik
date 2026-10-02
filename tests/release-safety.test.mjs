@@ -19,7 +19,7 @@ test('public bundles keep initial JS and home hydration inside release budgets',
   const home = new Set([...initial, ...staticKeys('src/pages/home/page.tsx')]);
   assert.ok(size(initial) < 170 * 1024, 'Initial JS exceeds 170 KiB gzip');
   assert.ok(size(home) < 205 * 1024, 'Home JS exceeds 205 KiB gzip');
-  for (const path of ['src/pages/panel/owner/components/PhotoPicker.tsx', 'src/pages/panel/owner/components/ListingForm.tsx', 'src/pages/panel/owner/components/ListingPhotosManager.tsx', 'src/pages/home/components/LatestListingsData.tsx']) {
+  for (const path of ['src/pages/panel/owner/components/PhotoPicker.tsx', 'src/pages/panel/owner/components/ListingForm.tsx', 'src/pages/panel/owner/components/EditListingForm.tsx', 'src/pages/panel/owner/components/ListingPhotosManager.tsx', 'src/pages/home/components/LatestListingsData.tsx']) {
     assert.equal(manifest[path]?.isDynamicEntry, true, path);
     assert.equal(initial.has(path), false, path);
     assert.equal(home.has(path), false, path);
@@ -31,7 +31,7 @@ test('every emitted HTML page has a compatible CSP, private referrer policy and 
   for (const file of files) {
     const dom = new JSDOM(read(file)), doc = dom.window.document;
     const meta = doc.querySelector('meta[http-equiv="Content-Security-Policy"]');
-    assert.ok(meta, file); const policy = meta.content;
+    assert.ok(meta, file); assert.equal(doc.querySelectorAll('meta[http-equiv="Content-Security-Policy"]').length,1,file); const policy = meta.content;
     assert.ok(policy.includes("script-src 'self'"), file); assert.ok(policy.includes("object-src 'none'"), file);
     assert.ok(policy.includes("base-uri 'none'"), file); assert.ok(!policy.includes('unsafe-eval'), file);
     assert.equal(doc.querySelector('meta[name="referrer"]').content, 'no-referrer', file);
@@ -74,4 +74,26 @@ test('the home social card retains the current Readdy logo while city imagery re
   assert.equal(home.window.document.querySelector('meta[property="og:image"]').content, source.window.document.querySelector('meta[property="og:image"]').content);
   assert.notEqual(city.window.document.querySelector('meta[property="og:image"]').content, home.window.document.querySelector('meta[property="og:image"]').content);
   source.window.close(); home.window.close(); city.window.close();
+});
+test('the source home is indexable and protected while the utility fallback stays noindex', () => {
+  const source=new JSDOM(read('index.html')),fallback=new JSDOM(read('out/spa.html'));
+  assert.equal(source.window.document.querySelector('meta[name="robots"]').content,'index, follow');
+  assert.equal(source.window.document.querySelector('meta[property="og:locale"]').content,'bg_BG');
+  assert.equal(source.window.document.querySelector('link[rel="canonical"]').href,'https://kvartiribezposrednik.com/');
+  assert.ok(source.window.document.querySelector('meta[http-equiv="Content-Security-Policy"]'));
+  assert.equal(fallback.window.document.querySelector('meta[name="robots"]').content,'noindex, follow');
+  assert.equal(fallback.window.document.querySelector('link[rel="canonical"]'),null);
+  source.window.close();fallback.window.close();
+});
+test('Organization identity and social links are consistent in the visible public pages and machine-readable content',()=>{
+  const urls=['https://www.facebook.com/profile.php?id=61595029650181','https://www.instagram.com/kvartiribezposrednik/'];
+  for(const file of ['out/index.html','out/za-nas/index.html']){
+    const dom=new JSDOM(read(file)),doc=dom.window.document;
+    const schema=JSON.parse(doc.getElementById('ld-prerender').textContent).find(item=>item['@type']==='Organization');
+    assert.ok(schema,file);assert.deepEqual(schema.sameAs,urls);assert.equal(schema['@id'],'https://kvartiribezposrednik.com/#organization');
+    for(const url of urls)assert.ok([...doc.querySelectorAll('a')].some(link=>link.href===url),file+': '+url);
+    dom.window.close();
+  }
+  for(const url of urls)assert.ok(read('out/llms.txt').includes(url));
+  assert.ok(read('out/llms.txt').includes('една текуща обява на акаунт'));
 });

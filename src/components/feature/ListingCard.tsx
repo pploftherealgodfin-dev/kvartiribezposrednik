@@ -49,11 +49,11 @@ export default function ListingCard({ view }: ListingCardProps) {
 
   return (
     <article
-      className={`group flex flex-col overflow-hidden rounded-lg border border-background-200 bg-background-50 transition-colors hover:border-primary-400 ${
+      className={`group flex flex-col overflow-hidden rounded-2xl border border-background-200 bg-background-50 transition-colors hover:border-primary-400 ${
         badges.isRented ? 'opacity-70' : ''
       }`}
     >
-      <div className="relative h-52 w-full overflow-hidden bg-background-200">
+      <div className="relative aspect-[3/2] w-full overflow-hidden bg-background-200">
         <Link to={detailPath} className="block h-full w-full" aria-label={listing.title}>
           {currentPhoto ? (
             <ListingImage
@@ -98,7 +98,7 @@ export default function ListingCard({ view }: ListingCardProps) {
           disabled={loading || Boolean(error) || busyIds.includes(listing.id)}
           aria-label={t('nav.favorites')}
           aria-pressed={favorite}
-          className="absolute right-3 top-3 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-700 transition-colors hover:text-primary-600"
+          className="absolute right-3 top-3 flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-700 transition-colors hover:text-primary-600"
         >
           <i className={favorite ? 'ri-heart-fill text-lg text-primary-600' : 'ri-heart-line text-lg'} />
         </button>
@@ -109,7 +109,7 @@ export default function ListingCard({ view }: ListingCardProps) {
               type="button"
               onClick={goPrev}
               aria-label="Предишна снимка"
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-800 hover:bg-background-50"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-800 hover:bg-background-50"
             >
               <i className="ri-arrow-left-s-line text-lg" />
             </button>
@@ -121,7 +121,7 @@ export default function ListingCard({ view }: ListingCardProps) {
               type="button"
               onClick={goNext}
               aria-label="Следваща снимка"
-              className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-800 hover:bg-background-50"
+              className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-background-50/90 text-foreground-800 hover:bg-background-50"
             >
               <i className="ri-arrow-right-s-line text-lg" />
             </button>
@@ -156,6 +156,7 @@ export default function ListingCard({ view }: ListingCardProps) {
           {neighborhood ? `${neighborhood.name}, ` : ''}
           {city.name}
         </p>
+        {!badges.verifiedOwner && <p className="text-xs leading-relaxed text-foreground-600">{t('badges.unverifiedOwner')}</p>}
 
         <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-background-200 pt-3 text-xs text-foreground-700">
           <span className="flex items-center gap-1.5">

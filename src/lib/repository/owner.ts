@@ -1,6 +1,30 @@
 import { signPhotoPaths, removePhotoObject } from '@/lib/photoAccess';
 import { supabase } from '@/lib/supabase';
 import type { ListingStatus, ListingType } from '@/lib/types';
+import type { ListingDraft } from '@/lib/listingDraft';
+
+export interface EditableOwnerListing { id: string; slug: string; status: ListingStatus; photoCount: number; draft: ListingDraft }
+/** RLS and owner_id both scope this read; a failed read never unlocks a second form. */
+export async function getCurrentOwnerListing(ownerId: string): Promise<EditableOwnerListing | null> {
+  const { data, error } = await supabase.from('listings').select('id,slug,status,title,description,type,price_eur,area_m2,rooms,city_id,neighborhood_id,nearby_university_ids,available_from,deposit,floor,total_floors,furnished,pets_allowed,utilities_included,photos:listing_photos(id)').eq('owner_id', ownerId).neq('status', 'removed').limit(1).maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const str = (value: unknown) => value == null ? '' : String(value);
+  return { id: data.id, slug: data.slug, status: data.status as ListingStatus, photoCount: data.photos?.length ?? 0, draft: {
+    cityId: data.city_id, neighborhoodId: data.neighborhood_id ?? '', universityIds: data.nearby_university_ids ?? [], type: data.type,
+    title: data.title, description: data.description, price: str(data.price_eur), area: str(data.area_m2), rooms: str(data.rooms),
+    floor: str(data.floor), totalFloors: str(data.total_floors), deposit: str(data.deposit), availableFrom: data.available_from,
+    furnished: data.furnished, pets: data.pets_allowed, utilities: data.utilities_included,
+  } };
+}
+export async function updateOwnerListing(id: string, input: NewListingInput, requestId: string): Promise<void> {
+  const { error } = await supabase.rpc('owner_edit_listing', { p_id: id, p_request_id: requestId, p_input: {
+    title: input.title, description: input.description, type: input.type, price_eur: input.priceEur, area_m2: input.areaM2, rooms: input.rooms,
+    city_id: input.cityId, neighborhood_id: input.neighborhoodId, nearby_university_ids: input.nearbyUniversityIds, available_from: input.availableFrom,
+    deposit: input.deposit, floor: input.floor, total_floors: input.totalFloors, furnished: input.furnished, pets_allowed: input.petsAllowed, utilities_included: input.utilitiesIncluded,
+  } });
+  if (error) throw error;
+}
 
 export interface OwnerListingRow {
   id: string;
@@ -149,6 +173,7 @@ export async function createOwnerListing(
   });
   if (error) {
     const found = await recover(); if (found) return found;
+    if ((error.code === '23514' && error.message.includes('всеки акаунт има една обява')) || (error.code === '23505' && error.message.includes('listings_one_current_per_owner'))) throw new Error('В пилотния режим всеки акаунт има една обява. Редактирай съществуващата в „Моите обяви“.');
     throw error;
   }
   return { id, slug };

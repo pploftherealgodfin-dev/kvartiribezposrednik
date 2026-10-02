@@ -1,17 +1,17 @@
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import CityLocationFields from '@/components/feature/CityLocationFields';
+import ListingDetailsFields from './ListingDetailsFields';
+import OwnerPublishingTips from './OwnerPublishingTips';
 import { addListingPhotos, createOwnerListing } from '@/lib/repository/owner';
 import { uploadListingPhotos } from '@/lib/storage';
 import { validateListingDraft, toListingInput, type ListingDraft, type DraftIssue } from '@/lib/listingDraft';
 import { clearListingDraft, emptyListingDraft, readListingDraft, saveListingDraft } from '@/lib/listingDraftSession';
-import type { City, Neighborhood, University, ListingType } from '@/lib/types';
+import type { City, Neighborhood, University } from '@/lib/types';
 import type { PickedPhoto } from './PhotoPicker';
 
 const PhotoPicker = lazy(() => import('./PhotoPicker'));
 interface Props { ownerId: string; cities: City[]; neighborhoods: Neighborhood[]; universities: University[]; onCreated: () => void; onCancel: () => void }
 const steps = ['Жилище', 'Снимки', 'Преглед'];
-const types: { value: ListingType; label: string }[] = [{ value: 'apartment', label: 'Апартамент' }, { value: 'room', label: 'Стая' }, { value: 'studio', label: 'Студио' }, { value: 'house', label: 'Къща' }];
 
 export default function ListingForm({ ownerId, cities, neighborhoods, universities, onCreated, onCancel }: Props) {
   const [saved] = useState(() => readListingDraft(ownerId));
@@ -112,7 +112,7 @@ export default function ListingForm({ ownerId, cities, neighborhoods, universiti
       if (!alive.current) return;
       finished.current = true; clearListingDraft(ownerId); onCreated();
     } catch (err) {
-      if (alive.current) setError(err instanceof Error && err.message.startsWith('Тази обява вече е записана') ? err.message : 'Записът не е потвърден. Провери връзката и опитай отново; данните остават във формата.');
+      if (alive.current) setError(err instanceof Error && err.message.startsWith('Тази обява вече е записана') ? err.message : err instanceof Error && err.message.includes('всеки акаунт има една обява') ? err.message : 'Записът не е потвърден. Провери връзката и опитай отново; данните остават във формата.');
     } finally {
       submitLocked.current = false;
       if (alive.current) { setBusy(false); setProgress(''); }
@@ -121,25 +121,17 @@ export default function ListingForm({ ownerId, cities, neighborhoods, universiti
   const city = cities.find(item => item.id === draft.cityId);
   const hood = neighborhoods.find(item => item.id === draft.neighborhoodId);
   const uniNames = universities.filter(item => draft.universityIds.includes(item.id)).map(item => item.name);
-  const input = (key: 'title' | 'price' | 'area' | 'rooms' | 'floor' | 'totalFloors' | 'deposit' | 'availableFrom', label: string, attrs: Record<string, string | number> = {}) => {
-    const id = 'nf-' + (key === 'availableFrom' ? 'available' : key === 'totalFloors' ? 'total-floors' : key);
-    return <div><label htmlFor={id} className="ui-label">{label}</label><input id={id} className="ui-field" value={draft[key]} aria-invalid={issue?.field === id || undefined} aria-describedby={issue?.field === id ? 'listing-form-error' : undefined} onChange={event => update(key, event.target.value)} {...attrs} /></div>;
-  };
+
   return <form onSubmit={submit} noValidate aria-busy={busy || photoBusy} className="ui-panel mt-6">
     <ol aria-label="Стъпки за качване" className="mb-6 grid grid-cols-3 gap-3">{steps.map((label, index) => <li key={label}><button type="button" disabled={busy || photoBusy || Boolean(createdId) || index > step} onClick={() => move(index)} aria-current={index === step ? 'step' : undefined} className={'w-full border-b-2 pb-3 text-left text-sm ' + (index === step ? 'border-primary-600 font-semibold text-primary-800' : 'border-background-200 text-foreground-500')}><span className="mb-1 block text-xs">{index + 1} / 3</span>{label}</button></li>)}</ol>
     {createdId && !busy ? <div role="status" className="mb-6 rounded-lg bg-primary-50 p-4 text-sm text-primary-900"><strong>Обявата вече е записана.</strong><p className="mt-2">Провери статуса и снимките в „Моите обяви“. Не е нужно да я изпращаш отново.</p></div>
       : restored && <p role="status" className="mb-5 rounded-lg bg-primary-50 p-4 text-sm">Възстановихме черновата в този раздел. Избери снимките отново — те не се пазят в браузъра.</p>}
     <div ref={section} tabIndex={-1} className="outline-none"><p className="ui-note">Стъпка {step + 1} от 3</p><h2 className="mb-6 mt-1 font-heading text-xl font-semibold">{steps[step]}</h2></div>
     <fieldset disabled={busy || Boolean(createdId)} hidden={step !== 0} className="space-y-5">
-      <CityLocationFields id="nf" cities={cities} neighborhoods={neighborhoods} universities={universities} cityValue={draft.cityId} neighborhoodValue={draft.neighborhoodId} universityValues={draft.universityIds} keyMode="id" required multipleUniversities onCityChange={value => { setDraft(old => ({ ...old, cityId: value, neighborhoodId: '', universityIds: [] })); setConfirmed(false); }} onNeighborhoodChange={value => update('neighborhoodId', value)} onUniversitiesChange={value => update('universityIds', value)} />
-      <p className="ui-note">Градът е задължителен. Кварталът и университетите са по желание. Не посочвай точен адрес, телефон или имейл в публичния текст.</p>
-      <div className="grid gap-4 sm:grid-cols-2">{input('title', 'Заглавие *', { maxLength: 120, placeholder: 'Например: Светло студио до университета' })}<div><label className="ui-label" htmlFor="nf-type">Тип жилище</label><select className="ui-field" id="nf-type" value={draft.type} onChange={event => update('type', event.target.value as ListingType)}>{types.map(type => <option value={type.value} key={type.value}>{type.label}</option>)}</select></div></div>
-      <div><label htmlFor="nf-description" className="ui-label">Описание *</label><textarea id="nf-description" className="ui-field h-auto min-h-32 py-3" rows={4} minLength={30} maxLength={5000} aria-invalid={issue?.field === 'nf-description' || undefined} aria-describedby="nf-description-hint" value={draft.description} onChange={event => update('description', event.target.value)} placeholder="Разпределение, състояние, транспорт и условия. Без телефон или имейл." /><p id="nf-description-hint" className="ui-note mt-2">{draft.description.length}/5000 · минимум 30 знака</p></div>
-      <div className="grid gap-4 sm:grid-cols-2">{input('price', 'Месечен наем (€) *', { type: 'number', min: 0.01, step: 0.01, inputMode: 'decimal' })}{input('area', 'Площ (m²) *', { type: 'number', min: 0.01, step: 0.01, inputMode: 'decimal' })}{input('rooms', 'Брой стаи *', { type: 'number', min: 1, max: 100, step: 1, inputMode: 'numeric' })}{input('availableFrom', 'Свободно от *', { type: 'date' })}</div>
-      <div className="flex flex-wrap gap-3">{([['furnished', 'Обзаведено'], ['pets', 'Домашни любимци'], ['utilities', 'Разходите са включени']] as const).map(([key, label]) => <label key={key} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-background-300 px-3 text-sm"><input type="checkbox" checked={draft[key]} onChange={event => update(key, event.target.checked)} />{label}</label>)}</div>
-      <details className="rounded-lg border border-background-200 p-4" open={Boolean(issue && ['nf-floor', 'nf-total-floors', 'nf-deposit'].includes(issue.field)) || undefined}><summary className="text-sm font-medium">Етаж и депозит · по желание</summary><div className="mt-4 grid gap-4 sm:grid-cols-3">{input('floor', 'Етаж', { type: 'number', min: -5, max: 200, step: 1 })}{input('totalFloors', 'Етажи в сградата', { type: 'number', min: 1, max: 200, step: 1 })}{input('deposit', 'Депозит (€)', { type: 'number', min: 0, step: 0.01 })}</div></details>
+      <ListingDetailsFields draft={draft} issue={issue} cities={cities} neighborhoods={neighborhoods} universities={universities} onChange={update} />
     </fieldset>
     <fieldset disabled={busy || Boolean(createdId)} hidden={step !== 1}>
+      <div className="mb-5"><OwnerPublishingTips topic="photos" /></div>
       <div id="nf-photos" tabIndex={-1}>{photoReady && <Suspense fallback={<p role="status" className="min-h-24">Подготвяме избора на снимки…</p>}><PhotoPicker photos={photos} onChange={value => { setPhotos(value); setConfirmed(false); }} onProcessingChange={setPhotoBusy} disabled={busy || Boolean(createdId)} /></Suspense>}</div>
       <p className="ui-note mt-4">Добави поне една реална снимка. Първата е корицата. Можеш да добавиш още по-късно.</p>
     </fieldset>

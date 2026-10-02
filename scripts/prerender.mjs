@@ -56,7 +56,7 @@ export async function prerenderPublicSite(catalog, outDir = 'out') {
       `<meta name="twitter:card" content="${socialImage ? 'summary_large_image' : 'summary'}">`,
       `<meta name="twitter:title" content="${escape(meta.title)}">`,
       `<meta name="twitter:description" content="${escape(meta.description)}">`,
-      ...(socialImage ? [`<meta property="og:image" content="${escape(socialImage)}">`, `<meta name="twitter:image" content="${escape(socialImage)}">`] : []),
+      ...(socialImage ? [`<meta property="og:image" content="${escape(socialImage)}">`, `<meta property="og:image:alt" content="${escape(meta.title)}">`, `<meta name="twitter:image" content="${escape(socialImage)}">`, `<meta name="twitter:image:alt" content="${escape(meta.title)}">`] : []),
       ...(meta.markdownPath ? [`<link rel="alternate" type="text/markdown" href="${SITE_ORIGIN}${meta.markdownPath}">`] : []),
       ...(data.length ? [`<script id="ld-prerender" type="application/ld+json">${json(data)}</script>`] : []),
     ].join('');
@@ -72,7 +72,8 @@ export async function prerenderPublicSite(catalog, outDir = 'out') {
     }
   }
   // Fallback shell stays noindex until an actual public listing is successfully loaded.
-  await writeFile(`${outDir}/spa.html`, template);
+  const fallback = template.replace(/<meta name="robots"[^>]*>/, '<meta name="robots" content="noindex, follow" />').replace(/<link\s+rel="canonical"[^>]*>/g, '');
+  await writeFile(`${outDir}/spa.html`, fallback);
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${publicPaths.filter(path => getPageMeta(path).robots.startsWith('index')).map(path => {
     const modified = revisions[path]?.lastmod;
     return `  <url><loc>${escape(`${SITE_ORIGIN}${path}`)}</loc>${modified ? `<lastmod>${escape(modified)}</lastmod>` : ''}</url>`;

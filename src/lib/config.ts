@@ -1,6 +1,6 @@
 /**
- * Единно място за всички прагове и константи на бизнес логиката.
- * Промяна на поведението на системата става ТУК, без да се пипа логиката.
+ * Клиентски константи за интерфейса и оценките.
+ * Разрешенията и лимитът за публикуване се прилагат отделно в PostgreSQL.
  */
 
 export const CURRENCY = {
@@ -28,10 +28,10 @@ export const TRUST = {
   accountAgeDays: 30,
 } as const;
 
-/** Лимити за активни обяви според верификацията. */
+/** Пилотен режим: една текуща обява, независимо от верификацията. */
 export const LISTING_LIMITS = {
-  unverifiedOwnerMaxActive: 2,
-  verifiedOwnerMaxActive: 10,
+  unverifiedOwnerMaxActive: 1,
+  verifiedOwnerMaxActive: 1,
 } as const;
 
 /** Жизнен цикъл на обявата. */

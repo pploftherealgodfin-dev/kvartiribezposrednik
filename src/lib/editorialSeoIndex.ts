@@ -17,7 +17,7 @@ export const editorialSeoIndex = [
   {
     "path": "/saveti/naemodatel-bez-agencia",
     "title": "Как собственикът да отдаде апартамент сам, без агенция — стъпка по стъпка",
-    "description": "Как да подготвиш имота, да напишеш обява, която продава сама, да подбереш наемател и да подпишете договор без посредник.",
+    "description": "Подготовка на снимки, сравнение на наеми, подходящ момент за публикуване и ясни условия за отдаване без посредник.",
     "ogImage": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Empty_apartment_living_room.jpg/1920px-Empty_apartment_living_room.jpg",
     "ogType": "article"
   },

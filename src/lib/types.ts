@@ -33,29 +33,35 @@ export type BanType = 'phone' | 'device' | 'ip' | 'email';
 export type AlertFrequency = 'instant' | 'daily' | 'off';
 
 export interface City {
+  region?: string;
+  ekatte?: string;
+  isUniversityCity?: boolean;
   id: string;
   slug: string;
   name: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface Neighborhood {
+  associationMethod?: string;
+  sourceUrl?: string;
   id: string;
   cityId: string;
   slug: string;
   name: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface University {
+  kind?: 'institution' | 'branch';
   id: string;
   cityId: string;
   slug: string;
   name: string;
-  lat: number;
-  lng: number;
+  lat: number | null;
+  lng: number | null;
 }
 
 export interface User {
@@ -112,6 +118,7 @@ export interface Listing {
   ownershipVerifiedAt?: string | null;
   verificationExpiresAt?: string | null;
   verificationMethod?: string | null;
+  nearbyUniversityIds: string[];
   latApprox: number;
   lngApprox: number;
   createdAt: string;

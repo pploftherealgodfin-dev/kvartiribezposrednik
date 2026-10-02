@@ -1,6 +1,5 @@
 import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
-import { Navigate } from 'react-router-dom';
 const NotFound = lazy(() => import('@/pages/NotFound'));
 const Home = lazy(() => import('@/pages/home/page'));
 const InfoPage = lazy(() => import('@/pages/info/page'));
@@ -26,7 +25,15 @@ const GuideArticlePage = lazy(() => import('@/pages/guides/article/page'));
 const CitiesHubPage = lazy(() => import('@/pages/cities/page'));
 const CityLandingPage = lazy(() => import('@/pages/cities/city/page'));
 
+const FavoritesPage = lazy(() => import('@/pages/favorites/page'));
+const UploadPage = lazy(() => import('@/pages/upload/page'));
+const SettingsPage = lazy(() => import('@/pages/settings/page'));
+const MessagesPage = lazy(() => import('@/pages/messages/page'));
+
 const routes: RouteObject[] = [
+  { path: '/lyubimi', element: <RequireRole allow={['owner','tenant','admin','moderator']}><FavoritesPage /></RequireRole> },
+  { path: '/nastroyki', element: <RequireRole allow={['owner','tenant','admin','moderator']}><SettingsPage /></RequireRole> },
+  { path: '/saobshteniya', element: <RequireRole allow={['owner','tenant','admin','moderator']}><MessagesPage /></RequireRole> },
   {
     path: '/',
     element: <Home />,
@@ -54,8 +61,8 @@ const routes: RouteObject[] = [
   {
     path: '/kachi-obiava',
     element: (
-      <RequireRole allow={['owner', 'admin']}>
-        <Navigate to="/panel/naemodatel" replace />
+      <RequireRole allow={['owner', 'tenant', 'admin']}>
+        <UploadPage />
       </RequireRole>
     ),
   },

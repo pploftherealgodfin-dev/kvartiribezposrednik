@@ -155,6 +155,7 @@ export default function SiteFooter() {
             </button>
           </nav>
 
+          <p className="mt-5 text-xs text-background-300">Квартали: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline">© OpenStreetMap contributors, ODbL</a>. <a href="/data/national-catalog.json" className="underline">Каталог и източници</a>.</p>
           <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-background-50/10 pt-6 text-center sm:flex-row sm:text-left">
             <div className="flex flex-col items-center gap-3 sm:flex-row">
               <p className="font-body text-sm font-semibold text-background-200">{t('brand.name')}</p>

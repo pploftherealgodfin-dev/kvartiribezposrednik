@@ -8,6 +8,8 @@ export interface CityFaqItem {
  * Служи за национално SEO покритие по ключовата дума „без посредник“ + град.
  */
 export interface CityContent {
+  isUniversityCity?: boolean;
+  editorial?: boolean;
   slug: string;
   /** Име за заглавия, напр. „София“. */
   name: string;

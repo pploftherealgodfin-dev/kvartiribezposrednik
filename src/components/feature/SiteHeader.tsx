@@ -16,6 +16,7 @@ export default function SiteHeader() {
   const { session, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutError, setLogoutError] = useState(false);
 
   useEffect(() => {
     const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuOpen(false); };
@@ -28,8 +29,8 @@ export default function SiteHeader() {
 
   const handleSignOut = async () => {
     setMenuOpen(false);
-    await signOut();
-    navigate('/');
+    setLogoutError(false);
+    try { await signOut(); navigate('/'); } catch { setLogoutError(true); }
   };
 
   const displayName = profile?.name || session?.user?.email || '';
@@ -46,7 +47,7 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        <nav aria-label="Основна навигация" className="hidden items-center gap-5 lg:flex">
+        <nav aria-label="Основна навигация" className="hidden items-center gap-4 xl:flex">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.to}
@@ -70,8 +71,9 @@ export default function SiteHeader() {
             {t('nav.uploadListing')}
           </Link>
 
+          {session && <Link to="/saobshteniya" aria-label="Съобщения" className="flex h-11 w-11 items-center justify-center rounded-md text-foreground-700 hover:bg-background-100"><i className="ri-chat-3-line text-xl" aria-hidden="true" /></Link>}
           {session ? (
-            <div className="hidden items-center gap-1.5 lg:flex">
+            <div className="hidden items-center gap-1.5 xl:flex">
               {isAdmin && (
                 <Link
                   to="/admin"
@@ -100,14 +102,14 @@ export default function SiteHeader() {
           ) : (
             <Link
               to="/vhod"
-              className="hidden whitespace-nowrap rounded-md px-3 py-2.5 text-sm font-semibold text-foreground-800 transition-colors hover:text-primary-700 lg:inline-flex"
+              className="hidden whitespace-nowrap rounded-md px-3 py-2.5 text-sm font-semibold text-foreground-800 transition-colors hover:text-primary-700 xl:inline-flex"
             >
               {t('nav.login')}
             </Link>
           )}
 
           <Link
-            to={panelPath}
+            to="/lyubimi"
             aria-label={t('nav.favorites')}
             className="flex h-11 w-11 items-center justify-center rounded-md text-foreground-700 transition-colors hover:bg-background-100 hover:text-primary-700"
           >
@@ -119,15 +121,16 @@ export default function SiteHeader() {
             aria-label={t('nav.menu')}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-md text-foreground-800 transition-colors hover:bg-background-100 lg:hidden"
+            className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-md text-foreground-800 transition-colors hover:bg-background-100 xl:hidden"
           >
             <i className={menuOpen ? 'ri-close-line text-xl' : 'ri-menu-line text-xl'} />
           </button>
         </div>
       </div>
 
+      {logoutError && <p role="alert" className="border-t px-4 py-3 text-center text-sm">Изходът не е потвърден. Опитай отново, преди да оставиш устройството.</p>}
       {menuOpen && (
-        <div id="mobile-menu" className="max-h-[70dvh] overflow-y-auto border-t border-background-200 bg-background-50 px-4 py-3 lg:hidden">
+        <div id="mobile-menu" className="max-h-[70dvh] overflow-y-auto border-t border-background-200 bg-background-50 px-4 py-3 xl:hidden">
           <nav className="flex flex-col">
             {NAV_ITEMS.map((item) => (
               <NavLink
@@ -140,7 +143,8 @@ export default function SiteHeader() {
               </NavLink>
             ))}
 
-            {session ? (
+            {session && <Link to="/saobshteniya" aria-label="Съобщения" className="flex h-11 w-11 items-center justify-center rounded-md text-foreground-700 hover:bg-background-100"><i className="ri-chat-3-line text-xl" aria-hidden="true" /></Link>}
+          {session ? (
               <>
                 <Link
                   to={panelPath}
@@ -150,6 +154,8 @@ export default function SiteHeader() {
                   <i className="ri-dashboard-line text-base" />
                   <span className="truncate">{t('auth.myPanel')}</span>
                 </Link>
+                <Link to="/nastroyki" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-3 text-sm font-medium">Контакт и настройки</Link>
+                <Link to="/saobshteniya" onClick={() => setMenuOpen(false)} className="rounded-md px-3 py-3 text-sm font-medium">Съобщения</Link>
                 {isAdmin && (
                   <Link
                     to="/admin"

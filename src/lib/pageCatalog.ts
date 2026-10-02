@@ -22,12 +22,12 @@ for (const city of cityContents) pages[`/kvartiri-bez-posrednik/${city.slug}`] =
 for (const guide of guides) pages[`/saveti/${guide.slug}`] = [guide.title, guide.excerpt];
 export const publicPaths = Object.keys(pages);
 export function isPrivateOrUtilityPath(path: string): boolean {
-  return /^\/(?:admin|panel|vhod|moi-profil|kachi-obiava|dokladvane|tarsene|stai-bez-posrednik)(?:\/|$)/.test(path) || /^\/kvartiri-bez-posrednik\/[^/]+\//.test(path);
+  return /^\/(?:lyubimi|nastroyki|saobshteniya|admin|panel|vhod|moi-profil|kachi-obiava|dokladvane|tarsene|stai-bez-posrednik)(?:\/|$)/.test(path) || /^\/kvartiri-bez-posrednik\/[^/]+\//.test(path);
 }
 export function getPageMeta(path: string): PageMeta {
   const normalized = path.replace(/\/$/, '') || '/';
   const entry = pages[normalized];
-  if (entry) return { title: normalized === '/' ? entry[0] : `${entry[0]} | ${brand}`, description: entry[1], canonicalPath: normalized, robots: 'index, follow' };
+  if (entry) return { title: normalized === '/' ? entry[0] : `${entry[0]} | ${brand}`, description: entry[1], canonicalPath: normalized, robots: cityContents.some(city => `/kvartiri-bez-posrednik/${city.slug}` === normalized && !city.editorial) ? 'noindex, follow' : 'index, follow' };
   const title = normalized === '/vhod' ? 'Вход и регистрация' : normalized === '/tarsene' ? 'Търсене на жилище' : normalized === '/dokladvane' ? 'Докладвай съдържание' : normalized.startsWith('/obiava/') ? 'Обява под наем' : isPrivateOrUtilityPath(normalized) ? 'Твоят профил' : 'Страницата не е намерена';
   return { title: `${title} | ${brand}`, description: 'Намери жилище или управлявай своите обяви в Квартири без посредник.', canonicalPath: normalized, robots: normalized.startsWith('/obiava/') ? 'index, follow' : 'noindex, follow' };
 }

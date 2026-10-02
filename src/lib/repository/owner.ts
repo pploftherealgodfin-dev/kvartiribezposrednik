@@ -73,6 +73,7 @@ export async function getOwnerStats(ownerId: string): Promise<OwnerStats> {
 export interface NewListingInput {
   title: string;
   description: string;
+  nearbyUniversityIds: string[];
   type: ListingType;
   priceEur: number;
   areaM2: number;
@@ -111,9 +112,20 @@ export function slugifyTitle(input: string): string {
 export async function createOwnerListing(
   ownerId: string,
   input: NewListingInput,
+  id: string = crypto.randomUUID(),
 ): Promise<{ id: string; slug: string }> {
-  const id = crypto.randomUUID();
   const slug = `${slugifyTitle(input.title)}-${id.slice(0, 6)}`;
+  const recover = async (): Promise<{ id: string; slug: string } | null> => {
+      const { data: existing, error: readError } = await supabase.from('listings').select('id,slug,owner_id,title,description,city_id,neighborhood_id,price_eur,area_m2,rooms,type,deposit,floor,total_floors,furnished,pets_allowed,utilities_included,available_from,nearby_university_ids').eq('id',id).maybeSingle();
+      if (readError) throw readError;
+      if (existing?.owner_id === ownerId) {
+        const same = existing.title === input.title && existing.description === input.description && existing.city_id === input.cityId && existing.neighborhood_id === input.neighborhoodId && Number(existing.price_eur) === input.priceEur && Number(existing.area_m2) === input.areaM2 && existing.rooms === input.rooms && existing.type === input.type && (existing.deposit == null ? null : Number(existing.deposit)) === input.deposit && existing.floor === input.floor && existing.total_floors === input.totalFloors && existing.furnished === input.furnished && existing.pets_allowed === input.petsAllowed && existing.utilities_included === input.utilitiesIncluded && existing.available_from === input.availableFrom && JSON.stringify(existing.nearby_university_ids) === JSON.stringify(input.nearbyUniversityIds);
+        if (!same) throw new Error('Тази обява вече е записана с предишните данни. Провери я в панела, преди да създадеш друга.');
+        return { id: existing.id, slug: existing.slug };
+      }
+      return null;
+  };
+  const prior = await recover(); if (prior) return prior;
 
   const { error } = await supabase.from('listings').insert({
     id,
@@ -135,8 +147,12 @@ export async function createOwnerListing(
     available_from: input.availableFrom,
     city_id: input.cityId,
     neighborhood_id: input.neighborhoodId,
+    nearby_university_ids: input.nearbyUniversityIds,
   });
-  if (error) throw error;
+  if (error) {
+    const found = await recover(); if (found) return found;
+    throw error;
+  }
   return { id, slug };
 }
 
@@ -169,7 +185,11 @@ export async function addListingPhotos(listingId: string, urls: string[]): Promi
   }));
 
   const { error } = await supabase.from('listing_photos').insert(rows);
-  if (error) throw error;
+  if (error) {
+    // A response can be lost after a successful insert. RLS refuses deletion of linked paths.
+    await Promise.allSettled(urls.map(removePhotoObject));
+    throw error;
+  }
 }
 
 export interface ListingPhotoRow {
@@ -194,14 +214,9 @@ export async function getListingPhotos(listingId: string): Promise<ListingPhotoR
  * Записва новия ред на снимките. Позицията се обновява последователно,
  * като първата снимка (позиция 0) е основната.
  */
-export async function reorderListingPhotos(orderedIds: string[]): Promise<void> {
-  for (let index = 0; index < orderedIds.length; index += 1) {
-    const { error } = await supabase
-      .from('listing_photos')
-      .update({ position: index })
-      .eq('id', orderedIds[index]);
-    if (error) throw error;
-  }
+export async function reorderListingPhotos(listingId: string, orderedIds: string[]): Promise<void> {
+  const { error } = await supabase.rpc('reorder_listing_photos', { p_listing_id: listingId, p_photo_ids: orderedIds });
+  if (error) throw error;
 }
 
 export async function deleteListingPhoto(photoId: string): Promise<void> {

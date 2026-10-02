@@ -1,3 +1,4 @@
+import ListingContactPanel from '@/components/feature/ListingContactPanel';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +25,7 @@ export default function ListingDetailPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { isFavorite, toggle } = useFavorites();
+  const { isFavorite, toggle, busyIds, loading: favoritesLoading } = useFavorites();
 
   const [view, setView] = useState<ListingView | null>(null);
   const [neighborhoodListings, setNeighborhoodListings] = useState<ListingView[]>([]);
@@ -65,7 +66,7 @@ export default function ListingDetailPage() {
     return () => {
       active = false;
     };
-  }, [slug, retryKey]);
+  }, [slug, retryKey, user?.id]);
 
   useEffect(() => {
     if (!view || viewedRef.current) return;
@@ -81,9 +82,12 @@ export default function ListingDetailPage() {
         title: `${view.listing.title} | ${t('brand.name')}`,
         description: view.listing.description.slice(0, 150) || undefined,
         canonicalPath: `/obiava/${view.listing.slug}`,
+        robots: view.listing.status === 'active' ? 'index, follow' : 'noindex, follow',
       });
+    } else if (!loading && (notFound || loadError)) {
+      applyPageMeta({ title: `${notFound ? 'Обявата не е намерена' : 'Обявата е временно недостъпна'} | ${t('brand.name')}`, robots: 'noindex, follow' });
     }
-  }, [view, t]);
+  }, [view, t, loading, notFound, loadError]);
 
   useEffect(() => {
     const neighborhoodId = view?.listing.neighborhoodId;
@@ -109,7 +113,7 @@ export default function ListingDetailPage() {
   const handleFavorite = () => {
     if (!view) return;
     if (!user) {
-      navigate('/vhod');
+      navigate('/vhod', { state: { from: `/obiava/${slug}` } });
       return;
     }
     toggle(view.listing.id);
@@ -117,7 +121,7 @@ export default function ListingDetailPage() {
 
   const handleReportOpen = () => {
     if (!user) {
-      navigate('/vhod');
+      navigate('/vhod', { state: { from: `/obiava/${slug}` } });
       return;
     }
     setReportState('open');
@@ -242,7 +246,8 @@ export default function ListingDetailPage() {
                 {pricePerM2(listing.priceEur, listing.areaM2)} € {t('card.perM2')}
               </p>
 
-              <p className="mt-5 text-sm font-semibold text-foreground-900">{owner.name}</p>
+              <p className="mt-5 text-sm font-semibold text-foreground-900">{user ? owner.name : 'Наемодател · личните данни са скрити'}</p>
+              <ListingContactPanel key={`${listing.id}-${user?.id ?? 'guest'}`} listingId={listing.id} slug={listing.slug} ownerId={listing.ownerId} active={listing.status === 'active'} />
               <p className="text-xs text-foreground-500">
                 {badges.verifiedOwner ? t('badges.verifiedOwner') : t('badges.unverifiedOwner')}
               </p>
@@ -251,6 +256,7 @@ export default function ListingDetailPage() {
 
               <button
                 type="button"
+                disabled={favoritesLoading || busyIds.includes(listing.id)}
                 onClick={handleFavorite}
                 className={`mt-5 flex w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-3 text-sm font-semibold transition-colors ${
                   saved

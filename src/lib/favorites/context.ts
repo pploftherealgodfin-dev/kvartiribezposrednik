@@ -3,6 +3,9 @@ import { createContext } from 'react';
 export interface FavoritesContextValue {
   favoriteIds: string[];
   loading: boolean;
+  error: string;
+  reload: () => void;
+  busyIds: string[];
   isFavorite: (listingId: string) => boolean;
   toggle: (listingId: string, next?: boolean) => Promise<void>;
 }

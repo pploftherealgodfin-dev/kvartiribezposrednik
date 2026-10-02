@@ -1,0 +1,3076 @@
+[
+  {
+    "name": "Егреците",
+    "source": "node/273816198",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 6.25
+  },
+  {
+    "name": "Малко Църквище",
+    "source": "node/273816240",
+    "reason": "outside_town_boundary",
+    "settlement": "Обител"
+  },
+  {
+    "name": "в.з.Ярема",
+    "source": "node/273873178",
+    "reason": "outside_town_boundary",
+    "settlement": "Ярлово"
+  },
+  {
+    "name": "Бостан",
+    "source": "node/273874072",
+    "reason": "outside_town_boundary",
+    "settlement": "Горна Хубавка"
+  },
+  {
+    "name": "кв. Наречен",
+    "source": "node/273880507",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Лъки",
+    "distanceKm": 9.47
+  },
+  {
+    "name": "Кьосина махала",
+    "source": "node/365385831",
+    "reason": "outside_town_boundary",
+    "settlement": "Пожарево"
+  },
+  {
+    "name": "кв. Речица",
+    "source": "node/1069443768",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Сливен",
+    "distanceKm": 6.44
+  },
+  {
+    "name": "Махала Сивил",
+    "source": "node/1236232254",
+    "reason": "outside_town_boundary",
+    "settlement": "Царичина"
+  },
+  {
+    "name": "в.з. Ловджийска чешма",
+    "source": "node/1363130500",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "Гара Бяла",
+    "source": "node/2049769525",
+    "reason": "outside_town_boundary",
+    "settlement": "Бяла"
+  },
+  {
+    "name": "кв. Долни Воден",
+    "source": "node/2152078702",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Асеновград",
+    "distanceKm": 3.54
+  },
+  {
+    "name": "вз Воден камък",
+    "source": "node/2170990393",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Хисаря",
+    "distanceKm": 6.89
+  },
+  {
+    "name": "кв. Абдовица",
+    "source": "node/2178239487",
+    "reason": "outside_town_boundary",
+    "settlement": "кв. Абдовица"
+  },
+  {
+    "name": "кв. Димитър Миленков",
+    "source": "node/2178240187",
+    "reason": "outside_town_boundary",
+    "settlement": "кв. Димитър Миленков"
+  },
+  {
+    "name": "кв. Видните",
+    "source": "node/2178271852",
+    "reason": "outside_town_boundary",
+    "settlement": "Казичене"
+  },
+  {
+    "name": "кв. Република-2",
+    "source": "node/2181893509",
+    "reason": "outside_town_boundary",
+    "settlement": "Волуяк"
+  },
+  {
+    "name": "в.з. Малинова долина - Герена",
+    "source": "node/2185173265",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "в.з. Бункера",
+    "source": "node/2185173877",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "в.з. Врана - Герман",
+    "source": "node/2185222121",
+    "reason": "outside_town_boundary",
+    "settlement": "Герман"
+  },
+  {
+    "name": "в.з. Врана - Лозен триъгълника",
+    "source": "node/2185225139",
+    "reason": "outside_town_boundary",
+    "settlement": "Лозен"
+  },
+  {
+    "name": "в.з. Хумни дол",
+    "source": "node/2204207288",
+    "reason": "outside_town_boundary",
+    "settlement": "Подгумер"
+  },
+  {
+    "name": "в.з. Целините",
+    "source": "node/2204210355",
+    "reason": "outside_town_boundary",
+    "settlement": "Подгумер"
+  },
+  {
+    "name": "в.з. Русия",
+    "source": "node/2204211759",
+    "reason": "outside_town_boundary",
+    "settlement": "Войнеговци"
+  },
+  {
+    "name": "в.з. Бранчовица",
+    "source": "node/2204212337",
+    "reason": "outside_town_boundary",
+    "settlement": "Войнеговци"
+  },
+  {
+    "name": "в.з. Манчов валог",
+    "source": "node/2204212371",
+    "reason": "outside_town_boundary",
+    "settlement": "Войнеговци"
+  },
+  {
+    "name": "в.з. Пресвета",
+    "source": "node/2204213120",
+    "reason": "outside_town_boundary",
+    "settlement": "Подгумер"
+  },
+  {
+    "name": "ж.к. София вилидж",
+    "source": "node/2204502246",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "в.з. Косанин дол",
+    "source": "node/2204507961",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "в.з. Градище",
+    "source": "node/2204508037",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "кв. Максим Горки",
+    "source": "node/2210956344",
+    "reason": "outside_town_boundary",
+    "settlement": "Пролеша"
+  },
+  {
+    "name": "кв. Толева махала",
+    "source": "node/2210963120",
+    "reason": "outside_town_boundary",
+    "settlement": "Волуяк"
+  },
+  {
+    "name": "в.з. Иваняне",
+    "source": "node/2211332009",
+    "reason": "outside_town_boundary",
+    "settlement": "Иваняне"
+  },
+  {
+    "name": "в.з. Мало Бучино",
+    "source": "node/2214572978",
+    "reason": "outside_town_boundary",
+    "settlement": "Мало Бучино"
+  },
+  {
+    "name": "Махала Казашка",
+    "source": "node/2233742514",
+    "reason": "outside_town_boundary",
+    "settlement": "Мърчаево"
+  },
+  {
+    "name": "Махала Толумска",
+    "source": "node/2233744768",
+    "reason": "outside_town_boundary",
+    "settlement": "Мърчаево"
+  },
+  {
+    "name": "в.з. Терасите",
+    "source": "node/2268174401",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "в.з. Зли камък",
+    "source": "node/2268175284",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "в.з. Калфин дол",
+    "source": "node/2268176789",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "кв. Мечта",
+    "source": "node/2268314450",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "ж.к. Камбаните",
+    "source": "node/2272498120",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "кв. Джурджа",
+    "source": "node/2286582950",
+    "reason": "outside_town_boundary",
+    "settlement": "Казичене"
+  },
+  {
+    "name": "кв. Киевци",
+    "source": "node/2498793634",
+    "reason": "outside_town_boundary",
+    "settlement": "Поповци"
+  },
+  {
+    "name": "Череша",
+    "source": "node/2641115426",
+    "reason": "outside_town_boundary",
+    "settlement": "Любино"
+  },
+  {
+    "name": "кв. Бобковица",
+    "source": "node/2760712612",
+    "reason": "outside_town_boundary",
+    "settlement": "Желен"
+  },
+  {
+    "name": "кв. Дренов",
+    "source": "node/2760712676",
+    "reason": "outside_town_boundary",
+    "settlement": "Редина"
+  },
+  {
+    "name": "кв. Бранчовица",
+    "source": "node/2760712679",
+    "reason": "outside_town_boundary",
+    "settlement": "Редина"
+  },
+  {
+    "name": "кв. Раньов дол",
+    "source": "node/2760712682",
+    "reason": "outside_town_boundary",
+    "settlement": "Желен"
+  },
+  {
+    "name": "Яшарска махала",
+    "source": "node/2813011937",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 6.79
+  },
+  {
+    "name": "Кащерова махала",
+    "source": "node/2813011994",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 5.59
+  },
+  {
+    "name": "Трънска махала",
+    "source": "node/2813011995",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 5.42
+  },
+  {
+    "name": "Разсолкова махала",
+    "source": "node/2813011996",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 5.05
+  },
+  {
+    "name": "Петкова махала",
+    "source": "node/2973588540",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Брезник",
+    "distanceKm": 9.42
+  },
+  {
+    "name": "Джоргова махала",
+    "source": "node/2973588642",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Брезник",
+    "distanceKm": 9.17
+  },
+  {
+    "name": "ж.к.Север",
+    "source": "node/3128284167",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Карлово",
+    "distanceKm": 8.82
+  },
+  {
+    "name": "Бодрост",
+    "source": "node/3374699453",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Рила",
+    "distanceKm": 19.14
+  },
+  {
+    "name": "Панорама",
+    "source": "node/3506777445",
+    "reason": "outside_town_boundary",
+    "settlement": "Осеново"
+  },
+  {
+    "name": "Лаута",
+    "source": "node/3779372495",
+    "reason": "outside_town_boundary",
+    "settlement": "Лаута"
+  },
+  {
+    "name": "Люляците",
+    "source": "node/3779391311",
+    "reason": "outside_town_boundary",
+    "settlement": "Люляците"
+  },
+  {
+    "name": "Панайот Волов",
+    "source": "node/3779391312",
+    "reason": "outside_town_boundary",
+    "settlement": "Панайот Волов"
+  },
+  {
+    "name": "Тодор Каблешков",
+    "source": "node/3779391313",
+    "reason": "outside_town_boundary",
+    "settlement": "Тодор Каблешков"
+  },
+  {
+    "name": "Възраждане",
+    "source": "node/3779403493",
+    "reason": "outside_town_boundary",
+    "settlement": "Възраждане"
+  },
+  {
+    "name": "Захари Зограф",
+    "source": "node/3779403494",
+    "reason": "outside_town_boundary",
+    "settlement": "Захари Зограф"
+  },
+  {
+    "name": "Капитан Бураго",
+    "source": "node/3779403495",
+    "reason": "outside_town_boundary",
+    "settlement": "Капитан Бураго"
+  },
+  {
+    "name": "Оборище",
+    "source": "node/3779403496",
+    "reason": "outside_town_boundary",
+    "settlement": "Оборище"
+  },
+  {
+    "name": "Опълченски",
+    "source": "node/3779403497",
+    "reason": "outside_town_boundary",
+    "settlement": "Опълченски"
+  },
+  {
+    "name": "Скобелева майка",
+    "source": "node/3779403498",
+    "reason": "outside_town_boundary",
+    "settlement": "Скобелева майка"
+  },
+  {
+    "name": "Търговски",
+    "source": "node/3779403499",
+    "reason": "outside_town_boundary",
+    "settlement": "Търговски"
+  },
+  {
+    "name": "Хан Аспарух",
+    "source": "node/3779403500",
+    "reason": "outside_town_boundary",
+    "settlement": "Хан Аспарух"
+  },
+  {
+    "name": "Хан Крум",
+    "source": "node/3779403501",
+    "reason": "outside_town_boundary",
+    "settlement": "Кан Крум"
+  },
+  {
+    "name": "Вилна зона \"Могилата\"",
+    "source": "node/3824677726",
+    "reason": "outside_town_boundary",
+    "settlement": "Пожарево"
+  },
+  {
+    "name": "Цинга",
+    "source": "node/3826497274",
+    "reason": "outside_town_boundary",
+    "settlement": "Геша"
+  },
+  {
+    "name": "Филипарци",
+    "source": "node/3947589279",
+    "reason": "outside_town_boundary",
+    "settlement": "Дръмша"
+  },
+  {
+    "name": "махала Кантона",
+    "source": "node/4038239195",
+    "reason": "outside_town_boundary",
+    "settlement": "Хераково"
+  },
+  {
+    "name": "кв. Раданци",
+    "source": "node/4088795377",
+    "reason": "outside_town_boundary",
+    "settlement": "Бангейци"
+  },
+  {
+    "name": "кв. Божковци",
+    "source": "node/4088801906",
+    "reason": "outside_town_boundary",
+    "settlement": "Бангейци"
+  },
+  {
+    "name": "кв. Димиев хан",
+    "source": "node/4089005253",
+    "reason": "outside_town_boundary",
+    "settlement": "Бангейци"
+  },
+  {
+    "name": "мах. Гелинци",
+    "source": "node/4248365877",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Белоптичене",
+    "source": "node/4432408562",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Белоградчик",
+    "distanceKm": 13.42
+  },
+  {
+    "name": "махала Скала",
+    "source": "node/4466859686",
+    "reason": "outside_town_boundary",
+    "settlement": "Хераково"
+  },
+  {
+    "name": "махала Каракачани",
+    "source": "node/4466869238",
+    "reason": "outside_town_boundary",
+    "settlement": "Хераково"
+  },
+  {
+    "name": "Полеглица",
+    "source": "node/4501951964",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Ослец",
+    "source": "node/4513182527",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Ардино",
+    "distanceKm": 6.42
+  },
+  {
+    "name": "Пунинци",
+    "source": "node/4515722835",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Стоилковци",
+    "source": "node/4515722846",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Бондин хан",
+    "source": "node/4515722847",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Мусинци",
+    "source": "node/4515722848",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Лутуровци",
+    "source": "node/4515722849",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Понорци",
+    "source": "node/4515724247",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Кастринци",
+    "source": "node/4517417626",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Ваклиновци",
+    "source": "node/4517417627",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Рудинци",
+    "source": "node/4520397560",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Батинци",
+    "source": "node/4520397561",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Илчинци",
+    "source": "node/4521243634",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Рекето",
+    "source": "node/4522869243",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Вакарел",
+    "source": "node/4523192896",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Йордановци",
+    "source": "node/4523526643",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Гуйдинци",
+    "source": "node/4523585980",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Поповци",
+    "source": "node/4523585981",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Чулинци",
+    "source": "node/4524889199",
+    "reason": "outside_town_boundary",
+    "settlement": "Мургаш"
+  },
+  {
+    "name": "в.з. Приплат",
+    "source": "node/4535969995",
+    "reason": "outside_town_boundary",
+    "settlement": "Владая"
+  },
+  {
+    "name": "Младжикинци",
+    "source": "node/4546879914",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Белинци",
+    "source": "node/4546879918",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "Княжево",
+    "source": "node/4547097771",
+    "reason": "outside_town_boundary",
+    "settlement": "Мургаш"
+  },
+  {
+    "name": "Краище",
+    "source": "node/4547191113",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Модринци",
+    "source": "node/4547191114",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Господиновци",
+    "source": "node/4547201183",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Лазинци",
+    "source": "node/4547201184",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Мацинци",
+    "source": "node/4547201185",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Джункинци",
+    "source": "node/4547201186",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Чуропинковци",
+    "source": "node/4547201187",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Пейчинци",
+    "source": "node/4547202093",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Гьоринци",
+    "source": "node/4547202094",
+    "reason": "outside_town_boundary",
+    "settlement": "Шума"
+  },
+  {
+    "name": "Мишин връх",
+    "source": "node/4549082406",
+    "reason": "outside_town_boundary",
+    "settlement": "Лопушня"
+  },
+  {
+    "name": "Рогачете",
+    "source": "node/4557408652",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Янчинци",
+    "source": "node/4559038101",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Ганинци",
+    "source": "node/4559906068",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Душинци",
+    "source": "node/4559906069",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Велиндренци",
+    "source": "node/4559941008",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Селище",
+    "source": "node/4559941010",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Калясоновци",
+    "source": "node/4559941011",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Родана",
+    "source": "node/4559941012",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Бърдо",
+    "source": "node/4559941013",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Раске",
+    "source": "node/4559941014",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Гински хан",
+    "source": "node/4559941015",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Вранево",
+    "source": "node/4559941016",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Кумичина дупка",
+    "source": "node/4559942216",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Попова махала",
+    "source": "node/4559942217",
+    "reason": "outside_town_boundary",
+    "settlement": "Гинци"
+  },
+  {
+    "name": "Раниславци",
+    "source": "node/4577852834",
+    "reason": "outside_town_boundary",
+    "settlement": "Понор"
+  },
+  {
+    "name": "Брегалница",
+    "source": "node/4580385230",
+    "reason": "outside_town_boundary",
+    "settlement": "Манастирище"
+  },
+  {
+    "name": "Бърдо",
+    "source": "node/4580385388",
+    "reason": "outside_town_boundary",
+    "settlement": "Брезе"
+  },
+  {
+    "name": "Войнишка махала",
+    "source": "node/4580385389",
+    "reason": "outside_town_boundary",
+    "settlement": "Манастирище"
+  },
+  {
+    "name": "Ливаге",
+    "source": "node/4580939366",
+    "reason": "outside_town_boundary",
+    "settlement": "Дреново"
+  },
+  {
+    "name": "Паралъжовци",
+    "source": "node/4580939367",
+    "reason": "outside_town_boundary",
+    "settlement": "Дръмша"
+  },
+  {
+    "name": "Градище",
+    "source": "node/4580948296",
+    "reason": "outside_town_boundary",
+    "settlement": "Дръмша"
+  },
+  {
+    "name": "Лилковци",
+    "source": "node/4580948297",
+    "reason": "outside_town_boundary",
+    "settlement": "Дръмша"
+  },
+  {
+    "name": "Шалавардинци",
+    "source": "node/4580948298",
+    "reason": "outside_town_boundary",
+    "settlement": "Чибаовци"
+  },
+  {
+    "name": "Мината",
+    "source": "node/4580948299",
+    "reason": "outside_town_boundary",
+    "settlement": "Чибаовци"
+  },
+  {
+    "name": "Марковци",
+    "source": "node/4580948300",
+    "reason": "outside_town_boundary",
+    "settlement": "Чибаовци"
+  },
+  {
+    "name": "Ширинята",
+    "source": "node/4580948301",
+    "reason": "outside_town_boundary",
+    "settlement": "Чибаовци"
+  },
+  {
+    "name": "Раздолци",
+    "source": "node/4580953751",
+    "reason": "outside_town_boundary",
+    "settlement": "Дреново"
+  },
+  {
+    "name": "Въртоп",
+    "source": "node/4580962954",
+    "reason": "outside_town_boundary",
+    "settlement": "Дреново"
+  },
+  {
+    "name": "Завидовска падина",
+    "source": "node/4580962955",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Въртопите",
+    "source": "node/4580962956",
+    "reason": "outside_town_boundary",
+    "settlement": "Бучин проход"
+  },
+  {
+    "name": "Ковачица",
+    "source": "node/4580962957",
+    "reason": "outside_town_boundary",
+    "settlement": "Бучин проход"
+  },
+  {
+    "name": "Пурченица",
+    "source": "node/4580962958",
+    "reason": "outside_town_boundary",
+    "settlement": "Бучин проход"
+  },
+  {
+    "name": "Витови",
+    "source": "node/4580962959",
+    "reason": "outside_town_boundary",
+    "settlement": "Бучин проход"
+  },
+  {
+    "name": "в.з. Балач",
+    "source": "node/4580962960",
+    "reason": "outside_town_boundary",
+    "settlement": "Бучин проход"
+  },
+  {
+    "name": "Мало Равнище",
+    "source": "node/4580962961",
+    "reason": "outside_town_boundary",
+    "settlement": "Бучин проход"
+  },
+  {
+    "name": "Стефановци",
+    "source": "node/4580962962",
+    "reason": "outside_town_boundary",
+    "settlement": "Дреново"
+  },
+  {
+    "name": "Спасова махала",
+    "source": "node/4580962963",
+    "reason": "outside_town_boundary",
+    "settlement": "Брезе"
+  },
+  {
+    "name": "Велкова махала",
+    "source": "node/4581417584",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Кукла",
+    "source": "node/4581417585",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Върха",
+    "source": "node/4583853041",
+    "reason": "outside_town_boundary",
+    "settlement": "Бучин проход"
+  },
+  {
+    "name": "Гъбарска махала",
+    "source": "node/4616087151",
+    "reason": "outside_town_boundary",
+    "settlement": "Балабанско"
+  },
+  {
+    "name": "Мацалево",
+    "source": "node/4622205994",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 9.75
+  },
+  {
+    "name": "кв. Бучала",
+    "source": "node/4623877326",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 6.11
+  },
+  {
+    "name": "в.з. Драговищица",
+    "source": "node/4678828768",
+    "reason": "outside_town_boundary",
+    "settlement": "Драговищица"
+  },
+  {
+    "name": "Махала Бурновска",
+    "source": "node/4685048108",
+    "reason": "outside_town_boundary",
+    "settlement": "Мърчаево"
+  },
+  {
+    "name": "ж.к. Планински гледки",
+    "source": "node/4720615568",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "ж.к. Градини Бистрица",
+    "source": "node/4720620018",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "м. Хан Богров",
+    "source": "node/4725770306",
+    "reason": "outside_town_boundary",
+    "settlement": "Горни Богров"
+  },
+  {
+    "name": "в.з. Беликата",
+    "source": "node/4730365635",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "в.з. Батийница",
+    "source": "node/4730366264",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "в.з. Бяла нива",
+    "source": "node/4730366265",
+    "reason": "outside_town_boundary",
+    "settlement": "Кокаляне"
+  },
+  {
+    "name": "в.з. Кокалянски ханчета",
+    "source": "node/4730366266",
+    "reason": "outside_town_boundary",
+    "settlement": "Кокаляне"
+  },
+  {
+    "name": "Крушките",
+    "source": "node/4744790943",
+    "reason": "outside_town_boundary",
+    "settlement": "Приселци"
+  },
+  {
+    "name": "Минкови Бани",
+    "source": "node/4876237863",
+    "reason": "outside_town_boundary",
+    "settlement": "Спанчевци"
+  },
+  {
+    "name": "Балан",
+    "source": "node/4949535319",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Дивина махала",
+    "source": "node/4949535320",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Слепок",
+    "source": "node/4949536721",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Негован дол",
+    "source": "node/4949536722",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Разкръске",
+    "source": "node/4949547824",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Врело",
+    "source": "node/4950555319",
+    "reason": "outside_town_boundary",
+    "settlement": "Беренде извор"
+  },
+  {
+    "name": "Бачиище",
+    "source": "node/4950555320",
+    "reason": "outside_town_boundary",
+    "settlement": "Беренде извор"
+  },
+  {
+    "name": "Беренде Чифлик",
+    "source": "node/4950717445",
+    "reason": "outside_town_boundary",
+    "settlement": "Беренде"
+  },
+  {
+    "name": "Копринено орище",
+    "source": "node/4967787929",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Банкя",
+    "distanceKm": 10.32
+  },
+  {
+    "name": "Горно Драгичево",
+    "source": "node/4968127520",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Банкя",
+    "distanceKm": 10.63
+  },
+  {
+    "name": "Тутинци",
+    "source": "node/5143379922",
+    "reason": "outside_town_boundary",
+    "settlement": "Туден"
+  },
+  {
+    "name": "кв. Черноконево",
+    "source": "node/5152473939",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Димитровград",
+    "distanceKm": 6.19
+  },
+  {
+    "name": "ж.к. Свети Георги",
+    "source": "node/5157523329",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "мах. Джагаловци",
+    "source": "node/5159770719",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Букет",
+    "source": "node/5257278845",
+    "reason": "outside_town_boundary",
+    "settlement": "Добърчин"
+  },
+  {
+    "name": "Коньовци",
+    "source": "node/5257278846",
+    "reason": "outside_town_boundary",
+    "settlement": "Добърчин"
+  },
+  {
+    "name": "Сенокос",
+    "source": "node/5257278847",
+    "reason": "outside_town_boundary",
+    "settlement": "Добърчин"
+  },
+  {
+    "name": "Величковци",
+    "source": "node/5257278848",
+    "reason": "outside_town_boundary",
+    "settlement": "Добърчин"
+  },
+  {
+    "name": "Елова река",
+    "source": "node/5257278849",
+    "reason": "outside_town_boundary",
+    "settlement": "Добърчин"
+  },
+  {
+    "name": "Поповци",
+    "source": "node/5260283974",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Кулинци",
+    "source": "node/5260283975",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Преслап",
+    "source": "node/5260288095",
+    "reason": "outside_town_boundary",
+    "settlement": "Свидня"
+  },
+  {
+    "name": "Гераковци",
+    "source": "node/5260288098",
+    "reason": "outside_town_boundary",
+    "settlement": "Свидня"
+  },
+  {
+    "name": "кв. Кални дол",
+    "source": "node/5502637490",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 6.77
+  },
+  {
+    "name": "мах. Кокая",
+    "source": "node/5502637491",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Дупница",
+    "distanceKm": 7.49
+  },
+  {
+    "name": "Босачка мах.",
+    "source": "node/5528385391",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 19.18
+  },
+  {
+    "name": "Чачарска мах.",
+    "source": "node/5528392203",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 19.03
+  },
+  {
+    "name": "мах. Рекалци",
+    "source": "node/5528393034",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 18.41
+  },
+  {
+    "name": "мах. Гьошинци",
+    "source": "node/5528393035",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 17.64
+  },
+  {
+    "name": "мах. Околеш",
+    "source": "node/5528405836",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 18.68
+  },
+  {
+    "name": "мах. Демирци",
+    "source": "node/5528516467",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 18.59
+  },
+  {
+    "name": "Долна Карадачка мах.",
+    "source": "node/5528527391",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 18.08
+  },
+  {
+    "name": "Стоилова мах.",
+    "source": "node/5528531381",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 19.64
+  },
+  {
+    "name": "мах. Арпаджик",
+    "source": "node/5552041821",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 16.24
+  },
+  {
+    "name": "Ворошанска мах.",
+    "source": "node/5552041822",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 17.32
+  },
+  {
+    "name": "Рекалийска мах.",
+    "source": "node/5552041823",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 17.05
+  },
+  {
+    "name": "Ивановска мах.",
+    "source": "node/5552045177",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 17.79
+  },
+  {
+    "name": "Тютюнджийска мах.",
+    "source": "node/5552045178",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 18.35
+  },
+  {
+    "name": "Чергарска мах.",
+    "source": "node/5552045179",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 18.53
+  },
+  {
+    "name": "Горна Карадачка мах.",
+    "source": "node/5552090300",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 19.77
+  },
+  {
+    "name": "Бойковска мах.",
+    "source": "node/5552090623",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кюстендил",
+    "distanceKm": 20.47
+  },
+  {
+    "name": "мах. Старото село",
+    "source": "node/5559685689",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 14.29
+  },
+  {
+    "name": "мах. Калугерица",
+    "source": "node/5559767483",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 13.88
+  },
+  {
+    "name": "Милева мах.",
+    "source": "node/5559819733",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 10.34
+  },
+  {
+    "name": "мах. Клисурата",
+    "source": "node/5559844496",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 15.8
+  },
+  {
+    "name": "мах. Джорговица",
+    "source": "node/5559844497",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 16.64
+  },
+  {
+    "name": "мах. Грамаде",
+    "source": "node/5559889944",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 11.69
+  },
+  {
+    "name": "мах. Гусевци",
+    "source": "node/5567107918",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 12.15
+  },
+  {
+    "name": "мах. Джамалица",
+    "source": "node/5568890216",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 9.67
+  },
+  {
+    "name": "Джелепска мах.",
+    "source": "node/5569564870",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 14.3
+  },
+  {
+    "name": "мах. Радомирци",
+    "source": "node/5570685741",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 14.14
+  },
+  {
+    "name": "Барбеш",
+    "source": "node/5570704849",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 11.79
+  },
+  {
+    "name": "Язовира",
+    "source": "node/5570704862",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 12.1
+  },
+  {
+    "name": "Опашница",
+    "source": "node/5570704863",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 11.76
+  },
+  {
+    "name": "Бугьовец",
+    "source": "node/5573809923",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 11.09
+  },
+  {
+    "name": "Чифлик",
+    "source": "node/5574273122",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 10.02
+  },
+  {
+    "name": "Керкез",
+    "source": "node/5574344150",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 10.97
+  },
+  {
+    "name": "в.з. Керкез",
+    "source": "node/5574371299",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 11.3
+  },
+  {
+    "name": "Войчина мах.",
+    "source": "node/5583938010",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 12.37
+  },
+  {
+    "name": "мах. Тегарчица",
+    "source": "node/5584780008",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 12.91
+  },
+  {
+    "name": "Згурова махала",
+    "source": "node/5600014537",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Рудозем",
+    "distanceKm": 6.84
+  },
+  {
+    "name": "Аврамовска махала",
+    "source": "node/5600014538",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Рудозем",
+    "distanceKm": 7.22
+  },
+  {
+    "name": "Ниновци",
+    "source": "node/5637327863",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Ябланица",
+    "distanceKm": 12.23
+  },
+  {
+    "name": "Караивановци",
+    "source": "node/5678524073",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Угърчин",
+    "distanceKm": 8.79
+  },
+  {
+    "name": "Курдоловци",
+    "source": "node/5678524074",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Угърчин",
+    "distanceKm": 7.45
+  },
+  {
+    "name": "мах. Кринчови ханове",
+    "source": "node/5682635883",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Ябланица",
+    "distanceKm": 6.87
+  },
+  {
+    "name": "в.з. Гара Боиловци",
+    "source": "node/5832430047",
+    "reason": "outside_town_boundary",
+    "settlement": "Цацаровци"
+  },
+  {
+    "name": "в.з. Язовира",
+    "source": "node/5832452603",
+    "reason": "outside_town_boundary",
+    "settlement": "Цацаровци"
+  },
+  {
+    "name": "в.з. Киселица",
+    "source": "node/5832456240",
+    "reason": "outside_town_boundary",
+    "settlement": "Ялботина"
+  },
+  {
+    "name": "Пилещарете",
+    "source": "node/5836448785",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Балабановци",
+    "source": "node/5836448786",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Сврачковци",
+    "source": "node/5836448787",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Баломир",
+    "source": "node/5836448846",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Бокинци",
+    "source": "node/5836450405",
+    "reason": "outside_town_boundary",
+    "settlement": "Чибаовци"
+  },
+  {
+    "name": "Вити кръст",
+    "source": "node/5836450406",
+    "reason": "outside_town_boundary",
+    "settlement": "Чибаовци"
+  },
+  {
+    "name": "Арнаутска мах.",
+    "source": "node/5837983809",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Белчовци",
+    "source": "node/5837987505",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Димовци",
+    "source": "node/5837987506",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Дяковци",
+    "source": "node/5837987507",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Тончинци",
+    "source": "node/5838001339",
+    "reason": "outside_town_boundary",
+    "settlement": "Искрец"
+  },
+  {
+    "name": "Ленковци",
+    "source": "node/5838229741",
+    "reason": "outside_town_boundary",
+    "settlement": "Дреново"
+  },
+  {
+    "name": "Банковци",
+    "source": "node/5845994103",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Ябланица",
+    "distanceKm": 9.46
+  },
+  {
+    "name": "Песовци",
+    "source": "node/5846696313",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Луковит",
+    "distanceKm": 11.0
+  },
+  {
+    "name": "в.з. Драгал",
+    "source": "node/6149212746",
+    "reason": "outside_town_boundary",
+    "settlement": "Драгоил"
+  },
+  {
+    "name": "Умляк",
+    "source": "node/6149212747",
+    "reason": "outside_town_boundary",
+    "settlement": "Драгоил"
+  },
+  {
+    "name": "мах. Градище",
+    "source": "node/6158212841",
+    "reason": "outside_town_boundary",
+    "settlement": "Долно ново свло"
+  },
+  {
+    "name": "мах. Лимшище",
+    "source": "node/6158256534",
+    "reason": "outside_town_boundary",
+    "settlement": "Долно ново свло"
+  },
+  {
+    "name": "мах. Мало Бельово",
+    "source": "node/6158333464",
+    "reason": "outside_town_boundary",
+    "settlement": "Ново бърдо"
+  },
+  {
+    "name": "мах. Котелево",
+    "source": "node/6158341665",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Голочел",
+    "source": "node/6158341677",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Трън",
+    "source": "node/6158359206",
+    "reason": "outside_town_boundary",
+    "settlement": "Калотина"
+  },
+  {
+    "name": "Майсторова мах.",
+    "source": "node/6159187779",
+    "reason": "outside_town_boundary",
+    "settlement": "Вишан"
+  },
+  {
+    "name": "мах. Големо Бельово",
+    "source": "node/6165763060",
+    "reason": "outside_town_boundary",
+    "settlement": "Владиславци"
+  },
+  {
+    "name": "гара Петърч",
+    "source": "node/6178018023",
+    "reason": "outside_town_boundary",
+    "settlement": "Петърч"
+  },
+  {
+    "name": "м. Илиенец",
+    "source": "node/6217055468",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Мездра",
+    "distanceKm": 7.96
+  },
+  {
+    "name": "кв. Гарата",
+    "source": "node/6232967928",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Карнобат",
+    "distanceKm": 11.97
+  },
+  {
+    "name": "комплекс Екостар",
+    "source": "node/6247577860",
+    "reason": "outside_town_boundary",
+    "settlement": "Рогачево"
+  },
+  {
+    "name": "кв. Младост",
+    "source": "node/6249064709",
+    "reason": "outside_town_boundary",
+    "settlement": "Оброчище"
+  },
+  {
+    "name": "кв. Морава",
+    "source": "node/6261749766",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Смядово",
+    "distanceKm": 21.17
+  },
+  {
+    "name": "кв. Подем",
+    "source": "node/6261749767",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Смядово",
+    "distanceKm": 22.87
+  },
+  {
+    "name": "кв. Залково",
+    "source": "node/6262642468",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Ловеч",
+    "distanceKm": 10.47
+  },
+  {
+    "name": "кв. Сотево",
+    "source": "node/6262643633",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Ловеч",
+    "distanceKm": 9.48
+  },
+  {
+    "name": "Урлаци",
+    "source": "node/6274166647",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 6.27
+  },
+  {
+    "name": "Узунци",
+    "source": "node/6274166657",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 6.72
+  },
+  {
+    "name": "Дреновичка мах.",
+    "source": "node/6274222693",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.36
+  },
+  {
+    "name": "Бачева мах.",
+    "source": "node/6274222695",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.32
+  },
+  {
+    "name": "Рибарци",
+    "source": "node/6274277033",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.04
+  },
+  {
+    "name": "Самарджийска махала",
+    "source": "node/6275071196",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.55
+  },
+  {
+    "name": "Миловска мах.",
+    "source": "node/6275071421",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.85
+  },
+  {
+    "name": "Маряновска мах.",
+    "source": "node/6275071441",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.81
+  },
+  {
+    "name": "Пешовска мах.",
+    "source": "node/6275071450",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.6
+  },
+  {
+    "name": "Качулска мах.",
+    "source": "node/6275103393",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 14.95
+  },
+  {
+    "name": "Станинска мах",
+    "source": "node/6275103404",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 14.65
+  },
+  {
+    "name": "Мутафчийска",
+    "source": "node/6275150253",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.41
+  },
+  {
+    "name": "Богданци",
+    "source": "node/6275150254",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 14.05
+  },
+  {
+    "name": "Стоймирци",
+    "source": "node/6275181229",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.93
+  },
+  {
+    "name": "Хамбарджиите",
+    "source": "node/6275181230",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.55
+  },
+  {
+    "name": "Сукалинци",
+    "source": "node/6275181231",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.53
+  },
+  {
+    "name": "Въчковска мах.",
+    "source": "node/6275193757",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 11.9
+  },
+  {
+    "name": "Стамболийска мах.",
+    "source": "node/6275203831",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 11.49
+  },
+  {
+    "name": "Пачевска мах.",
+    "source": "node/6275259723",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.61
+  },
+  {
+    "name": "Капитанска мах.",
+    "source": "node/6275259724",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.33
+  },
+  {
+    "name": "Кипренска мах.",
+    "source": "node/6275259725",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.08
+  },
+  {
+    "name": "Кацарска мах.",
+    "source": "node/6275259726",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.72
+  },
+  {
+    "name": "Домозетска мах.",
+    "source": "node/6275259727",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.2
+  },
+  {
+    "name": "Тугулска мах.",
+    "source": "node/6275269426",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.87
+  },
+  {
+    "name": "Котовска мах.",
+    "source": "node/6276140309",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.1
+  },
+  {
+    "name": "Пишанец",
+    "source": "node/6276140317",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.98
+  },
+  {
+    "name": "Тодоровска мах.",
+    "source": "node/6276140327",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.71
+  },
+  {
+    "name": "мах. Хановете",
+    "source": "node/6276169863",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.18
+  },
+  {
+    "name": "Прикрат",
+    "source": "node/6278124708",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 14.72
+  },
+  {
+    "name": "Урумци",
+    "source": "node/6278131683",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.94
+  },
+  {
+    "name": "Малинковци",
+    "source": "node/6278267380",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 14.67
+  },
+  {
+    "name": "Караджовци",
+    "source": "node/6278272180",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 14.15
+  },
+  {
+    "name": "Велковци",
+    "source": "node/6278283721",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 14.58
+  },
+  {
+    "name": "Ханджийска мах.",
+    "source": "node/6279156639",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 13.54
+  },
+  {
+    "name": "Йовановци",
+    "source": "node/6279287713",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 17.41
+  },
+  {
+    "name": "Крайковци",
+    "source": "node/6279288192",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 17.63
+  },
+  {
+    "name": "Плянговци",
+    "source": "node/6279288206",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 17.55
+  },
+  {
+    "name": "Стоймирска мах.",
+    "source": "node/6279309120",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 17.8
+  },
+  {
+    "name": "Заяците",
+    "source": "node/6279309121",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 17.55
+  },
+  {
+    "name": "Тевнидолска мах.",
+    "source": "node/6280525057",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 16.24
+  },
+  {
+    "name": "Рояците",
+    "source": "node/6280525504",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 15.0
+  },
+  {
+    "name": "Гърбеланска мах.",
+    "source": "node/6280536682",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.58
+  },
+  {
+    "name": "Мерковци",
+    "source": "node/6282658485",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 11.47
+  },
+  {
+    "name": "Бързашка мах.",
+    "source": "node/6282672629",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 10.99
+  },
+  {
+    "name": "Бешевци",
+    "source": "node/6288553432",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 7.97
+  },
+  {
+    "name": "Карадаци",
+    "source": "node/6288553449",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 8.55
+  },
+  {
+    "name": "Белашовка мах.",
+    "source": "node/6288553480",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 8.72
+  },
+  {
+    "name": "Топурци",
+    "source": "node/6288553589",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 8.8
+  },
+  {
+    "name": "Чукарци",
+    "source": "node/6288553620",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 7.91
+  },
+  {
+    "name": "Байрактарци",
+    "source": "node/6288553633",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 8.05
+  },
+  {
+    "name": "Мазневци",
+    "source": "node/6289097701",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 9.72
+  },
+  {
+    "name": "Гръчка мах.",
+    "source": "node/6289097702",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 11.16
+  },
+  {
+    "name": "Гяурска мах.",
+    "source": "node/6289182918",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 14.73
+  },
+  {
+    "name": "Нединска мах.",
+    "source": "node/6289290357",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 9.43
+  },
+  {
+    "name": "Михайловци",
+    "source": "node/6289290358",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 8.98
+  },
+  {
+    "name": "Топалци",
+    "source": "node/6289290386",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.3
+  },
+  {
+    "name": "Стивасарци",
+    "source": "node/6289290402",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.56
+  },
+  {
+    "name": "Дросанци",
+    "source": "node/6289290423",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.94
+  },
+  {
+    "name": "Стайковци",
+    "source": "node/6289290473",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 11.1
+  },
+  {
+    "name": "Паланци",
+    "source": "node/6289290485",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 11.28
+  },
+  {
+    "name": "Язвалиите",
+    "source": "node/6289621483",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.79
+  },
+  {
+    "name": "Чаневци",
+    "source": "node/6289621484",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 9.96
+  },
+  {
+    "name": "Янковска мах.",
+    "source": "node/6289621885",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 9.33
+  },
+  {
+    "name": "Баналци",
+    "source": "node/6289621886",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 13.26
+  },
+  {
+    "name": "Бойчовци",
+    "source": "node/6289621887",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 13.5
+  },
+  {
+    "name": "Багашовци",
+    "source": "node/6289654195",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 12.53
+  },
+  {
+    "name": "Кумбарска мах.",
+    "source": "node/6291493329",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 14.44
+  },
+  {
+    "name": "Николовци",
+    "source": "node/6291493330",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 14.27
+  },
+  {
+    "name": "Капитанци",
+    "source": "node/6291493331",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 14.45
+  },
+  {
+    "name": "Гюлевци",
+    "source": "node/6291493332",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 15.18
+  },
+  {
+    "name": "Бекярци",
+    "source": "node/6291493333",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 15.09
+  },
+  {
+    "name": "Смрикарци",
+    "source": "node/6291493334",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 15.49
+  },
+  {
+    "name": "Ваклинци",
+    "source": "node/6291493429",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 16.36
+  },
+  {
+    "name": "Филатска мах.",
+    "source": "node/6291493430",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 15.97
+  },
+  {
+    "name": "Стойковци",
+    "source": "node/6291493431",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 15.53
+  },
+  {
+    "name": "Ангелска мах.",
+    "source": "node/6291493468",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 14.37
+  },
+  {
+    "name": "Мановска мах.",
+    "source": "node/6291518035",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 16.79
+  },
+  {
+    "name": "Терзийска мах.",
+    "source": "node/6291518137",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 17.25
+  },
+  {
+    "name": "Гоговци",
+    "source": "node/6291518138",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кочериново",
+    "distanceKm": 17.16
+  },
+  {
+    "name": "Филатска мах.",
+    "source": "node/6296108811",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 11.39
+  },
+  {
+    "name": "Вачарска мах.",
+    "source": "node/6296108812",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 11.21
+  },
+  {
+    "name": "Марковци",
+    "source": "node/6296108813",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.9
+  },
+  {
+    "name": "Балевци",
+    "source": "node/6296108814",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.59
+  },
+  {
+    "name": "Календерска мах.",
+    "source": "node/6296108815",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.27
+  },
+  {
+    "name": "Стамболийска мах.",
+    "source": "node/6296108816",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.43
+  },
+  {
+    "name": "Шейтанска мах.",
+    "source": "node/6296108817",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 10.11
+  },
+  {
+    "name": "Вагалинци",
+    "source": "node/6296122986",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 11.93
+  },
+  {
+    "name": "Чаушка мах.",
+    "source": "node/6296122987",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 12.51
+  },
+  {
+    "name": "Червенковска мах.",
+    "source": "node/6296122988",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 12.93
+  },
+  {
+    "name": "Механджийска мах.",
+    "source": "node/6296122989",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 12.69
+  },
+  {
+    "name": "Савева мах.",
+    "source": "node/6297795396",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Благоевград",
+    "distanceKm": 11.9
+  },
+  {
+    "name": "Горна Червена скала",
+    "source": "node/6936961488",
+    "reason": "outside_town_boundary",
+    "settlement": "Червена скала"
+  },
+  {
+    "name": "Вишна",
+    "source": "node/6936961617",
+    "reason": "outside_town_boundary",
+    "settlement": "Любино"
+  },
+  {
+    "name": "в.з. Китката",
+    "source": "node/6993512094",
+    "reason": "outside_town_boundary",
+    "settlement": "Кокаляне"
+  },
+  {
+    "name": "в.з. Терасите",
+    "source": "node/6993512095",
+    "reason": "outside_town_boundary",
+    "settlement": "Кокаляне"
+  },
+  {
+    "name": "в.з. Св. Митър",
+    "source": "node/7085793634",
+    "reason": "outside_town_boundary",
+    "settlement": "Лозен"
+  },
+  {
+    "name": "в.з. Чатарлъка",
+    "source": "node/7085800119",
+    "reason": "outside_town_boundary",
+    "settlement": "Лозен"
+  },
+  {
+    "name": "в.з. Умни дол",
+    "source": "node/7085809507",
+    "reason": "outside_town_boundary",
+    "settlement": "Лозен"
+  },
+  {
+    "name": "кв. Синият камък",
+    "source": "node/8120630925",
+    "reason": "outside_town_boundary",
+    "settlement": "Владо Тричков"
+  },
+  {
+    "name": "в.з. Старата кория",
+    "source": "node/8151564404",
+    "reason": "outside_town_boundary",
+    "settlement": "Подгумер"
+  },
+  {
+    "name": "ж.к. Миньор",
+    "source": "node/8231978481",
+    "reason": "outside_town_boundary",
+    "settlement": "Габра"
+  },
+  {
+    "name": "Здравец",
+    "source": "node/8437167559",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Рила",
+    "distanceKm": 20.01
+  },
+  {
+    "name": "Септемврийче",
+    "source": "node/8437171701",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Рила",
+    "distanceKm": 17.45
+  },
+  {
+    "name": "Стойчевци",
+    "source": "node/8495042247",
+    "reason": "outside_town_boundary",
+    "settlement": "Яковци"
+  },
+  {
+    "name": "кв. Върбака",
+    "source": "node/8524429960",
+    "reason": "outside_town_boundary",
+    "settlement": "Долна Василица"
+  },
+  {
+    "name": "ж.к. Олимпиада",
+    "source": "node/8524480526",
+    "reason": "outside_town_boundary",
+    "settlement": "Долна Василица"
+  },
+  {
+    "name": "кв. Чавдарци",
+    "source": "node/8524480527",
+    "reason": "outside_town_boundary",
+    "settlement": "Долна Василица"
+  },
+  {
+    "name": "кв. Дебелата кория",
+    "source": "node/8593118136",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Сливен",
+    "distanceKm": 7.12
+  },
+  {
+    "name": "Южен квартал",
+    "source": "node/8602060806",
+    "reason": "outside_town_boundary",
+    "settlement": "Нови хан"
+  },
+  {
+    "name": "в.с. Делта Хил",
+    "source": "node/8602060808",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 11.91
+  },
+  {
+    "name": "Батлак",
+    "source": "node/8602102925",
+    "reason": "outside_town_boundary",
+    "settlement": "Голеш"
+  },
+  {
+    "name": "м-т Перчемлията",
+    "source": "node/8602347538",
+    "reason": "outside_town_boundary",
+    "settlement": "Кичево"
+  },
+  {
+    "name": "Старата махала",
+    "source": "node/9383558045",
+    "reason": "outside_town_boundary",
+    "settlement": "Каменар"
+  },
+  {
+    "name": "Новата махала",
+    "source": "node/9383558046",
+    "reason": "outside_town_boundary",
+    "settlement": "Каменар"
+  },
+  {
+    "name": "кв. Барутското",
+    "source": "node/9439723320",
+    "reason": "outside_town_boundary",
+    "settlement": "Донино"
+  },
+  {
+    "name": "кв. Миневци",
+    "source": "node/9439724729",
+    "reason": "outside_town_boundary",
+    "settlement": "Донино"
+  },
+  {
+    "name": "Куката",
+    "source": "node/9469512247",
+    "reason": "outside_town_boundary",
+    "settlement": "Поповци"
+  },
+  {
+    "name": "кв. Червена Локва",
+    "source": "node/9470809658",
+    "reason": "outside_town_boundary",
+    "settlement": "Чарково"
+  },
+  {
+    "name": "кв. Водици",
+    "source": "node/9470809659",
+    "reason": "outside_town_boundary",
+    "settlement": "Чарково"
+  },
+  {
+    "name": "Бойчета",
+    "source": "node/9470809660",
+    "reason": "outside_town_boundary",
+    "settlement": "Чарково"
+  },
+  {
+    "name": "кв. Дядо Страт",
+    "source": "node/9470905786",
+    "reason": "outside_town_boundary",
+    "settlement": "Донино"
+  },
+  {
+    "name": "кв. Ръто",
+    "source": "node/9482851762",
+    "reason": "outside_town_boundary",
+    "settlement": "Желен"
+  },
+  {
+    "name": "кв. Минкино",
+    "source": "node/9516825778",
+    "reason": "outside_town_boundary",
+    "settlement": "Радевци"
+  },
+  {
+    "name": "Крачунка",
+    "source": "node/9524015470",
+    "reason": "outside_town_boundary",
+    "settlement": "Геша"
+  },
+  {
+    "name": "Гайдари",
+    "source": "node/9558273850",
+    "reason": "outside_town_boundary",
+    "settlement": "Поповци"
+  },
+  {
+    "name": "вз Орехчето",
+    "source": "node/9573881597",
+    "reason": "outside_town_boundary",
+    "settlement": "Звездица"
+  },
+  {
+    "name": "Лазур",
+    "source": "node/9581652746",
+    "reason": "outside_town_boundary",
+    "settlement": "Константиново"
+  },
+  {
+    "name": "Припек",
+    "source": "node/9581652747",
+    "reason": "outside_town_boundary",
+    "settlement": "Константиново"
+  },
+  {
+    "name": "Армут тарла",
+    "source": "node/9581652889",
+    "reason": "outside_town_boundary",
+    "settlement": "Константиново"
+  },
+  {
+    "name": "Салаците",
+    "source": "node/9656359555",
+    "reason": "outside_town_boundary",
+    "settlement": "Кръвеник"
+  },
+  {
+    "name": "Пехливаните",
+    "source": "node/9656359556",
+    "reason": "outside_town_boundary",
+    "settlement": "Кръвеник"
+  },
+  {
+    "name": "Джаблиите",
+    "source": "node/9656359557",
+    "reason": "outside_town_boundary",
+    "settlement": "Кръвеник"
+  },
+  {
+    "name": "Иванковци",
+    "source": "node/9656359558",
+    "reason": "outside_town_boundary",
+    "settlement": "Кръвеник"
+  },
+  {
+    "name": "Данчовци",
+    "source": "node/9656557766",
+    "reason": "outside_town_boundary",
+    "settlement": "Стоките"
+  },
+  {
+    "name": "Пехливаните",
+    "source": "node/9656557767",
+    "reason": "outside_town_boundary",
+    "settlement": "Стоките"
+  },
+  {
+    "name": "кв. Димиев хан",
+    "source": "node/9661348176",
+    "reason": "outside_town_boundary",
+    "settlement": "Бангейци"
+  },
+  {
+    "name": "кв. Дипа",
+    "source": "node/9662428377",
+    "reason": "outside_town_boundary",
+    "settlement": "Батошево"
+  },
+  {
+    "name": "Пл. Ангелово",
+    "source": "node/9676394156",
+    "reason": "outside_town_boundary",
+    "settlement": "Донино"
+  },
+  {
+    "name": "местност Бобов чукар",
+    "source": "node/9688659839",
+    "reason": "outside_town_boundary",
+    "settlement": "Копчелиите"
+  },
+  {
+    "name": "ж.к. Света Петка",
+    "source": "node/10114551630",
+    "reason": "outside_town_boundary",
+    "settlement": "Владая"
+  },
+  {
+    "name": "кв. Кисийска мера",
+    "source": "node/10128834879",
+    "reason": "outside_town_boundary",
+    "settlement": "Черновръх"
+  },
+  {
+    "name": "ж.к. Пет морени",
+    "source": "node/10135023094",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "ж.к. Лозен парк",
+    "source": "node/10135031147",
+    "reason": "outside_town_boundary",
+    "settlement": "Лозен"
+  },
+  {
+    "name": "Дреарска махала",
+    "source": "node/10154035773",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 14.05
+  },
+  {
+    "name": "Гебрева махала",
+    "source": "node/10154035774",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 13.5
+  },
+  {
+    "name": "Митринци",
+    "source": "node/10154035775",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 13.51
+  },
+  {
+    "name": "Могилите",
+    "source": "node/10154035776",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Бобов дол",
+    "distanceKm": 13.54
+  },
+  {
+    "name": "Анска махала",
+    "source": "node/10636639781",
+    "reason": "outside_town_boundary",
+    "settlement": "Нови хан"
+  },
+  {
+    "name": "Търнавска махала",
+    "source": "node/10636639782",
+    "reason": "outside_town_boundary",
+    "settlement": "Нови хан"
+  },
+  {
+    "name": "Горна махала",
+    "source": "node/10636639783",
+    "reason": "outside_town_boundary",
+    "settlement": "Нови хан"
+  },
+  {
+    "name": "Баткун",
+    "source": "node/10700372704",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Септември",
+    "distanceKm": 12.33
+  },
+  {
+    "name": "Раков дол",
+    "source": "node/11006233851",
+    "reason": "outside_town_boundary",
+    "settlement": "Орешак"
+  },
+  {
+    "name": "кв. Ропите",
+    "source": "node/11185795160",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Мадан",
+    "distanceKm": 14.01
+  },
+  {
+    "name": "НПЗ Искър",
+    "source": "node/11468794572",
+    "reason": "outside_town_boundary",
+    "settlement": "Бусманци"
+  },
+  {
+    "name": "Седелецка махала",
+    "source": "node/11817089018",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кресна",
+    "distanceKm": 12.97
+  },
+  {
+    "name": "Глинджурска махала",
+    "source": "node/11817090157",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кресна",
+    "distanceKm": 15.19
+  },
+  {
+    "name": "Дръно бърдо",
+    "source": "node/11817107837",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кресна",
+    "distanceKm": 15.91
+  },
+  {
+    "name": "Липово",
+    "source": "node/11817194529",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кресна",
+    "distanceKm": 14.25
+  },
+  {
+    "name": "Малчовци",
+    "source": "node/11817194826",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кресна",
+    "distanceKm": 11.59
+  },
+  {
+    "name": "Хановете",
+    "source": "node/11817194862",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Кресна",
+    "distanceKm": 11.1
+  },
+  {
+    "name": "Полена",
+    "source": "node/11817194921",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.28
+  },
+  {
+    "name": "Потока",
+    "source": "node/11817194922",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.31
+  },
+  {
+    "name": "Каменица",
+    "source": "node/11817194923",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.6
+  },
+  {
+    "name": "Селца",
+    "source": "node/11817194935",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.91
+  },
+  {
+    "name": "Ширина",
+    "source": "node/11817194947",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 7.38
+  },
+  {
+    "name": "Добрин",
+    "source": "node/11817194948",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 6.5
+  },
+  {
+    "name": "Джаферска махала",
+    "source": "node/11817241141",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 11.22
+  },
+  {
+    "name": "Михаиловци махала",
+    "source": "node/11817241142",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 11.35
+  },
+  {
+    "name": "Бальовци махала",
+    "source": "node/11817241143",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 11.29
+  },
+  {
+    "name": "Михаиловци махала",
+    "source": "node/11817241165",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 10.43
+  },
+  {
+    "name": "Топузова мах",
+    "source": "node/11817255282",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 10.04
+  },
+  {
+    "name": "Кьосевци махала",
+    "source": "node/11817255283",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.08
+  },
+  {
+    "name": "Диманаци махала",
+    "source": "node/11817255284",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.6
+  },
+  {
+    "name": "Стоилковци махала",
+    "source": "node/11817255295",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.78
+  },
+  {
+    "name": "Въчковци махала",
+    "source": "node/11817255315",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.26
+  },
+  {
+    "name": "Дюлгерци махала",
+    "source": "node/11817255329",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.75
+  },
+  {
+    "name": "Димовци махала",
+    "source": "node/11817255332",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.04
+  },
+  {
+    "name": "Сухострел",
+    "source": "node/11817255365",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.25
+  },
+  {
+    "name": "Диманаците махала",
+    "source": "node/11817255384",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.89
+  },
+  {
+    "name": "Муржоаска",
+    "source": "node/11817255385",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.39
+  },
+  {
+    "name": "Гоговци",
+    "source": "node/11818437069",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.77
+  },
+  {
+    "name": "Златевци",
+    "source": "node/11818437070",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.9
+  },
+  {
+    "name": "Несевци",
+    "source": "node/11818463627",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.59
+  },
+  {
+    "name": "Маляците",
+    "source": "node/11819975988",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.39
+  },
+  {
+    "name": "Тасевци",
+    "source": "node/11819975989",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.68
+  },
+  {
+    "name": "Калайжийска",
+    "source": "node/11819975990",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 14.16
+  },
+  {
+    "name": "Терзийска",
+    "source": "node/11819975991",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.56
+  },
+  {
+    "name": "Кесовска",
+    "source": "node/11819975992",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.28
+  },
+  {
+    "name": "Нитановци",
+    "source": "node/11819975994",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.44
+  },
+  {
+    "name": "Пандурска махала",
+    "source": "node/11819976002",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 12.24
+  },
+  {
+    "name": "Стопанска",
+    "source": "node/11819976003",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Симитли",
+    "distanceKm": 13.15
+  },
+  {
+    "name": "ж.к. Бистрица Терасите 2",
+    "source": "node/11877047236",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "Вилите",
+    "source": "node/12108266538",
+    "reason": "outside_town_boundary",
+    "settlement": "Кошарица"
+  },
+  {
+    "name": "Чолакова Чешма",
+    "source": "node/12108737781",
+    "reason": "outside_town_boundary",
+    "settlement": "Кошарица"
+  },
+  {
+    "name": "ж.к. Златни камбани",
+    "source": "node/12252688574",
+    "reason": "outside_town_boundary",
+    "settlement": "Бистрица"
+  },
+  {
+    "name": "ж.к. Панчарево парк 2",
+    "source": "node/12784009307",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "ж.к. Панчарево парк 1",
+    "source": "node/12784011576",
+    "reason": "outside_town_boundary",
+    "settlement": "Панчарево"
+  },
+  {
+    "name": "кв. Селнината",
+    "source": "node/13032279598",
+    "reason": "outside_town_boundary",
+    "settlement": "Церово"
+  },
+  {
+    "name": "Темниско",
+    "source": "node/13333749440",
+    "reason": "outside_town_boundary",
+    "settlement": "Първомайци"
+  },
+  {
+    "name": "Сергювец",
+    "source": "node/13333749441",
+    "reason": "outside_town_boundary",
+    "settlement": "Първомайци"
+  },
+  {
+    "name": "Сентрал Парк I Ризорт",
+    "source": "way/134120088",
+    "reason": "outside_town_boundary",
+    "settlement": "Нови хан"
+  },
+  {
+    "name": "со Могилите",
+    "source": "way/265053345",
+    "reason": "outside_town_boundary",
+    "settlement": "Кичево"
+  },
+  {
+    "name": "кв. Старо село",
+    "source": "way/278576106",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Радомир",
+    "distanceKm": 6.39
+  },
+  {
+    "name": "кв. Делниче",
+    "source": "way/278576108",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Перник",
+    "distanceKm": 6.08
+  },
+  {
+    "name": "Сентрал Парк Ризорт 2",
+    "source": "way/474647269",
+    "reason": "outside_town_boundary",
+    "settlement": "Нови хан"
+  },
+  {
+    "name": "Жамбевската кула",
+    "source": "way/1156924634",
+    "reason": "ambiguous_or_distant",
+    "nearestTown": "Рила",
+    "distanceKm": 9.67
+  },
+  {
+    "name": "со Лозите",
+    "source": "way/1169522175",
+    "reason": "outside_town_boundary",
+    "settlement": "Кичево"
+  },
+  {
+    "name": "вз Под селото",
+    "source": "way/1189853935",
+    "reason": "outside_town_boundary",
+    "settlement": "Звездица"
+  }
+]

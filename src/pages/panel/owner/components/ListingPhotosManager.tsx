@@ -71,7 +71,7 @@ export default function ListingPhotosManager({
     setBusy(true);
     setError('');
     try {
-      await reorderListingPhotos(ordered.map((photo) => photo.id));
+      await reorderListingPhotos(listingId, ordered.map((photo) => photo.id));
       onChanged?.();
     } catch {
       setPhotos(previous);
@@ -98,7 +98,7 @@ export default function ListingPhotosManager({
   };
 
   const handleAdd = async (list: FileList | null) => {
-    if (!list) return;
+    if (!list || busy) return;
     setError('');
     const accepted: File[] = [];
     let firstError: PhotoValidationError | null = null;
@@ -117,6 +117,7 @@ export default function ListingPhotosManager({
       return;
     }
     if (accepted.length === 0) return;
+    if (accepted.length + photos.length > PHOTO_LIMITS.maxCount) { setError('Максимум 15 снимки на обява. Избери по-малко файлове.'); return; }
 
     setBusy(true);
     try {

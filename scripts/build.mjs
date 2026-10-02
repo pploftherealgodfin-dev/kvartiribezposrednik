@@ -22,7 +22,7 @@ for (const path of [...publicPaths, '/404']) {
 }
 // Dynamic routes must use this shell, never the prerendered homepage.
 await writeFile('out/spa.html', template);
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${publicPaths.map(path => `<url><loc>${SITE_ORIGIN}${path}</loc></url>`).join('')}</urlset>\n`;
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${publicPaths.filter(path => getPageMeta(path).robots.startsWith('index')).map(path => `<url><loc>${SITE_ORIGIN}${path}</loc></url>`).join('')}</urlset>\n`;
 await writeFile('out/sitemap.xml', sitemap);
 await writeFile('out/robots.txt', `User-agent: *\nAllow: /\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`);
 await rm('.prerender', { recursive: true, force: true });

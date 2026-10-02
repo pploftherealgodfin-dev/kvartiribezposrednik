@@ -1,4 +1,5 @@
 export default {
+  'nav.messages': 'Съобщения',
   'nav.cities': 'Градове',
   'brand.name': 'Квартири под наем без посредник',
   'brand.markTop': 'Квартири под наем',

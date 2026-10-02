@@ -46,6 +46,25 @@ function extensionFor(file: File): string {
   return /^[a-z0-9]{1,5}$/.test(raw) ? raw : 'jpg';
 }
 
+/** Decode and re-encode pixels to remove EXIF/GPS and reject disguised non-images. */
+async function sanitizePhoto(file: File): Promise<File> {
+  const url = URL.createObjectURL(file);
+  try {
+    const picture = new Image(); picture.src = url; await picture.decode();
+    if (!picture.naturalWidth || !picture.naturalHeight || picture.naturalWidth * picture.naturalHeight > 40_000_000) throw new Error('Снимката е прекалено голяма за обработка.');
+    const scale = Math.min(1, 2560 / Math.max(picture.naturalWidth, picture.naturalHeight));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(picture.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(picture.naturalHeight * scale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('Браузърът не може да обработи снимката.');
+    context.drawImage(picture, 0, 0, canvas.width, canvas.height);
+    const encoded = await new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Снимката не може да бъде обработена.')), file.type, 0.9));
+    if (encoded.size > PHOTO_LIMITS.maxBytes) throw new Error('Обработената снимка е над 5 MB.');
+    return new File([encoded], 'photo', { type: encoded.type });
+  } finally { URL.revokeObjectURL(url); }
+}
+
 /** Качва една снимка и връща постоянния Storage path. */
 export async function uploadListingPhoto(
   file: File,
@@ -54,14 +73,15 @@ export async function uploadListingPhoto(
 ): Promise<string> {
   const problem = validatePhotoFile(file);
   if (problem) throw new Error(problem === 'tooLarge' ? 'Снимката е над 5 MB.' : 'Използвайте JPEG, PNG или WebP.');
+  const safeFile = await sanitizePhoto(file);
   const folder = `${sanitizeSegment(ownerId)}/${sanitizeSegment(listingId)}`;
-  const name = `${crypto.randomUUID()}.${extensionFor(file)}`;
+  const name = `${crypto.randomUUID()}.${extensionFor(safeFile)}`;
   const path = `${folder}/${name}`;
 
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+  const { error } = await supabase.storage.from(BUCKET).upload(path, safeFile, {
     cacheControl: '3600',
     upsert: false,
-    contentType: file.type,
+    contentType: safeFile.type,
   });
   if (error) throw error;
 
@@ -74,12 +94,15 @@ export async function uploadListingPhotos(
   ownerId: string,
   listingId: string,
 ): Promise<string[]> {
-  const urls: string[] = [];
-  for (const file of files) {
-    const url = await uploadListingPhoto(file, ownerId, listingId);
-    urls.push(url);
+  const paths: string[] = [];
+  try {
+    for (const file of files) paths.push(await uploadListingPhoto(file, ownerId, listingId));
+    return paths;
+  } catch (error) {
+    // Only unlinked objects created by this request are eligible for cleanup.
+    await Promise.allSettled(paths.map(removePhotoObject));
+    throw error;
   }
-  return urls;
 }
 /** URLs expire after five minutes; paths, not bearer URLs, are stored in Postgres. */
 export async function signPhotoPaths(paths: string[]): Promise<Map<string, string>> {

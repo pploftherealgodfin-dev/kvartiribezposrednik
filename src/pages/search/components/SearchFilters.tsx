@@ -1,3 +1,4 @@
+import LocationSelect from '@/components/feature/LocationSelect';
 import { useTranslation } from 'react-i18next';
 import type { City, Neighborhood, University } from '@/lib/types';
 
@@ -57,7 +58,7 @@ export default function SearchFilters({
   const selectedCity = cities.find((city) => city.slug === values.citySlug);
   const visibleNeighborhoods = selectedCity
     ? neighborhoods.filter((hood) => hood.cityId === selectedCity.id)
-    : neighborhoods;
+    : [];
   const selectedRooms = values.rooms ? values.rooms.split(',') : [];
 
   return (
@@ -84,6 +85,7 @@ export default function SearchFilters({
           <input
             id="f-keyword"
             type="search"
+            maxLength={200}
             className={fieldCls}
             placeholder={t('search.keywordPlaceholder')}
             value={values.text}
@@ -91,66 +93,10 @@ export default function SearchFilters({
           />
         </div>
 
-        <div>
-          <label className={labelCls} htmlFor="f-city">
-            {t('search.city')}
-          </label>
-          <select
-            id="f-city"
-            className={fieldCls}
-            value={values.citySlug}
-            onChange={(event) => {
-              onChange('citySlug', event.target.value);
-              onChange('neighborhoodSlug', '');
-            }}
-          >
-            <option value="">{t('search.allCities')}</option>
-            {cities.map((city) => (
-              <option key={city.id} value={city.slug}>
-                {city.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="f-neighborhood">
-            {t('search.neighborhood')}
-          </label>
-          <select
-            id="f-neighborhood"
-            className={fieldCls}
-            value={values.neighborhoodSlug}
-            onChange={(event) => onChange('neighborhoodSlug', event.target.value)}
-          >
-            <option value="">{t('search.allNeighborhoods')}</option>
-            {visibleNeighborhoods.map((hood) => (
-              <option key={hood.id} value={hood.slug}>
-                {hood.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="f-university">
-            {t('search.university')}
-          </label>
-          <select
-            id="f-university"
-            className={fieldCls}
-            value={values.universitySlug}
-            onChange={(event) => onChange('universitySlug', event.target.value)}
-          >
-            <option value="">{t('search.allUniversities')}</option>
-            {universities.map((university) => (
-              <option key={university.id} value={university.slug}>
-                {university.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
+        <LocationSelect id="f-city" label={t('search.city')} value={values.citySlug} placeholder={t('search.allCities')} options={cities.map(city => ({ value: city.slug, label: `${city.name}${city.region ? ` · ${city.region}` : ''}`, priority: city.isUniversityCity }))} onChange={value => onChange('citySlug', value)} />
+        <LocationSelect key={"f-neighborhood-" + values.citySlug} id="f-neighborhood" label={t('search.neighborhood')} value={values.neighborhoodSlug} placeholder={selectedCity ? t('search.allNeighborhoods') : 'Избери град първо'} options={visibleNeighborhoods.map(item => ({ value: item.slug, label: item.name + (item.associationMethod === 'nearest_town_approximate' ? ' · приблизителен район' : '') }))} disabled={!selectedCity} onChange={value => onChange('neighborhoodSlug', value)} />
+        <LocationSelect key={"f-university-" + values.citySlug} id="f-university" label={t('search.university')} value={values.universitySlug} placeholder={selectedCity ? t('search.allUniversities') : 'Избери град първо'} options={universities.filter(item => item.cityId === selectedCity?.id).map(item => ({ value: item.slug, label: item.name }))} disabled={!selectedCity} onChange={value => onChange('universitySlug', value)} />
+        {values.universitySlug && <p className="text-xs text-foreground-600">Близостта е посочена от наемодателя. Уточни маршрута и времето за пътуване.</p>}
         <div>
           <label className={labelCls} htmlFor="f-type">
             {t('search.type')}
@@ -251,6 +197,7 @@ export default function SearchFilters({
               className={fieldCls}
               placeholder={t('search.from')}
               aria-label={`${t('search.floor')} ${t('search.from')}`}
+              min={-5} max={200} step={1}
               value={values.floorMin}
               onChange={(event) => onChange('floorMin', event.target.value)}
             />
@@ -260,6 +207,7 @@ export default function SearchFilters({
               className={fieldCls}
               placeholder={t('search.to')}
               aria-label={`${t('search.floor')} ${t('search.to')}`}
+              min={-5} max={200} step={1}
               value={values.floorMax}
               onChange={(event) => onChange('floorMax', event.target.value)}
             />

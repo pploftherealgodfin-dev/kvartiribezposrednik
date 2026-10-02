@@ -1,14 +1,16 @@
-import { useState, type FormEvent } from 'react';
+import LocationSelect from '@/components/feature/LocationSelect';
+import { useRef, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { addListingPhotos, createOwnerListing, type NewListingInput } from '@/lib/repository/owner';
 import { uploadListingPhotos } from '@/lib/storage';
-import type { City, ListingType, Neighborhood } from '@/lib/types';
+import type { City, ListingType, Neighborhood, University } from '@/lib/types';
 import PhotoPicker, { type PickedPhoto } from './PhotoPicker';
 
 interface ListingFormProps {
   ownerId: string;
   cities: City[];
   neighborhoods: Neighborhood[];
+  universities: University[];
   onCreated: () => void;
   onCancel: () => void;
 }
@@ -23,6 +25,7 @@ export default function ListingForm({
   ownerId,
   cities,
   neighborhoods,
+  universities,
   onCreated,
   onCancel,
 }: ListingFormProps) {
@@ -36,14 +39,16 @@ export default function ListingForm({
   const [floor, setFloor] = useState('');
   const [totalFloors, setTotalFloors] = useState('');
   const [deposit, setDeposit] = useState('');
-  const [cityId, setCityId] = useState(cities[0]?.id ?? '');
+  const [cityId, setCityId] = useState('');
   const [neighborhoodId, setNeighborhoodId] = useState('');
+  const [universityIds, setUniversityIds] = useState<string[]>([]);
   const [availableFrom, setAvailableFrom] = useState(new Date().toISOString().slice(0, 10));
   const [furnished, setFurnished] = useState(true);
   const [pets, setPets] = useState(false);
   const [utilities, setUtilities] = useState(false);
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const [createdId, setCreatedId] = useState('');
+  const requestId = useRef('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -71,6 +76,9 @@ export default function ListingForm({
       return;
     }
 
+    if (photos.length === 0) { setError('Добави поне една реална снимка на жилището.'); return; }
+    if (!Number.isInteger(roomsValue) || roomsValue > 100 || (deposit && !(Number(deposit) >= 0)) || (floor && (!Number.isInteger(Number(floor)) || Number(floor) < -5 || Number(floor) > 200)) || (totalFloors && (!Number.isInteger(Number(totalFloors)) || Number(totalFloors) < 1 || Number(totalFloors) > 200 || (floor && Number(floor) > Number(totalFloors))))) { setError('Провери стаите, етажа, общия брой етажи и депозита.'); return; }
+    if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(title + ' ' + description) || /(\+?359|00359|0)[ -]?[0-9]([ ()-]*[0-9]){7,8}/.test(title + ' ' + description)) { setError('Премахни телефона и имейла от публичния текст. Контактите се показват защитено след вход.'); return; }
     const input: NewListingInput = {
       title: title.trim(),
       description: description.trim(),
@@ -80,6 +88,7 @@ export default function ListingForm({
       rooms: roomsValue,
       cityId,
       neighborhoodId: neighborhoodId || null,
+      nearbyUniversityIds: universityIds,
       availableFrom,
       deposit: deposit ? Number(deposit) : null,
       floor: floor ? Number(floor) : null,
@@ -91,20 +100,22 @@ export default function ListingForm({
 
     setBusy(true);
     try {
-      const created = await createOwnerListing(ownerId, input);
+      if (!requestId.current) requestId.current = crypto.randomUUID();
+      const created = await createOwnerListing(ownerId, input, requestId.current);
       if (photos.length > 0) {
         try {
           const urls = await uploadListingPhotos(photos.map((photo) => photo.file), ownerId, created.id);
           await addListingPhotos(created.id, urls);
         } catch {
-          setError('Обявата е създадена, но снимките не са записани. Затвори формата и ги добави от панела.');
+          setError('Обявата е създадена, но записът на снимките не е потвърден. Затвори формата и ги провери в панела.');
           setCreatedId(created.id);
           return;
         }
       }
       onCreated();
-    } catch {
-      setError(t('common.error'));
+    } catch (issue) {
+      if (issue instanceof Error && issue.message.startsWith('Тази обява вече е записана')) { setError(issue.message); return; }
+      setError('Записът на обявата не е потвърден. Провери връзката и данните. Ако имаш грешка за лимит или роля, свържи се с екипа.');
     } finally {
       setBusy(false);
     }
@@ -117,7 +128,9 @@ export default function ListingForm({
     <form
       onSubmit={handleSubmit}
       className="mt-4 rounded-lg border border-background-200 bg-background-100 p-5 md:p-6"
+      aria-busy={busy}
     >
+      <p className="mb-4 text-sm text-foreground-600">Попълни локацията, цената и условията. Добави реални снимки, без телефони, документи или точен адрес върху тях. Контактът се настройва отделно и е защитен с вход.</p>
       <h2 className="font-heading text-lg font-extrabold text-foreground-950">
         {t('owner.form.title')}
       </h2>
@@ -145,7 +158,7 @@ export default function ListingForm({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={4}
-            maxLength={2000} minLength={30} required
+            maxLength={5000} minLength={30} required
             className={`${fieldCls} resize-y`}
           />
         </div>
@@ -175,7 +188,7 @@ export default function ListingForm({
           <input
             id="nf-price"
             type="number"
-            min={0}
+            min={0.01} step="0.01" required
             value={price}
             onChange={(event) => setPrice(event.target.value)}
             className={fieldCls}
@@ -189,7 +202,7 @@ export default function ListingForm({
           <input
             id="nf-area"
             type="number"
-            min={0}
+            min={0.01} step="0.01" required
             value={area}
             onChange={(event) => setArea(event.target.value)}
             className={fieldCls}
@@ -203,7 +216,7 @@ export default function ListingForm({
           <input
             id="nf-rooms"
             type="number"
-            min={1}
+            min={1} max={100} step={1} required
             value={rooms}
             onChange={(event) => setRooms(event.target.value)}
             className={fieldCls}
@@ -217,6 +230,7 @@ export default function ListingForm({
           <input
             id="nf-floor"
             type="number"
+            min={-5} max={200} step={1}
             value={floor}
             onChange={(event) => setFloor(event.target.value)}
             className={fieldCls}
@@ -230,6 +244,7 @@ export default function ListingForm({
           <input
             id="nf-total-floors"
             type="number"
+            min={1} max={200} step={1}
             value={totalFloors}
             onChange={(event) => setTotalFloors(event.target.value)}
             className={fieldCls}
@@ -243,53 +258,17 @@ export default function ListingForm({
           <input
             id="nf-deposit"
             type="number"
-            min={0}
+            min={0} step="0.01"
             value={deposit}
             onChange={(event) => setDeposit(event.target.value)}
             className={fieldCls}
           />
         </div>
 
-        <div>
-          <label className={labelCls} htmlFor="nf-city">
-            {t('owner.form.city')}
-          </label>
-          <select
-            id="nf-city"
-            value={cityId}
-            onChange={(event) => {
-              setCityId(event.target.value);
-              setNeighborhoodId('');
-            }}
-            className={fieldCls}
-          >
-            {cities.map((city) => (
-              <option key={city.id} value={city.id}>
-                {city.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className={labelCls} htmlFor="nf-neighborhood">
-            {t('owner.form.neighborhood')}
-          </label>
-          <select
-            id="nf-neighborhood"
-            value={neighborhoodId}
-            onChange={(event) => setNeighborhoodId(event.target.value)}
-            className={fieldCls}
-          >
-            <option value="">—</option>
-            {cityNeighborhoods.map((hood) => (
-              <option key={hood.id} value={hood.id}>
-                {hood.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
+        <LocationSelect id="nf-city" label={t('owner.form.city')} value={cityId} required placeholder="Избери град" options={cities.map(city => ({ value: city.id, label: `${city.name}${city.region ? ` · ${city.region}` : ''}`, priority: city.isUniversityCity }))} onChange={value => { setCityId(value); setNeighborhoodId(''); setUniversityIds([]); }} />
+        <LocationSelect key={"nf-neighborhood-" + cityId} id="nf-neighborhood" label={t('owner.form.neighborhood')} value={neighborhoodId} placeholder={cityId ? 'Избери квартал (по избор)' : 'Избери град първо'} options={cityNeighborhoods.map(item => ({ value: item.id, label: item.name + (item.associationMethod === 'nearest_town_approximate' ? ' · приблизителен район' : '') }))} disabled={!cityId} onChange={setNeighborhoodId} />
+        {cityId && !cityNeighborhoods.length && <p className="text-sm text-foreground-600 md:col-span-2">Каталогът няма потвърдени квартали за този град. Можеш да публикуваш на ниво град. За добавяне на квартал пиши чрез „Контакти“.</p>}
+        {universities.some(item => item.cityId === cityId) && <fieldset className="rounded-lg border border-background-300 p-4 md:col-span-2"><legend className="px-2 font-semibold">Университети наблизо (по избор, до 3)</legend><p className="mb-3 text-xs text-foreground-600">Посочи само достъпни от жилището университети. Това е твоя оценка за близост, а не измерено разстояние.</p><div className="max-h-48 space-y-2 overflow-y-auto">{universities.filter(item => item.cityId === cityId).map(item => <label key={item.id} className="flex gap-3 text-sm"><input type="checkbox" checked={universityIds.includes(item.id)} disabled={!universityIds.includes(item.id) && universityIds.length >= 3} onChange={e => setUniversityIds(prev => e.target.checked ? [...prev, item.id] : prev.filter(id => id !== item.id))} />{item.name}</label>)}</div></fieldset>}
         <div>
           <label className={labelCls} htmlFor="nf-available">
             {t('owner.form.availableFrom')}
@@ -349,6 +328,7 @@ export default function ListingForm({
           {t('owner.form.cancel')}
         </button>
       </div>
-    </form>
+    <p className="mt-5 text-xs text-foreground-600">Квартали: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline">© OpenStreetMap contributors, ODbL</a>. Каталогът може да е непълен; <a href="/kontakti" className="underline">предложи корекция</a>.</p>
+</form>
   );
 }

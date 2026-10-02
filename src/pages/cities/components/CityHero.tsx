@@ -4,7 +4,7 @@ import type { CityContent } from '@/pages/cities/data';
 
 interface CityHeroProps {
   city: CityContent;
-  listingCount: number;
+  listingCount: number | null;
 }
 
 export default function CityHero({ city, listingCount }: CityHeroProps) {
@@ -63,7 +63,7 @@ export default function CityHero({ city, listingCount }: CityHeroProps) {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <i className="ri-home-4-line text-sm" aria-hidden="true" />
-            {listingCount} {t('cities.activeListings')}
+            {listingCount === null ? 'Проверяваме наличните обяви…' : `${listingCount} ${t('cities.activeListings')}`}
           </span>
         </div>
       </div>

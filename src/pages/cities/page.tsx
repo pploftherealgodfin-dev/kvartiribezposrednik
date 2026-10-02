@@ -231,6 +231,7 @@ export default function CitiesHubPage() {
           </div>
         </div>
       </section>
-    </SiteLayout>
+    <p className="mt-5 text-xs text-foreground-600">Квартали: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline">© OpenStreetMap contributors, ODbL</a>. Каталогът може да е непълен; <a href="/kontakti" className="underline">предложи корекция</a>.</p>
+</SiteLayout>
   );
 }

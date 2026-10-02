@@ -166,7 +166,7 @@ export default function CityLandingPage() {
 
   return (
     <SiteLayout>
-      <CityHero city={content} listingCount={total} />
+      <CityHero city={content} listingCount={loading || error ? null : total} />
 
       <section className="bg-background-50">
         <div className="mx-auto w-full max-w-6xl px-4 py-12 md:px-6 md:py-14">
@@ -197,7 +197,7 @@ export default function CityLandingPage() {
             </h2>
             <p className="mt-2 text-sm text-foreground-600">{t('cities.universitiesSubtitle')}</p>
             <div className="mt-5">
-              <CityChips items={uniChips} icon="ri-graduation-cap-line" />
+              {uniChips.length ? <CityChips items={uniChips} icon="ri-graduation-cap-line" /> : <p className="text-sm text-foreground-600">В каталога още няма добавено висше учебно заведение за този град.</p>}
             </div>
           </div>
           <div>
@@ -206,7 +206,7 @@ export default function CityLandingPage() {
             </h2>
             <p className="mt-2 text-sm text-foreground-600">{t('cities.areasSubtitle')}</p>
             <div className="mt-5">
-              <CityChips items={areaChips} icon="ri-map-pin-2-line" />
+              {areaChips.length ? <CityChips items={areaChips} icon="ri-map-pin-2-line" /> : <p className="text-sm text-foreground-600">Можеш да търсиш и публикуваш за целия град, без да избираш квартал.</p>}
             </div>
           </div>
         </div>

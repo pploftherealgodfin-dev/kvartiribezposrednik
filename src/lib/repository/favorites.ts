@@ -2,12 +2,14 @@ import { supabase } from '@/lib/supabase';
 
 /** Всички обяви, запазени от даден потребител. */
 export async function getFavoriteListingIds(userId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('favorites')
-    .select('listing_id')
-    .eq('user_id', userId);
-  if (error) throw error;
-  return (data ?? []).map((row) => row.listing_id as string);
+  const ids: string[] = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error } = await supabase.from('favorites').select('listing_id').eq('user_id', userId).order('listing_id').range(offset, offset + 999);
+    if (error) throw error;
+    ids.push(...(data ?? []).map(row => row.listing_id as string));
+    if ((data?.length ?? 0) < 1000) break;
+  }
+  return ids;
 }
 
 export async function isFavorite(userId: string, listingId: string): Promise<boolean> {

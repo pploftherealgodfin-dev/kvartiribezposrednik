@@ -1,5 +1,5 @@
+import { FavoritesContext, type FavoritesContextValue } from './context';
 import {
-  createContext,
   useCallback,
   useEffect,
   useMemo,
@@ -13,14 +13,7 @@ import {
   removeFavorite,
 } from '@/lib/repository/favorites';
 
-export interface FavoritesContextValue {
-  favoriteIds: string[];
-  loading: boolean;
-  isFavorite: (listingId: string) => boolean;
-  toggle: (listingId: string, next?: boolean) => Promise<void>;
-}
 
-export const FavoritesContext = createContext<FavoritesContextValue | null>(null);
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();

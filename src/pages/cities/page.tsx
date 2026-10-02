@@ -14,8 +14,6 @@ import { cityContents } from '@/pages/cities/data';
 import CityDirectory from '@/pages/cities/components/CityDirectory';
 import CityGuides from '@/pages/cities/components/CityGuides';
 
-const HERO_IMAGE =
-  'https://readdy.ai/api/search-image?query=Stylized%20illustration%20of%20Bulgaria%20with%20several%20city%20skyline%20silhouettes%20Sofia%20Plovdiv%20Varna%20at%20golden%20hour%2C%20warm%20cream%20and%20soft%20green%20tones%2C%20clean%20editorial%20style%2C%20high%20detail&width=1600&height=900&seq=hub-national-v1&orientation=landscape';
 
 export default function CitiesHubPage() {
   const { t } = useTranslation();
@@ -26,7 +24,6 @@ export default function CitiesHubPage() {
       description:
         'Квартири под наем без посредник в София, Пловдив, Варна, Бургас и още университетски градове. Реални обяви директно от собственик — без комисион и без агенции.',
       canonicalPath: '/kvartiri-bez-posrednik',
-      ogImage: HERO_IMAGE,
     });
 
     setJsonLd(
@@ -83,13 +80,7 @@ export default function CitiesHubPage() {
   return (
     <SiteLayout>
       <section className="relative isolate w-full overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={HERO_IMAGE}
-            alt="Квартири под наем без посредник по градове в България"
-            title="Квартири под наем без посредник по градове"
-            className="h-full w-full object-cover object-top"
-          />
+        <div className="absolute inset-0 bg-primary-900">
           <div className="absolute inset-0 bg-gradient-to-b from-foreground-950/60 via-foreground-950/45 to-foreground-950/70" />
         </div>
 

@@ -15,6 +15,7 @@ interface SearchResultsProps {
   onSortChange: (sort: SortKey) => void;
   onPageChange: (page: number) => void;
   onRetry: () => void;
+  onReset: () => void;
 }
 
 const SORT_OPTIONS: { key: SortKey; labelKey: string }[] = [
@@ -43,15 +44,16 @@ export default function SearchResults({
   onSortChange,
   onPageChange,
   onRetry,
+  onReset,
 }: SearchResultsProps) {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <div aria-busy={loading}>
       <div className="flex flex-col gap-3 rounded-lg border border-background-200 bg-background-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-foreground-700">
+        <p role="status" className="text-sm text-foreground-700">
           <span className="font-heading text-base font-extrabold text-foreground-950">
-            {formatNumber(total)}
+            {loading ? 'Зареждане…' : error ? 'Недостъпни' : formatNumber(total)}
           </span>{' '}
           {t('search.results')}
         </p>
@@ -102,7 +104,7 @@ export default function SearchResults({
             <i className="ri-search-eye-line text-2xl" aria-hidden="true" />
           </span>
           <p className="mt-4 font-heading text-base font-bold text-foreground-900">{t('search.empty')}</p>
-          <p className="mt-1.5 text-sm text-foreground-600">{t('search.emptyHint')}</p>
+          <p className="mt-1.5 text-sm text-foreground-600">{t('search.emptyHint')}</p><button type="button" onClick={onReset} className="mt-5 rounded-md border border-primary-600 px-5 py-3 font-semibold text-primary-700">Изчисти филтрите</button>
         </div>
       ) : (
         <>

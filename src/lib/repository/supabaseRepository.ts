@@ -1,3 +1,4 @@
+import { signPhotoPaths } from '@/lib/storage';
 import { LISTING_EXPIRY } from '@/lib/config';
 import { diffInDays } from '@/lib/date';
 import { isVisibleInSearch } from '@/lib/listingStateMachine';
@@ -37,7 +38,9 @@ interface ListingRow {
   min_term_months: number;
   city_id: string;
   neighborhood_id: string | null;
-  address_private: string;
+  ownership_verified_at: string | null;
+  verification_expires_at: string | null;
+  verification_method: string | null;
   lat_approx: number | null;
   lng_approx: number | null;
   created_at: string;
@@ -49,7 +52,8 @@ interface ListingRow {
 interface PhotoRow {
   id: string;
   listing_id: string;
-  url: string;
+  storage_path: string;
+  url?: string;
   position: number;
   phash: string;
 }
@@ -108,7 +112,7 @@ function mapListing(row: ListingRow): Listing {
     .map((photo) => ({
       id: photo.id,
       listingId: photo.listing_id,
-      url: photo.url,
+      url: photo.url ?? '',
       position: photo.position,
       phash: photo.phash,
     }));
@@ -134,7 +138,10 @@ function mapListing(row: ListingRow): Listing {
     minTermMonths: row.min_term_months,
     cityId: row.city_id,
     neighborhoodId: row.neighborhood_id,
-    addressPrivate: row.address_private,
+    addressPrivate: '',
+    ownershipVerifiedAt: row.ownership_verified_at,
+    verificationExpiresAt: row.verification_expires_at,
+    verificationMethod: row.verification_method,
     latApprox: toNumber(row.lat_approx) ?? 0,
     lngApprox: toNumber(row.lng_approx) ?? 0,
     createdAt: row.created_at,
@@ -155,7 +162,7 @@ function buildView(
     id: listing.ownerId,
     name: profile?.name ?? 'Собственик',
     memberSince: profile?.created_at ?? listing.createdAt,
-    verifiedOwner: profile?.owner_verified ?? false,
+    verifiedOwner: Boolean(listing.ownershipVerifiedAt && listing.verificationExpiresAt && new Date(listing.verificationExpiresAt).getTime() > new Date(nowIso).getTime()),
   };
 
   return {
@@ -174,7 +181,7 @@ function buildView(
 class SupabaseRepository implements Repository {
   private async loadViews(): Promise<ListingView[]> {
     const [listingsResult, citiesResult, neighborhoodsResult, profilesResult] = await Promise.all([
-      supabase.from('listings').select('*, photos:listing_photos(id, listing_id, url, position, phash)'),
+      supabase.from('listings').select('id,slug,owner_id,type,status,title,description,price_eur,deposit,area_m2,rooms,floor,total_floors,furnished,pets_allowed,utilities_included,available_from,min_term_months,city_id,neighborhood_id,lat_approx,lng_approx,created_at,expires_at,rented_at,ownership_verified_at,verification_expires_at,verification_method,photos:listing_photos(id,listing_id,storage_path,position,phash)'),
       supabase.from('cities').select('*'),
       supabase.from('neighborhoods').select('*'),
       supabase.from('profiles').select('id, name, owner_verified, created_at'),
@@ -184,6 +191,10 @@ class SupabaseRepository implements Repository {
     if (citiesResult.error) throw citiesResult.error;
     if (neighborhoodsResult.error) throw neighborhoodsResult.error;
     if (profilesResult.error) throw profilesResult.error;
+
+    const photoRows = (listingsResult.data ?? []).flatMap(row => row.photos ?? []);
+    const signed = await signPhotoPaths(photoRows.map(row => row.storage_path));
+    for (const photo of photoRows) (photo as PhotoRow).url = signed.get(photo.storage_path) ?? '';
 
     const now = nowDefault();
     const cities = (citiesResult.data ?? []) as CityRow[];

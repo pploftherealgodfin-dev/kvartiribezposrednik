@@ -5,8 +5,6 @@ export const pleven: CityContent = {
   name: 'Плевен',
   inPhrase: 'в Плевен',
   region: 'Плевенска област',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20cityscape%20of%20Pleven%20Bulgaria%20with%20wide%20central%20square%20and%20park%20fountain%20at%20golden%20hour%2C%20warm%20cream%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-pleven-v1&orientation=landscape',
   intro:
     'Плевен е голям град в Северна България с медицински университет, който привлича студенти от страната и чужбина. Наемният пазар е стабилен, а обявите са директно от собственик.',
   about: [
@@ -25,7 +23,7 @@ export const pleven: CityContent = {
     {
       question: 'Как да намеря апартамент в Плевен без агенция?',
       answer:
-        'Търси обяви с директен контакт към собственика и избягвай комисион. Тук всички обяви са от собственици и можеш да филтрираш по квартал, цена и обзавеждане.',
+        'Търси обяви с директен контакт към собственика и избягвай комисион. Провери статуса на всяка обява и можеш да филтрираш по квартал, цена и обзавеждане.',
     },
     {
       question: 'Има ли търсене на обзаведени жилища в Плевен?',

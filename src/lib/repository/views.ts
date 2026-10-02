@@ -8,5 +8,6 @@ export async function recordListingView(
   listingId: string,
   viewerId: string | null,
 ): Promise<void> {
-  await supabase.from('listing_views').insert({ listing_id: listingId, viewer_id: viewerId });
+  if (!viewerId) return;
+  await supabase.rpc('record_listing_view', { p_id: listingId });
 }

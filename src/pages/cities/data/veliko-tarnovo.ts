@@ -5,8 +5,6 @@ export const velikoTarnovo: CityContent = {
   name: 'Велико Търново',
   inPhrase: 'във Велико Търново',
   region: 'Великотърновска област',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20hilltop%20medieval%20fortress%20cityscape%20of%20Veliko%20Tarnovo%20Bulgaria%20above%20the%20Yantra%20river%20at%20golden%20hour%2C%20warm%20cream%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-veliko-tarnovo-v1&orientation=landscape',
   intro:
     'Велико Търново е историческа столица и university град с подчертано студентско присъствие. Заради университета търсенето на стаи и малки апартаменти е постоянно през учебната година, а обявите са директно от собственик.',
   about: [
@@ -25,7 +23,7 @@ export const velikoTarnovo: CityContent = {
     {
       question: 'Как да намеря квартира във Велико Търново без посредник?',
       answer:
-        'Търси обяви с директен контакт към собственик и избягвай комисион. Тук всички обяви са от собственици и можеш да филтрираш по квартал и бюджет.',
+        'Търси обяви с директен контакт към собственик и избягвай комисион. Провери статуса на всяка обява и можеш да филтрираш по квартал и бюджет.',
     },
     {
       question: 'Добър ли е градът за студенти?',

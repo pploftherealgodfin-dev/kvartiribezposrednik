@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { openConsentSettings } from '@/lib/consent';
-import { BRAND_LOGO } from '@/lib/seo';
 
 const POPULAR_CITIES = [
   { slug: 'sofia', name: 'София' },
@@ -158,14 +157,6 @@ export default function SiteFooter() {
 
           <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-background-50/10 pt-6 text-center sm:flex-row sm:text-left">
             <div className="flex flex-col items-center gap-3 sm:flex-row">
-              <span className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-lg ring-1 ring-background-50/15">
-                <img
-                  src={BRAND_LOGO}
-                  alt={t('brand.name')}
-                  title={`${t('brand.name')} — наем без посредник`}
-                  className="h-full w-full object-cover"
-                />
-              </span>
               <p className="font-body text-sm font-semibold text-background-200">{t('brand.name')}</p>
             </div>
             <p className="text-xs text-background-400">

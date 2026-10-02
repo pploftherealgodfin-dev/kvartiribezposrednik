@@ -1,3 +1,4 @@
+import StaffMfaGate from '@/components/feature/StaffMfaGate';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
@@ -21,7 +22,7 @@ const TABS: { key: Tab; labelKey: string; icon: string }[] = [
   { key: 'reports', labelKey: 'admin.tabReports', icon: 'ri-flag-line' },
 ];
 
-export default function AdminPanelPage() {
+function AdminPanelContent() {
   const { t } = useTranslation();
   const { profile } = useAuth();
   const adminId = profile?.id ?? '';
@@ -113,3 +114,4 @@ export default function AdminPanelPage() {
     </SiteLayout>
   );
 }
+export default function AdminPanelPage() { return <StaffMfaGate><AdminPanelContent /></StaffMfaGate>; }

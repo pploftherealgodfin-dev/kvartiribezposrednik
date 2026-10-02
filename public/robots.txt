@@ -1,13 +1,3 @@
-# Квартири под наем без посредник
 User-agent: *
 Allow: /
-
-# Лични и служебни зони — без индексиране
-Disallow: /admin
-Disallow: /panel/
-Disallow: /vhod
-Disallow: /moi-profil
-Disallow: /kachi-obiava
-Disallow: /dokladvane
-
 Sitemap: https://kvartiribezposrednik.com/sitemap.xml

@@ -1,3 +1,4 @@
+import ProfileRecovery from '@/components/feature/ProfileRecovery';
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
@@ -47,7 +48,7 @@ function RoleCard({ active, icon, title, description, onClick }: RoleCardProps) 
 
 export default function Login() {
   const { t } = useTranslation();
-  const { session, profile, loading, signInWithGoogle, signInWithPhone, verifyPhoneOtp } = useAuth();
+  const { session, profile, loading, profileError, signInWithGoogle, signInWithPhone, verifyPhoneOtp } = useAuth();
 
   const [role, setRole] = useState<RegisterRole>(() => readPendingRole() ?? 'tenant');
   const [phone, setPhone] = useState('');
@@ -57,6 +58,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
+  if (session && profileError) return <ProfileRecovery />;
   if (!loading && session) {
     if (profile) {
       return <Navigate to={dashboardPath(profile.role)} replace />;

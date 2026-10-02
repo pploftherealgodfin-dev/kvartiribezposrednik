@@ -1,12 +1,12 @@
 import { supabase } from './supabase';
 
-/** Публично хранилище за снимките на обявите. */
+/** Частно хранилище; достъпът до всяка снимка се проверява от RLS. */
 const BUCKET = 'listing-photos';
 
 export const PHOTO_LIMITS = {
   maxBytes: 5 * 1024 * 1024,
   maxCount: 15,
-  allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const,
+  allowedTypes: ['image/jpeg', 'image/png', 'image/webp'] as const,
 } as const;
 
 export type PhotoValidationError = 'unsupportedType' | 'tooLarge';
@@ -36,7 +36,6 @@ const EXTENSION_BY_TYPE: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
-  'image/gif': 'gif',
 };
 
 function extensionFor(file: File): string {
@@ -47,14 +46,16 @@ function extensionFor(file: File): string {
   return /^[a-z0-9]{1,5}$/.test(raw) ? raw : 'jpg';
 }
 
-/** Качва една снимка и връща публичния ѝ адрес. */
+/** Качва една снимка и връща постоянния Storage path. */
 export async function uploadListingPhoto(
   file: File,
   ownerId: string,
   listingId: string,
 ): Promise<string> {
+  const problem = validatePhotoFile(file);
+  if (problem) throw new Error(problem === 'tooLarge' ? 'Снимката е над 5 MB.' : 'Използвайте JPEG, PNG или WebP.');
   const folder = `${sanitizeSegment(ownerId)}/${sanitizeSegment(listingId)}`;
-  const name = `photo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extensionFor(file)}`;
+  const name = `${crypto.randomUUID()}.${extensionFor(file)}`;
   const path = `${folder}/${name}`;
 
   const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
@@ -64,8 +65,7 @@ export async function uploadListingPhoto(
   });
   if (error) throw error;
 
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  return data.publicUrl;
+  return path;
 }
 
 /** Качва няколко снимки последователно и връща адресите им. */
@@ -80,4 +80,15 @@ export async function uploadListingPhotos(
     urls.push(url);
   }
   return urls;
+}
+/** URLs expire after five minutes; paths, not bearer URLs, are stored in Postgres. */
+export async function signPhotoPaths(paths: string[]): Promise<Map<string, string>> {
+  if (!paths.length) return new Map();
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrls([...new Set(paths)], 300);
+  if (error) throw error;
+  return new Map((data ?? []).filter(item => item.signedUrl && item.path).map(item => [item.path!, item.signedUrl]));
+}
+export async function removePhotoObject(path: string): Promise<void> {
+  const { error } = await supabase.storage.from(BUCKET).remove([path]);
+  if (error) throw error;
 }

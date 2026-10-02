@@ -110,7 +110,7 @@ export default function SearchPage() {
 
   const sortRaw = searchParams.get(SORT_PARAM) ?? '';
   const sort: SortKey = (SORT_KEYS as string[]).includes(sortRaw) ? (sortRaw as SortKey) : 'relevance';
-  const page = Math.max(1, Number(searchParams.get(PAGE_PARAM)) || 1);
+  const page = Math.max(1, Math.floor(Number(searchParams.get(PAGE_PARAM))) || 1);
   const urlText = searchParams.get('t') ?? '';
 
   const [textValue, setTextValue] = useState(urlText);
@@ -168,7 +168,7 @@ export default function SearchPage() {
         setTotalPages(result.totalPages);
       })
       .catch(() => {
-        if (!active) setError(true);
+        if (active) setError(true);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -216,6 +216,7 @@ export default function SearchPage() {
       }
       patchParams((next) => {
         const key = FIELD_PARAM[field];
+        if (field === 'citySlug') { next.delete('kvartal'); next.delete('universitet'); }
         if (value) next.set(key, value);
         else next.delete(key);
         next.delete(PAGE_PARAM);
@@ -306,6 +307,7 @@ export default function SearchPage() {
               onSortChange={handleSortChange}
               onPageChange={handlePageChange}
               onRetry={() => setReloadKey((key) => key + 1)}
+              onReset={handleReset}
             />
           </div>
         </div>

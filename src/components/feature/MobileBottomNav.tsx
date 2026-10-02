@@ -1,17 +1,15 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
-import { dashboardPath } from '@/lib/roles';
 
 export default function MobileBottomNav() {
   const { t } = useTranslation();
-  const { session, profile } = useAuth();
+  const { session } = useAuth();
 
-  const panelPath = session ? dashboardPath(profile?.role) : '/vhod';
 
   const tabs = [
     { to: '/tarsene', key: 'nav.search', icon: 'ri-search-line' },
-    { to: panelPath, key: 'auth.myPanel', icon: 'ri-dashboard-line' },
+    { to: '/kvartiri-bez-posrednik', key: 'nav.cities', icon: 'ri-map-pin-line' },
     { to: '/kachi-obiava', key: 'nav.uploadListing', icon: 'ri-add-line' },
     session
       ? { to: '/moi-profil', key: 'auth.account', icon: 'ri-user-line' }
@@ -21,7 +19,7 @@ export default function MobileBottomNav() {
   return (
     <nav
       aria-label={t('nav.menu')}
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-background-200 bg-background-50/95 backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-background-200 bg-background-50/95 backdrop-blur lg:hidden"
     >
       <div className="pb-safe">
         <div className="flex h-[62px] items-stretch px-1">

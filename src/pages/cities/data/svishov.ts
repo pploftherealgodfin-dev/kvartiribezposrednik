@@ -5,8 +5,6 @@ export const svishov: CityContent = {
   name: 'Свищов',
   inPhrase: 'в Свищов',
   region: 'Великотърновска област',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20Danube%20river%20town%20cityscape%20of%20Svishtov%20Bulgaria%20with%20riverside%20and%20green%20hills%20at%20golden%20hour%2C%20warm%20cream%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-svishov-v1&orientation=landscape',
   intro:
     'Свищов е малък дунавски град с голяма студентска общност заради икономическия университет. Тук наемният пазар е силно свързан с учебната година, а обявите са директно от собственик.',
   about: [
@@ -25,7 +23,7 @@ export const svishov: CityContent = {
     {
       question: 'Как да намеря квартира в Свищов без посредник?',
       answer:
-        'Търси обяви с директен контакт към собственика и избягвай комисион. Тук всички обяви са от собственици и можеш да филтрираш по квартал и бюджет.',
+        'Търси обяви с директен контакт към собственика и избягвай комисион. Провери статуса на всяка обява и можеш да филтрираш по квартал и бюджет.',
     },
     {
       question: 'Заради студентите ли има търсене на жилища?',

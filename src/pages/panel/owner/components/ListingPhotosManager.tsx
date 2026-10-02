@@ -158,7 +158,7 @@ export default function ListingPhotosManager({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         multiple
         className="hidden"
         onChange={(event) => handleAdd(event.target.files)}

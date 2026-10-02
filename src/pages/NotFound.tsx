@@ -1,18 +1,5 @@
-import { useLocation } from "react-router-dom";
-
+import { Link } from 'react-router-dom';
+import SiteLayout from '@/components/feature/SiteLayout';
 export default function NotFound() {
-  const location = useLocation();
-  
-  return (
-    <div className="relative flex flex-col items-center justify-center h-screen text-center px-4">
-      <h1 className="absolute bottom-0 text-9xl md:text-[12rem] font-black text-gray-50 select-none pointer-events-none z-0">
-        404
-      </h1>
-      <div className="relative z-10">
-        <h1 className="text-xl md:text-2xl font-semibold mt-6">This page has not been generated</h1>
-        <p className="mt-2 text-base text-gray-400 font-mono">{location.pathname}</p>
-        <p className="mt-4 text-lg md:text-xl text-gray-500">Tell me more about this page, so I can generate it</p>
-      </div>
-    </div>
-  );
+  return <SiteLayout><section className="mx-auto max-w-2xl px-4 py-20 text-center"><p className="font-semibold text-primary-700">404 · Страницата не е намерена</p><h1 className="mt-4 text-3xl font-extrabold md:text-4xl">Този адрес не води до страница</h1><p className="mt-5 leading-relaxed text-foreground-600">Връзката може да е променена или съдържанието да е премахнато. Продължи към актуалните обяви или избери град.</p><div className="mt-8 flex flex-wrap justify-center gap-3"><Link to="/tarsene" className="rounded-md bg-primary-600 px-5 py-3 font-semibold text-background-50">Търси жилище</Link><Link to="/kvartiri-bez-posrednik" className="rounded-md border border-background-300 px-5 py-3 font-semibold">Разгледай градовете</Link><Link to="/" className="px-5 py-3 text-primary-700 underline">Начална страница</Link></div></section></SiteLayout>;
 }

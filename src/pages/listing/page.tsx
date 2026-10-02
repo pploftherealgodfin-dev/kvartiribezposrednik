@@ -30,7 +30,12 @@ export default function ListingDetailPage() {
   const [neighborhoodListings, setNeighborhoodListings] = useState<ListingView[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const [reason, setReason] = useState('broker');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reportError, setReportError] = useState('');
+  const [reportReceipt, setReportReceipt] = useState('');
   const [reportState, setReportState] = useState<'idle' | 'open' | 'sending' | 'done'>('idle');
   const viewedRef = useRef(false);
 
@@ -38,6 +43,9 @@ export default function ListingDetailPage() {
     let active = true;
     setLoading(true);
     setNotFound(false);
+    setLoadError(false);
+    setView(null);
+    viewedRef.current = false;
     repository
       .getListingViewBySlug(slug ?? '')
       .then((result) => {
@@ -49,7 +57,7 @@ export default function ListingDetailPage() {
         }
       })
       .catch(() => {
-        if (active) setNotFound(true);
+        if (active) setLoadError(true);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -57,7 +65,7 @@ export default function ListingDetailPage() {
     return () => {
       active = false;
     };
-  }, [slug]);
+  }, [slug, retryKey]);
 
   useEffect(() => {
     if (!view || viewedRef.current) return;
@@ -117,11 +125,14 @@ export default function ListingDetailPage() {
 
   const handleReportSubmit = async () => {
     if (!view || !user) return;
+    if (reportDetails.trim().length < 10) { setReportError('Опиши случая с поне 10 знака.'); return; }
+    setReportError('');
     setReportState('sending');
     try {
-      await createReport(view.listing.id, user.id, reason);
+      setReportReceipt(await createReport(view.listing.id, user.id, reason, reportDetails));
       setReportState('done');
-    } catch {
+    } catch (e) {
+      setReportError((e as {message?: string}).message ?? 'Сигналът не е записан.');
       setReportState('open');
     }
   };
@@ -135,6 +146,8 @@ export default function ListingDetailPage() {
       </SiteLayout>
     );
   }
+
+  if (loadError) return <SiteLayout><section role="alert" className="mx-auto max-w-2xl px-4 py-16 text-center"><h1 className="text-2xl font-bold">Не успяхме да заредим обявата</h1><button type="button" onClick={() => setRetryKey(value => value + 1)} className="mt-6 rounded-md bg-primary-600 px-5 py-3 text-background-50">Опитай отново</button></section></SiteLayout>;
 
   if (notFound || !view) {
     return (
@@ -231,8 +244,10 @@ export default function ListingDetailPage() {
 
               <p className="mt-5 text-sm font-semibold text-foreground-900">{owner.name}</p>
               <p className="text-xs text-foreground-500">
-                {badges.verifiedOwner ? t('badges.verifiedOwner') : t('home.trustBadge')}
+                {badges.verifiedOwner ? t('badges.verifiedOwner') : t('badges.unverifiedOwner')}
               </p>
+              {badges.verifiedOwner && <p className="mt-1 text-xs text-foreground-500">За този имот · {listing.verificationMethod === 'in_person' ? 'проверка на място' : 'преглед на доказателства'} · {new Date(listing.ownershipVerifiedAt!).toLocaleDateString('bg-BG')}</p>}
+              <p className="mt-3 text-xs text-foreground-600">Проверката намалява риска, но не гарантира сделката. Направи оглед и провери договора преди плащане.</p>
 
               <button
                 type="button"
@@ -249,7 +264,7 @@ export default function ListingDetailPage() {
 
               {reportState === 'done' ? (
                 <p className="mt-3 rounded-md bg-primary-50 px-3.5 py-2.5 text-xs font-medium text-primary-800">
-                  {t('report.success')}
+                  {t('report.success')} Номер: {reportReceipt}
                 </p>
               ) : reportState === 'idle' ? (
                 <button
@@ -277,6 +292,8 @@ export default function ListingDetailPage() {
                     <option value="wrong_info">{t('report.reasonWrongInfo')}</option>
                     <option value="other">{t('report.reasonOther')}</option>
                   </select>
+                  <label className="mt-3 block text-xs">Опиши случая<textarea minLength={10} maxLength={2000} value={reportDetails} onChange={e => setReportDetails(e.target.value)} className="mt-1 w-full rounded border p-2" /></label>
+                  {reportError && <p role="alert" className="text-xs text-red-700">{reportError}</p>}
                   <button
                     type="button"
                     disabled={reportState === 'sending'}

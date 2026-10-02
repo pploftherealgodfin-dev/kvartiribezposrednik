@@ -109,6 +109,9 @@ export interface Listing {
   cityId: string;
   neighborhoodId: string | null;
   addressPrivate: string;
+  ownershipVerifiedAt?: string | null;
+  verificationExpiresAt?: string | null;
+  verificationMethod?: string | null;
   latApprox: number;
   lngApprox: number;
   createdAt: string;

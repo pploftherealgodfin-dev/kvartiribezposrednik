@@ -181,3 +181,8 @@
     scroll-behavior: auto !important;
   }
 }
+html { scroll-padding-top: 6rem; scroll-padding-bottom: 6rem; }
+[id] { scroll-margin-top: 6rem; }
+button, input, select, summary { min-height: 44px; }
+@media (max-width: 640px) { input, textarea, select { font-size: 16px !important; } }
+dialog::backdrop { background: rgb(0 0 0 / 0.5); }

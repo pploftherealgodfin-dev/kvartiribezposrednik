@@ -43,6 +43,7 @@ export default function ListingForm({
   const [pets, setPets] = useState(false);
   const [utilities, setUtilities] = useState(false);
   const [photos, setPhotos] = useState<PickedPhoto[]>([]);
+  const [createdId, setCreatedId] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -51,12 +52,14 @@ export default function ListingForm({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError('');
+    if (createdId) { onCreated(); return; }
 
     const priceValue = Number(price);
     const areaValue = Number(area);
     const roomsValue = Number(rooms);
 
     if (
+      title.trim().length < 5 || description.trim().length < 30 ||
       !title.trim() ||
       !cityId ||
       !availableFrom ||
@@ -94,7 +97,9 @@ export default function ListingForm({
           const urls = await uploadListingPhotos(photos.map((photo) => photo.file), ownerId, created.id);
           await addListingPhotos(created.id, urls);
         } catch {
-          /* обявата е създадена — снимките могат да се добавят от панела */
+          setError('Обявата е създадена, но снимките не са записани. Затвори формата и ги добави от панела.');
+          setCreatedId(created.id);
+          return;
         }
       }
       onCreated();
@@ -127,7 +132,7 @@ export default function ListingForm({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             className={fieldCls}
-            maxLength={120}
+            maxLength={120} minLength={5} required
           />
         </div>
 
@@ -140,7 +145,7 @@ export default function ListingForm({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={4}
-            maxLength={2000}
+            maxLength={2000} minLength={30} required
             className={`${fieldCls} resize-y`}
           />
         </div>
@@ -316,7 +321,7 @@ export default function ListingForm({
         <div className="md:col-span-2">
           <span className={labelCls}>{t('owner.form.photos')}</span>
           <div className="mt-1.5">
-            <PhotoPicker files={photos} onChange={setPhotos} disabled={busy} />
+            <PhotoPicker photos={photos} onChange={setPhotos} disabled={busy} />
           </div>
         </div>
       </div>

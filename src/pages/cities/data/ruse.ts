@@ -5,8 +5,6 @@ export const ruse: CityContent = {
   name: 'Русе',
   inPhrase: 'в Русе',
   region: 'Русенска област',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20Danube%20river%20cityscape%20of%20Ruse%20Bulgaria%20with%20elegant%20European%20architecture%20and%20riverside%20promenade%20at%20golden%20hour%2C%20warm%20cream%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-ruse-v1&orientation=landscape',
   intro:
     'Русе е най-големият град на река Дунав и има собствен университет, който привлича студенти от целия регион. Наемният пазар тук е спокоен и предвидим — подходящ както за студенти, така и за семейства.',
   about: [
@@ -25,7 +23,7 @@ export const ruse: CityContent = {
     {
       question: 'Как да намеря квартира в Русе без посредник?',
       answer:
-        'Търси обяви с директен контакт към собственик и избягвай агенции с комисион. Тук всички обяви са от собственици и можеш да филтрираш по квартал и цена.',
+        'Търси обяви с директен контакт към собственик и избягвай агенции с комисион. Провери статуса на всяка обява и можеш да филтрираш по квартал и цена.',
     },
     {
       question: 'Удобен ли е Русе за студенти?',

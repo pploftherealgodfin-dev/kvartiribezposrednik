@@ -3,10 +3,17 @@ export interface CityFaqItem {
   answer: string;
 }
 
-/**
- * Редакционно съдържание за градска landing страница.
- * Служи за национално SEO покритие по ключовата дума „без посредник“ + град.
- */
+export interface CityLocalProfile {
+  ekatte: string;
+  lat: number | null;
+  lng: number | null;
+  coordinateSource?: string;
+  areas: { slug: string; name: string; sourceRef: string; associationMethod: string }[];
+  universities: { slug: string; name: string; sourceUrl: string; kind: 'institution' | 'branch' }[];
+  nearby: { slug: string; km?: number }[];
+}
+
+/** Local information with traceable sources, shared by the page and its Markdown version. */
 export interface CityContent {
   isUniversityCity?: boolean;
   editorial?: boolean;
@@ -26,4 +33,8 @@ export interface CityContent {
   areas: string[];
   faq: CityFaqItem[];
   keywords: string[];
+  label?: string;
+  local?: CityLocalProfile;
+  updatedAt?: string;
+  rentalNotes?: { title: string; points: string[] };
 }

@@ -1,5 +1,6 @@
 import { useFavorites } from '@/hooks/useFavorites';
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteHeader from './SiteHeader';
 import AccountNav from './AccountNav';
@@ -14,6 +15,22 @@ interface SiteLayoutProps {
 export default function SiteLayout({ children }: SiteLayoutProps) {
   const { t } = useTranslation();
   const { error: favoriteError } = useFavorites();
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    let id: string;
+    try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
+    const target = document.getElementById(id);
+    if (!target) return;
+    for (let parent = target.parentElement; parent; parent = parent.parentElement) {
+      if (parent instanceof HTMLDetailsElement) parent.open = true;
+    }
+    const frame = requestAnimationFrame(() => {
+      target.scrollIntoView({ block: 'start' });
+      target.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pathname, hash]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background-50 pb-[calc(62px+env(safe-area-inset-bottom,0px))] lg:pb-0">

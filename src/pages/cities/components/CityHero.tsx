@@ -1,74 +1,28 @@
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import type { CityContent } from '@/pages/cities/data';
+import CityMap from './CityMap';
 
-interface CityHeroProps {
-  city: CityContent;
-  listingCount: number | null;
-}
-
-export default function CityHero({ city, listingCount }: CityHeroProps) {
-  const { t } = useTranslation();
-
-  return (
-    <section className="relative isolate w-full overflow-hidden">
-      <div className="absolute inset-0 bg-primary-900">
-        {city.heroImage && <img src={city.heroImage} alt="" className="h-full w-full object-cover" fetchPriority="high" decoding="async" />}
-        <div className="absolute inset-0 bg-gradient-to-b from-foreground-950/60 via-foreground-950/45 to-foreground-950/70" />
-      </div>
-
-      <div className="relative mx-auto w-full max-w-6xl px-4 py-14 md:px-6 md:py-20">
-        <nav
-          aria-label="breadcrumb"
-          className="flex flex-wrap items-center gap-2 text-xs text-background-200"
-        >
-          <Link to="/" className="transition-colors hover:text-background-50">
-            {t('guides.home')}
-          </Link>
-          <i className="ri-arrow-right-s-line text-sm" aria-hidden="true" />
-          <Link to="/kvartiri-bez-posrednik" className="transition-colors hover:text-background-50">
-            {t('cities.hubCrumb')}
-          </Link>
-          <i className="ri-arrow-right-s-line text-sm" aria-hidden="true" />
-          <span className="text-background-100">{city.name}</span>
-        </nav>
-
-        <h1 className="mt-4 max-w-3xl font-heading text-3xl font-extrabold leading-tight tracking-tight text-background-50 md:text-[44px]">
-          Квартири под наем без посредник {city.inPhrase}
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-background-100 md:text-base">
-          {city.intro}
-        </p>
-
-        <div className="mt-6 flex flex-wrap items-center gap-3">
-          <Link
-            to={`/tarsene?grad=${city.slug}`}
-            className="inline-flex items-center gap-2 whitespace-nowrap rounded-md bg-primary-500 px-5 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-600"
-          >
-            <i className="ri-search-line text-base" aria-hidden="true" />
-            {t('cities.viewListings')}
-          </Link>
-          <Link
-            to="/kak-raboti"
-            className="inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-background-50/40 px-5 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-background-50/10"
-          >
-            <i className="ri-information-line text-base" aria-hidden="true" />
-            {t('cities.howItWorks')}
-          </Link>
+export default function CityHero({ city, listingCount }: { city: CityContent; listingCount: number | null }) {
+  return <section className="border-b border-background-200 bg-background-100">
+    <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
+      <nav aria-label="Път до страницата" className="flex flex-wrap items-center gap-2 text-xs text-foreground-600">
+        <Link to="/" className="hover:text-primary-700">Начало</Link><span aria-hidden="true">/</span>
+        <Link to="/kvartiri-bez-posrednik" className="hover:text-primary-700">Градове</Link><span aria-hidden="true">/</span><span aria-current="page">{city.label}</span>
+      </nav>
+      <div className="mt-6 grid items-center gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary-700">Местен справочник · област {city.region}</p>
+          <h1 className="mt-4 text-balance font-heading text-3xl font-semibold leading-tight tracking-tight text-foreground-950 md:text-[42px]">Квартири под наем без посредник {city.inPhrase}{city.label !== city.name && <span className="mt-2 block text-lg text-foreground-600">Област {city.region}</span>}</h1>
+          <p className="mt-4 max-w-xl text-pretty text-sm leading-relaxed text-foreground-600 md:text-base">{city.intro}</p>
+          <div className="mt-6 flex flex-wrap gap-3"><Link to={`/tarsene?grad=${city.slug}`} className="ui-button"><i className="ri-search-line" aria-hidden="true" />Търси жилище</Link><Link to="/kachi-obiava" className="ui-secondary">Качи обява</Link></div>
+          <p className="ui-note mt-4">Разглеждаш без вход. Контактите и съобщенията са достъпни след вход.</p>
+          <p className="mt-5 flex items-center gap-2 text-sm text-foreground-700"><i className="ri-home-4-line text-primary-600" aria-hidden="true" />{listingCount === null ? 'Наличността се проверява при отваряне на страницата.' : `${listingCount} публикувани ${listingCount === 1 ? 'обява' : 'обяви'} в града`}</p>
         </div>
-
-        <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-background-200">
-          <span className="inline-flex items-center gap-1.5">
-            <i className="ri-map-pin-2-line text-sm" aria-hidden="true" />
-            {city.region}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <i className="ri-home-4-line text-sm" aria-hidden="true" />
-            {listingCount === null ? 'Проверяваме наличните обяви…' : `${listingCount} ${t('cities.activeListings')}`}
-          </span>
-        </div>
+        {city.heroImage ? <figure className="min-w-0"><img src={city.heroImage} alt={`Градски изглед: ${city.name}`} width="960" height="720" className="aspect-[4/3] w-full rounded-2xl object-cover" fetchPriority="high" decoding="async" /><figcaption className="mt-2 text-[10px] leading-relaxed text-foreground-600">{city.heroImageCredit} · Снимката е на града, не на предлаган имот.</figcaption></figure> : <CityMap city={city} />}
       </div>
-      {city.heroImage && city.heroImageCredit && <p className="absolute bottom-2 right-3 z-10 rounded bg-foreground-950/70 px-2 py-1 text-[10px] leading-snug text-background-50 md:bottom-3 md:right-4">{city.heroImageCredit}</p>}
-    </section>
-  );
+      <nav aria-label="Раздели на местния справочник" className="mt-8 flex flex-wrap gap-x-5 gap-y-1 border-t border-background-200 pt-4 text-sm font-medium text-foreground-700">
+        {[['obavi','Обяви'],['raioni','Райони'],...(city.local.universities.length ? [['universiteti','Университети']] : []),['praktichno','Преди наемане'],['blizki-gradove','Близки градове'],['vuprosi','Въпроси']].map(([id,label]) => <Link key={id} to={`#${id}`} className="inline-flex min-h-11 items-center hover:text-primary-700">{label}</Link>)}
+      </nav>
+    </div>
+  </section>;
 }

@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
-import { applyPageMeta, breadcrumbJsonLd, setJsonLd } from '@/lib/seo';
+import { applyPageMeta, breadcrumbJsonLd, setJsonLd, removeJsonLd } from '@/lib/seo';
 import { guides } from '@/pages/guides/data';
 import ArticleCard from '@/pages/guides/components/ArticleCard';
 
@@ -23,6 +23,7 @@ export default function GuidesPage() {
         { name: 'Съвети', path: '/saveti' },
       ]),
     );
+    return () => removeJsonLd('ld-breadcrumb-guides');
   }, [t]);
 
   return (

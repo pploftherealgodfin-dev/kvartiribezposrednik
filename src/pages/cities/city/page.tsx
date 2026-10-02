@@ -1,260 +1,56 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import SiteLayout from '@/components/feature/SiteLayout';
 import { repository } from '@/lib/repository';
-import {
-  applyPageMeta,
-  breadcrumbJsonLd,
-  faqJsonLd,
-  removeJsonLd,
-  setJsonLd,
-} from '@/lib/seo';
-import type { City, ListingView, Neighborhood, University } from '@/lib/types';
+import { applyPageMeta, removeJsonLd, setJsonLd } from '@/lib/seo';
+import { getPageMeta } from '@/lib/pageCatalog';
+import type { ListingView } from '@/lib/types';
 import { getCityContent, getOtherCities } from '@/pages/cities/data';
-import type { CityChipItem } from '@/pages/cities/components/CityChips';
+import { cityJsonLd } from '@/pages/cities/data/structuredData';
 import CityHero from '@/pages/cities/components/CityHero';
 import CityListings from '@/pages/cities/components/CityListings';
 import CityFacts from '@/pages/cities/components/CityFacts';
-import CityChips from '@/pages/cities/components/CityChips';
 import CityFaq from '@/pages/cities/components/CityFaq';
-import CityDirectory from '@/pages/cities/components/CityDirectory';
+import { CityAreas, CityUniversities } from '@/pages/cities/components/CityLocations';
 import CityGuides from '@/pages/cities/components/CityGuides';
+import RentalPreparation from '@/pages/cities/components/RentalPreparation';
 
 export default function CityLandingPage() {
-  const { t } = useTranslation();
   const { grad } = useParams();
   const content = getCityContent(grad);
-
   const [listings, setListings] = useState<ListingView[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
-  const [cities, setCities] = useState<City[]>([]);
-  const [neighborhoods, setNeighborhoods] = useState<Neighborhood[]>([]);
-  const [universities, setUniversities] = useState<University[]>([]);
-
   useEffect(() => {
-    if (!content) {
-      applyPageMeta({
-        title: `Градът не е намерен | ${t('brand.name')}`,
-        robots: 'noindex, follow',
-      });
-      return undefined;
-    }
-
-    const path = `/kvartiri-bez-posrednik/${content.slug}`;
-    applyPageMeta({
-      title: `Квартири под наем без посредник ${content.inPhrase}`,
-      description: `Квартири под наем без посредник ${content.inPhrase}: обяви директно от собственик, без комисион и агенции. Разгледай свободните жилища и се свържи директно.`,
-      canonicalPath: path,
-      ogImage: content.heroImage,
-    });
-
-    setJsonLd(
-      'ld-breadcrumb-city',
-      breadcrumbJsonLd([
-        { name: 'Начало', path: '/' },
-        { name: 'Квартири по градове', path: '/kvartiri-bez-posrednik' },
-        { name: `Квартири под наем без посредник ${content.inPhrase}`, path },
-      ]),
-    );
-    setJsonLd('ld-faq-city', faqJsonLd(content.faq));
-
-    return () => {
-      removeJsonLd('ld-breadcrumb-city');
-      removeJsonLd('ld-faq-city');
-    };
-  }, [content, t]);
-
+    applyPageMeta(getPageMeta(`/kvartiri-bez-posrednik/${grad}`));
+    if (content) setJsonLd('ld-city', cityJsonLd(content));
+    return () => removeJsonLd('ld-city');
+  }, [content, grad]);
   useEffect(() => {
-    if (!content) {
-      setLoading(false);
-      return undefined;
-    }
+    if (!content) { setLoading(false); return; }
     let active = true;
-    setLoading(true);
-    setError(false);
-    repository
-      .search({
-        filters: { citySlug: content.slug, type: 'all' },
-        sort: 'newest',
-        page: 1,
-        pageSize: 6,
-      })
-      .then((result) => {
-        if (!active) return;
-        setListings(result.items);
-        setTotal(result.total);
-      })
-      .catch(() => {
-        if (active) setError(true);
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
+    setLoading(true); setError(false); setListings([]); setTotal(0);
+    repository.search({ filters: { citySlug: content.slug, type: 'all' }, sort: 'newest', page: 1, pageSize: 6 })
+      .then(result => { if (active) { setListings(result.items); setTotal(result.total); } })
+      .catch(() => { if (active) setError(true); }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [content, reloadKey]);
-
-  useEffect(() => {
-    let active = true;
-    Promise.all([
-      repository.getCities(),
-      repository.getNeighborhoods(),
-      repository.getUniversities(),
-    ])
-      .then(([cityItems, hoodItems, uniItems]) => {
-        if (!active) return;
-        setCities(cityItems);
-        setNeighborhoods(hoodItems);
-        setUniversities(uniItems);
-      })
-      .catch(() => {
-        /* референтните данни не са критични */
-      });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  const retry = useCallback(() => setReloadKey((key) => key + 1), []);
-
-  if (!content) {
-    return (
-      <SiteLayout>
-        <div className="mx-auto w-full max-w-3xl px-4 py-20 text-center md:px-6">
-          <h1 className="font-heading text-2xl font-bold text-foreground-950">
-            {t('cities.notFound')}
-          </h1>
-          <Link
-            to="/kvartiri-bez-posrednik"
-            className="mt-6 inline-flex items-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-5 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700"
-          >
-            <i className="ri-arrow-left-line text-base" aria-hidden="true" />
-            {t('cities.backToHub')}
-          </Link>
-        </div>
-      </SiteLayout>
-    );
-  }
-
-  const cityRow = cities.find((item) => item.slug === content.slug);
-  const uniChips: CityChipItem[] =
-    cityRow && universities.some((item) => item.cityId === cityRow.id)
-      ? universities
-          .filter((item) => item.cityId === cityRow.id)
-          .map((item) => ({
-            label: item.name,
-            to: `/tarsene?grad=${content.slug}&universitet=${item.slug}`,
-          }))
-      : content.universities.map((label) => ({ label }));
-
-  const areaChips: CityChipItem[] =
-    cityRow && neighborhoods.some((item) => item.cityId === cityRow.id)
-      ? neighborhoods
-          .filter((item) => item.cityId === cityRow.id)
-          .map((item) => ({
-            label: item.name,
-            to: `/tarsene?grad=${content.slug}&kvartal=${item.slug}`,
-          }))
-      : content.areas.map((label) => ({ label }));
-
+  const retry = useCallback(() => setReloadKey(key => key + 1), []);
+  if (!content) return <SiteLayout><div className="mx-auto max-w-3xl px-4 py-16 text-center"><h1 className="font-heading text-2xl font-semibold">Градът не е намерен</h1><p className="mt-3 text-sm text-foreground-600">Избери град от националния каталог.</p><Link to="/kvartiri-bez-posrednik" className="ui-button mt-6">Виж всички градове</Link></div></SiteLayout>;
   const otherCities = getOtherCities(content.slug);
-
-  return (
-    <SiteLayout>
-      <CityHero city={content} listingCount={loading || error ? null : total} />
-
-      <section className="bg-background-50">
-        <div className="mx-auto w-full max-w-6xl px-4 py-12 md:px-6 md:py-14">
-          <CityListings
-            cityName={content.name}
-            citySlug={content.slug}
-            cityInPhrase={content.inPhrase}
-            listings={listings}
-            total={total}
-            loading={loading}
-            error={error}
-            onRetry={retry}
-          />
-        </div>
-      </section>
-
-      <section className="border-y border-background-200 bg-background-100">
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 md:px-6 md:py-16">
-          <CityFacts city={content} />
-        </div>
-      </section>
-
-      <section className="bg-background-50">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 px-4 py-14 md:px-6 md:py-16 lg:grid-cols-2">
-          <div>
-            <h2 className="font-heading text-xl font-bold text-foreground-950 md:text-2xl">
-              {t('cities.universitiesTitle', { city: content.name })}
-            </h2>
-            <p className="mt-2 text-sm text-foreground-600">{t('cities.universitiesSubtitle')}</p>
-            <div className="mt-5">
-              {uniChips.length ? <CityChips items={uniChips} icon="ri-graduation-cap-line" /> : <p className="text-sm text-foreground-600">В каталога още няма добавено висше учебно заведение за този град.</p>}
-            </div>
-          </div>
-          <div>
-            <h2 className="font-heading text-xl font-bold text-foreground-950 md:text-2xl">
-              {t('cities.areasTitle', { city: content.name })}
-            </h2>
-            <p className="mt-2 text-sm text-foreground-600">{t('cities.areasSubtitle')}</p>
-            <div className="mt-5">
-              {areaChips.length ? <CityChips items={areaChips} icon="ri-map-pin-2-line" /> : <p className="text-sm text-foreground-600">Можеш да търсиш и публикуваш за целия град, без да избираш квартал.</p>}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-background-200 bg-background-100">
-        <div className="mx-auto w-full max-w-3xl px-4 py-14 md:px-6 md:py-16">
-          <CityFaq items={content.faq} title={t('cities.faqTitle')} />
-        </div>
-      </section>
-
-      <section className="bg-background-50">
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 md:px-6 md:py-16">
-          <CityDirectory
-            cities={otherCities}
-            title={t('cities.otherCities')}
-            subtitle={t('cities.otherCitiesSubtitle')}
-          />
-        </div>
-      </section>
-
-      <section className="border-t border-background-200 bg-background-100">
-        <div className="mx-auto w-full max-w-6xl px-4 py-14 md:px-6 md:py-16">
-          <CityGuides />
-        </div>
-      </section>
-
-      <section className="bg-background-50">
-        <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-2 md:px-6">
-          <div className="rounded-lg border border-primary-200 bg-primary-50 p-6 md:flex md:items-center md:justify-between md:gap-6 md:p-8">
-            <div>
-              <h2 className="font-heading text-xl font-bold text-foreground-950 md:text-2xl">
-                {t('cities.ctaTitle')}
-              </h2>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-foreground-700">
-                {t('cities.ctaText')}
-              </p>
-            </div>
-            <Link
-              to={`/tarsene?grad=${content.slug}`}
-              className="mt-5 inline-flex items-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-5 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700 md:mt-0"
-            >
-              <i className="ri-search-line text-base" aria-hidden="true" />
-              {t('cities.viewListings')}
-            </Link>
-          </div>
-        </div>
-      </section>
-    </SiteLayout>
-  );
+  return <SiteLayout>
+    <CityHero city={content} listingCount={loading || error ? null : total} />
+    <div className="mx-auto max-w-6xl space-y-12 px-4 py-10 md:space-y-16 md:px-6 md:py-14">
+      <section id="obavi" tabIndex={-1} className="outline-none"><CityListings cityName={content.label} citySlug={content.slug} listings={listings} total={total} loading={loading} error={error} onRetry={retry} /></section>
+      <CityFacts city={content} />
+      <div className={`grid gap-10 ${content.local.universities.length ? 'lg:grid-cols-2' : ''}`}><CityAreas key={content.slug} city={content} />{content.local.universities.length > 0 && <CityUniversities city={content} />}</div>
+      <RentalPreparation key={`budget-${content.slug}`} />
+      <section id="blizki-gradove" tabIndex={-1} className="outline-none"><div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="font-heading text-2xl font-semibold">{content.local.lat != null ? 'Близки градове за сравнение' : `Други градове в област ${content.region}`}</h2><p className="mt-3 text-sm leading-relaxed text-foreground-600">{content.local.lat != null ? 'Разстоянията са приблизителни по права линия между градски точки, а не маршрути или време за пътуване.' : 'Няма проверена координата за този град. Показваме градове от същата област, без изчислени разстояния.'}</p></div><Link to="/kvartiri-bez-posrednik" className="inline-flex min-h-11 items-center text-sm font-medium text-primary-700">Всички градове</Link></div><ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{otherCities.map(city => <li key={city.slug}><Link to={`/kvartiri-bez-posrednik/${city.slug}`} className="flex h-full min-h-16 items-center justify-between gap-3 rounded-xl border border-background-200 px-4 py-3 hover:border-primary-300 hover:bg-primary-50"><div><p className="text-sm font-semibold">{city.label}</p><p className="ui-note mt-1">Област {city.region}{city.distanceKm != null ? ` · ≈ ${city.distanceKm.toLocaleString('bg-BG')} км по права линия` : ''}</p></div><i className="ri-arrow-right-line text-foreground-500" aria-hidden="true" /></Link></li>)}</ul></section>
+      <section id="vuprosi" tabIndex={-1} className="outline-none"><CityFaq items={content.faq} title="Полезни въпроси" /></section>
+      <CityGuides />
+      <section id="iztochnici" tabIndex={-1} className="outline-none"><details className="rounded-xl border border-background-200 bg-background-100 px-5"><summary className="py-4 font-medium">Източници, покритие и корекции</summary><div className="space-y-3 pb-5 text-sm leading-relaxed text-foreground-700"><p>Местен каталог: {content.updatedAt}. Наличността и условията на обявите се зареждат отделно и могат да се променят.</p><ul className="space-y-2"><li><a href="https://www.nsi.bg/nrnm/ekatte/index" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">НСИ — ЕКАТТЕ</a>: град, област и код {content.local.ekatte}.</li><li><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">© OpenStreetMap contributors</a>: райони и градски точки, лиценз <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener noreferrer" className="underline">ODbL</a>. {content.local.coordinateSource && <a href={content.local.coordinateSource} target="_blank" rel="noopener noreferrer" className="underline">Източник на градската координата.</a>}</li>{content.local.universities.length > 0 && <li>Учебни локации: регистърът на НАОА и официалните сайтове, свързани при всяка учебна локация по-горе.</li>}</ul><p>Районите не са изчерпателен официален регистър. Приблизителните съвпадения са отделени. Университетският каталог не съдържа всеки факултет или корпус.</p><Link to="/kontakti" className="inline-flex min-h-11 items-center font-medium text-primary-700 underline underline-offset-2">Предложи корекция или липсваща локация</Link></div></details></section>
+    </div>
+  </SiteLayout>;
 }

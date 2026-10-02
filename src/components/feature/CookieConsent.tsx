@@ -55,16 +55,22 @@ export default function CookieConsent() {
   }, []);
 
   useEffect(() => {
-    if (showSettings) dialogRef.current?.focus();
-  }, [showSettings]);
-
-  useEffect(() => {
     if (!showSettings) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialogRef.current?.focus();
     const handleKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setShowSettings(false);
+      if (event.key === 'Escape') { event.preventDefault(); setShowSettings(false); }
+      if (event.key !== 'Tab') return;
+      const elements = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), [tabindex="0"]') ?? []);
+      const first = elements[0], last = elements[elements.length - 1];
+      if (!first) { event.preventDefault(); return; }
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialogRef.current)) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && (document.activeElement === last || document.activeElement === dialogRef.current)) { event.preventDefault(); first.focus(); }
     };
     window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    return () => { window.removeEventListener('keydown', handleKey); document.body.style.overflow = overflow; if (previous?.isConnected) previous.focus({ preventScroll: true }); };
   }, [showSettings]);
 
   const finish = (choice: { analytics: boolean; marketing: boolean }) => {
@@ -80,7 +86,7 @@ export default function CookieConsent() {
       <div
         role="region"
         aria-label={t('consent.title')}
-        className="fixed inset-x-0 bottom-[calc(62px+env(safe-area-inset-bottom,0px))] z-[60] border-t border-background-200 bg-background-50 md:bottom-0"
+        className="fixed inset-x-0 bottom-[calc(62px+env(safe-area-inset-bottom,0px))] z-[60] border-t border-background-200 bg-background-50 lg:bottom-0"
       >
         <div className="mx-auto w-full max-w-6xl px-4 py-4 md:px-6 md:py-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -98,7 +104,7 @@ export default function CookieConsent() {
                 </Link>
               </p>
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row lg:shrink-0">
+            <div className="flex flex-wrap gap-2 lg:shrink-0">
               <button
                 type="button"
                 onClick={() => setShowSettings(true)}

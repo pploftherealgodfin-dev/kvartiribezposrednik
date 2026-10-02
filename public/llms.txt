@@ -1,58 +1,42 @@
-# Квартири под наем без посредник
+# Квартири без посредник
 
-> Платформа за наем в България с едно обещание: обяви директно от собственик. Без брокери, без агенции, без комисион. Виж статуса на проверката на конкретната обява. Потвърденият телефон не доказва собственост и платформата не гарантира липса на измами.
+> Българска платформа за директен наем между наемодатели и наематели. Публични местни справочници за всички 257 града; контакти и лични съобщения след вход.
 
-Език: български. Валута: евро (EUR), с лев (BGN) като вторична (фиксиран курс 1.95583). Обхват: София, Пловдив, Варна, Бургас и останалите големи университетски градове.
+Език: български. Валута на обявите: EUR. Местен каталог: 2026-10-02, 257 града в 28 области, 72 висши училища и учебни локации в 25 града, 1174 районни записа. Районите от OpenStreetMap не са официален изчерпателен регистър; приблизителните връзки са отделени. Каталогът не включва всеки факултет или корпус. Наличните обяви се променят и се зареждат в уеб страниците; справочникът и снимката на град не доказват налично жилище.
 
-## Основни страници
+Разглеждането е публично. Телефони, лични съобщения, любими, публикуване и данни на акаунти изискват вход и приложимите потвърждения. Markdown версиите съдържат публичното редакционно съдържание, без лични данни или частни действия. Статусът на проверката има конкретен обхват и не гарантира липса на измама. Платформата не приема депозити и не участва в плащанията по наема. llms.txt е указател за съдържанието, не правило за достъп или обещание за класиране.
 
-- [Начало](https://kvartiribezposrednik.com/): обещание на платформата, последни обяви, търсене по град, квартал и университет.
-- [Търсене на обяви](https://kvartiribezposrednik.com/tarsene): филтри по град, квартал, университет, тип, цена, стаи, площ, етаж, обзавеждане и домашни любимци.
-- [Квартири под наем без посредник по градове](https://kvartiribezposrednik.com/kvartiri-bez-posrednik): национален преглед на всички покрити градове.
-- [Съвети и ръководства](https://kvartiribezposrednik.com/saveti): практически статии за наематели и собственици.
-- [Контакти](https://kvartiribezposrednik.com/kontakti): връзка с екипа на платформата.
+## Начало и местни справочници
 
-## Квартири под наем без посредник по градове
+- [Начало](https://kvartiribezposrednik.com/index.md): обща информация и навигация.
+- [Всички градове по области](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/index.md): пълен указател с Markdown връзка за всеки от 257-те града, включително двата града Бяла.
+- [Варна](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/varna/index.md): местни райони, учебни локации, карта, близки градове и източници.
+- [София](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/sofia/index.md): местен справочник.
+- [Пловдив](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/plovdiv/index.md): местен справочник.
+- [Бургас](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/burgas/index.md): местен справочник.
+- [Търсене на актуални обяви](https://kvartiribezposrednik.com/tarsene): интерактивни филтри; не е статичен списък на наличността.
 
-- [София](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/sofia)
-- [Пловдив](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/plovdiv)
-- [Варна](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/varna)
-- [Бургас](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/burgas)
-- [Русе](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/ruse)
-- [Стара Загора](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/stara-zagora)
-- [Велико Търново](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/veliko-tarnovo)
-- [Благоевград](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/blagoevgrad)
-- [Плевен](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/pleven)
-- [Габрово](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/gabrovo)
-- [Шумен](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/shumen)
-- [Свищов](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/svishov)
+## Практични ръководства
 
-## Ръководства
+- [Как да разпознаем брокер, който се представя за собственик](https://kvartiribezposrednik.com/saveti/kak-da-razpoznam-broker/index.md): Практичен чеклист с червени флагове, подозрителни фрази и проверки преди оглед — за да не платиш комисион, който не дължиш.
+- [От оглед до договор: пълен наръчник за наем директно от собственик](https://kvartiribezposrednik.com/saveti/ot-ogled-do-dogovor/index.md): Какво да подготвиш преди огледа, какво да гледаш на място, кои документи и клаузи пазят и двете страни и как става предаването на имота.
+- [Скритите такси и комисиони при наем — и как да не ги плащаш](https://kvartiribezposrednik.com/saveti/skriti-taksi-i-komisioni/index.md): Кои разходи са реални, кои са измислени и как да различиш честните условия от такса, която просто няма основание.
+- [Как собственикът да отдаде апартамент сам, без агенция — стъпка по стъпка](https://kvartiribezposrednik.com/saveti/naemodatel-bez-agencia/index.md): Как да подготвиш имота, да напишеш обява, която продава сама, да подбереш наемател и да подпишете договор без посредник.
+- [Квартира за студенти: локация, бюджет и как да не изгориш](https://kvartiribezposrednik.com/saveti/kvartira-za-studenti/index.md): Как да избереш място спрямо университета, какъв бюджет е реален всеки месец и как да делиш наем със съквартиранти без изненади.
 
-- [Как да разпознаем брокер, който се представя за собственик](https://kvartiribezposrednik.com/saveti/kak-da-razpoznam-broker): червени флагове, подозрителни фрази и проверки преди оглед.
-- [От оглед до договор](https://kvartiribezposrednik.com/saveti/ot-ogled-do-dogovor): пълен наръчник за наем директно от собственик.
-- [Скритите такси и комисиони при наем](https://kvartiribezposrednik.com/saveti/skriti-taksi-i-komisioni): как да разпознаеш излишните разходи и да не ги плащаш.
-- [Как собственикът да отдаде апартамент сам](https://kvartiribezposrednik.com/saveti/naemodatel-bez-agencia): стъпка по стъпка без агенция.
-- [Квартира за студенти](https://kvartiribezposrednik.com/saveti/kvartira-za-studenti): локация, бюджет и как да не изгориш.
+## Ползване и безопасност
 
-## Как работи платформата
+- [Как работи](https://kvartiribezposrednik.com/kak-raboti/index.md): търсене, оглед, контакт и публикуване.
+- [Въпроси и отговори](https://kvartiribezposrednik.com/faq/index.md): достъп, профили и проверки.
+- [Разпознай риска преди огледа](https://kvartiribezposrednik.com/kak-da-razpoznaem-posrednik/index.md): предупредителни признаци и сигнали.
+- [Контакти](https://kvartiribezposrednik.com/kontakti): обратна връзка и корекции на местния каталог.
 
-- Разглеждането и търсенето са свободни за всички, без регистрация.
-- Регистрацията е нужна само за връзка със собственик или за публикуване на обява.
-- Наемателят може да пази обяви в любими и да докладва брокерски обяви.
-- Собственикът публикува обяви, следи гледанията и любимите, и управлява снимките.
-- Не приемай наличието на обява като гаранция; провери имота и условията преди плащане.
+## Условия и източници
 
-## Политика срещу посредниците
-
-- Забранени са комисиони и такси за оглед, агенции и фирми „имоти“, дублирани снимки между акаунти и многоходови обяви от един телефон.
-- Разрешени са реален собственик, упълномощен представител с доказуемо право да отдава и директна връзка с наемателя при нула комисион.
-- Всеки потребител може да докладва съмнителна обява; сигналът изисква преглед и не е сам по себе си доказателство за нарушение.
-
-## Правни и информационни страници
-
-- [Общи условия](https://kvartiribezposrednik.com/obshi-usloviya)
-- [Политика за поверителност](https://kvartiribezposrednik.com/politika-za-poveritelnost)
-- [Политика за бисквитки](https://kvartiribezposrednik.com/biskvitki)
-- [Правила за съдържание](https://kvartiribezposrednik.com/pravila-za-sadarzhanie)
-- [Достъпност](https://kvartiribezposrednik.com/dostapnost)
+- [Общи условия](https://kvartiribezposrednik.com/obshi-usloviya): условия на платформата.
+- [Поверителност](https://kvartiribezposrednik.com/politika-za-poveritelnost): обработване на лични данни.
+- [Бисквитки](https://kvartiribezposrednik.com/biskvitki): предпочитания и локално съхранение.
+- [Правила за съдържание](https://kvartiribezposrednik.com/pravila-za-sadarzhanie): публикуване и сигнали.
+- [Достъпност](https://kvartiribezposrednik.com/dostapnost): достъпно ползване и обратна връзка.
+- [Публичен местен каталог](https://kvartiribezposrednik.com/data/national-catalog.json): източници и дата на географските данни; без обяви и данни на потребители. © OpenStreetMap contributors, ODbL.
+- [Sitemap](https://kvartiribezposrednik.com/sitemap.xml): канонични публични уеб страници.

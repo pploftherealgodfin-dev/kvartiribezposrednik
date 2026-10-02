@@ -1,3 +1,6 @@
+# Public guides and frontend resources can be crawled.
+# Search filters, account screens and unavailable listings use page-level noindex.
+# Do not block those routes here: crawlers must be able to read their noindex.
 User-agent: *
 Allow: /
 Sitemap: https://kvartiribezposrednik.com/sitemap.xml

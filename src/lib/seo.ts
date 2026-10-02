@@ -11,6 +11,8 @@ export interface PageMeta {
   ogType?: string;
   /** "noindex, follow" за страници с малко съдържание или временни екрани. */
   robots?: string;
+  /** Public Markdown representation generated from the same editorial data. */
+  markdownPath?: string;
 }
 
 /** Няма демонстрационна снимка по подразбиране. */
@@ -82,6 +84,11 @@ export function applyPageMeta(meta: PageMeta): void {
     upsertMeta('property', 'og:url', url);
   }
   upsertMeta('name', 'robots', meta.robots ?? 'index, follow');
+  let alternate = document.head.querySelector<HTMLLinkElement>('link[rel="alternate"][type="text/markdown"]');
+  if (meta.markdownPath) {
+    if (!alternate) { alternate = document.createElement('link'); alternate.rel = 'alternate'; alternate.type = 'text/markdown'; document.head.appendChild(alternate); }
+    alternate.href = absoluteUrl(meta.markdownPath);
+  } else alternate?.remove();
 }
 
 export function setJsonLd(id: string, data: unknown): void {
@@ -92,7 +99,7 @@ export function setJsonLd(id: string, data: unknown): void {
     el.id = id;
     document.head.appendChild(el);
   }
-  el.textContent = JSON.stringify(data);
+  el.textContent = JSON.stringify(data).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 }
 
 export function removeJsonLd(id: string): void {

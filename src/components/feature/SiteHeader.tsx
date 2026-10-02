@@ -8,7 +8,7 @@ export default function SiteHeader() {
   const location=useLocation();const navigate=useNavigate();
   const [open,setOpen]=useState(false);const [busy,setBusy]=useState(false);const [error,setError]=useState('');
   const header=useRef<HTMLElement>(null);const menu=useRef<HTMLButtonElement>(null);
-  useEffect(()=>{setOpen(false);},[location.pathname,location.search]);
+  useEffect(()=>{setOpen(false);},[location.pathname,location.search,location.hash]);
   useEffect(()=>{if(!open)return;const close=(event:KeyboardEvent)=>{if(event.key==='Escape'){setOpen(false);menu.current?.focus();}};const outside=(event:PointerEvent)=>{if(!header.current?.contains(event.target as Node))setOpen(false);};document.addEventListener('keydown',close);document.addEventListener('pointerdown',outside);return()=>{document.removeEventListener('keydown',close);document.removeEventListener('pointerdown',outside);};},[open]);
   const logout=async()=>{if(busy)return;setBusy(true);setError('');try{await signOut();setOpen(false);navigate('/');}catch{setError('Изходът не е потвърден. Опитай отново.');}finally{setBusy(false);}};
   return <header ref={header} className="pt-safe sticky top-0 z-40 border-b border-background-200 bg-background-50">

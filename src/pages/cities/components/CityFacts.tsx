@@ -1,38 +1,12 @@
+import { Link } from 'react-router-dom';
 import type { CityContent } from '@/pages/cities/data';
+import CityMap from './CityMap';
 
-interface CityFactsProps {
-  city: CityContent;
-}
-
-export default function CityFacts({ city }: CityFactsProps) {
-  return (
-    <section className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
-      <div>
-        <h2 className="font-heading text-2xl font-bold text-foreground-950 md:text-3xl">
-          Какво да знаеш за наемите {city.inPhrase}
-        </h2>
-        <div className="mt-5 space-y-4">
-          {city.about.map((paragraph) => (
-            <p key={paragraph} className="text-sm leading-relaxed text-foreground-700 md:text-[15px]">
-              {paragraph}
-            </p>
-          ))}
-        </div>
-      </div>
-
-      <aside className="rounded-lg border border-background-200 bg-background-100 p-5 md:p-6">
-        <h3 className="font-heading text-base font-bold text-foreground-950">
-          Защо си струва {city.inPhrase}
-        </h3>
-        <ul className="mt-4 space-y-3">
-          {city.highlights.map((item) => (
-            <li key={item} className="flex items-start gap-2.5 text-sm text-foreground-700">
-              <i className="ri-checkbox-circle-line mt-0.5 text-base text-primary-600" aria-hidden="true" />
-              {item}
-            </li>
-          ))}
-        </ul>
-      </aside>
-    </section>
-  );
+export default function CityFacts({ city }: { city: CityContent }) {
+  return <section className={`grid gap-8 ${city.heroImage ? 'lg:grid-cols-[1.3fr_1fr]' : ''}`}>
+    <div><h2 className="font-heading text-2xl font-semibold text-foreground-950">Ориентация в {city.label}</h2><div className="mt-4 space-y-4">{city.about.map(paragraph => <p key={paragraph} className="text-sm leading-relaxed text-foreground-700 md:text-base">{paragraph}</p>)}</div>
+      <div className="ui-note mt-5 border-l-2 border-primary-300 pl-4">Информация от ЕКАТТЕ, НАОА, официални сайтове на учебните заведения и OpenStreetMap. Каталогът е от {city.updatedAt}; покритието на райони и корпуси е непълно. <Link to="#iztochnici" className="font-medium text-primary-700 underline underline-offset-2">Източници и корекции</Link></div>
+      {city.rentalNotes && <aside className="mt-6 rounded-xl border border-primary-200 bg-primary-50 p-5"><h3 className="font-heading text-base font-semibold">{city.rentalNotes.title}</h3><ul className="mt-3 space-y-3 text-sm leading-relaxed text-foreground-700">{city.rentalNotes.points.map(point => <li key={point} className="flex gap-2"><i className="ri-arrow-right-s-line mt-0.5 shrink-0 text-primary-700" aria-hidden="true" /><span>{point}</span></li>)}</ul></aside>}
+    </div>{city.heroImage && <CityMap city={city} />}
+  </section>;
 }

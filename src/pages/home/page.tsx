@@ -51,11 +51,6 @@ export default function Home() {
       name: brand,
       url: origin || '/',
       inLanguage: 'bg-BG',
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: `${origin}/tarsene?t={search_term_string}`,
-        'query-input': 'required name=search_term_string',
-      },
     });
     setJsonLd('ld-organization', {
       '@context': 'https://schema.org',

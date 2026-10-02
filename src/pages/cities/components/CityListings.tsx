@@ -6,7 +6,6 @@ import type { ListingView } from '@/lib/types';
 interface CityListingsProps {
   cityName: string;
   citySlug: string;
-  cityInPhrase: string;
   listings: ListingView[];
   total: number;
   loading: boolean;
@@ -17,7 +16,6 @@ interface CityListingsProps {
 export default function CityListings({
   cityName,
   citySlug,
-  cityInPhrase,
   listings,
   total,
   loading,
@@ -61,11 +59,12 @@ export default function CityListings({
           </button>
         </div>
       ) : loading ? (
-        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-label="Зареждаме публикуваните обяви">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
               key={index}
-              className="h-80 animate-pulse rounded-lg border border-background-200 bg-background-100"
+              className="h-48 animate-pulse rounded-lg border border-background-200 bg-background-100"
+              aria-hidden="true"
             />
           ))}
         </div>
@@ -77,13 +76,13 @@ export default function CityListings({
           <p className="mt-4 font-heading text-base font-bold text-foreground-900">
             {t('cities.noListings', { city: cityName })}
           </p>
-          <p className="mt-1 max-w-md text-sm text-foreground-600">{t('cities.noListingsHint')}</p>
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-foreground-600">Все още няма публикувани предложения тук. Местната информация по-долу може да ти помогне да се ориентираш; разгледай и близките градове или публикувай свое жилище.</p>
           <Link
-            to={`/tarsene?grad=${citySlug}`}
+            to="/kachi-obiava"
             className="mt-5 inline-flex items-center gap-2 whitespace-nowrap rounded-md bg-primary-600 px-5 py-3 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-700"
           >
-            <i className="ri-search-line text-base" aria-hidden="true" />
-            {t('cities.searchInCity', { city: cityName })}
+            <i className="ri-add-line text-base" aria-hidden="true" />
+            Публикувай жилище
           </Link>
         </div>
       ) : (
@@ -100,7 +99,6 @@ export default function CityListings({
         </p>
       )}
 
-      <span className="sr-only">{cityInPhrase}</span>
     </section>
   );
 }

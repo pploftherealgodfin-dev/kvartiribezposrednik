@@ -1,0 +1,136 @@
+import { supabase } from '@/lib/supabase';
+import type { ListingStatus, Role, UserStatus } from '@/lib/types';
+
+export interface AdminUserRow {
+  id: string;
+  name: string;
+  role: Role;
+  status: UserStatus;
+  trustScore: number;
+  ownerVerified: boolean;
+  createdAt: string;
+  phone: string | null;
+  email: string | null;
+}
+
+interface ProfileRaw {
+  id: string;
+  name: string;
+  role: string;
+  status: string;
+  trust_score: number;
+  owner_verified: boolean;
+  created_at: string;
+}
+
+interface ContactRaw {
+  id: string;
+  phone: string | null;
+  email: string | null;
+}
+
+/** Пълен списък с потребители + контакти (само админ може да чете). */
+export async function getAdminUsers(): Promise<AdminUserRow[]> {
+  const [profilesResult, contactsResult] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, name, role, status, trust_score, owner_verified, created_at')
+      .order('created_at', { ascending: false }),
+    supabase.from('profile_contacts').select('id, phone, email'),
+  ]);
+  if (profilesResult.error) throw profilesResult.error;
+  if (contactsResult.error) throw contactsResult.error;
+
+  const contacts = new Map<string, ContactRaw>();
+  for (const item of (contactsResult.data ?? []) as ContactRaw[]) {
+    contacts.set(item.id, item);
+  }
+
+  return ((profilesResult.data ?? []) as ProfileRaw[]).map((row) => {
+    const contact = contacts.get(row.id);
+    return {
+      id: row.id,
+      name: row.name,
+      role: row.role as Role,
+      status: row.status as UserStatus,
+      trustScore: row.trust_score,
+      ownerVerified: row.owner_verified,
+      createdAt: row.created_at,
+      phone: contact?.phone ?? null,
+      email: contact?.email ?? null,
+    };
+  });
+}
+
+export interface AdminListingRow {
+  id: string;
+  slug: string;
+  title: string;
+  status: ListingStatus;
+  priceEur: number;
+  ownerId: string;
+  ownerName: string;
+  createdAt: string;
+}
+
+interface ListingRaw {
+  id: string;
+  slug: string;
+  title: string;
+  status: string;
+  price_eur: number | string;
+  owner_id: string;
+  created_at: string;
+}
+
+/** Всички обяви в системата — само за админ. */
+export async function getAdminListings(): Promise<AdminListingRow[]> {
+  const [listingsResult, profilesResult] = await Promise.all([
+    supabase
+      .from('listings')
+      .select('id, slug, title, status, price_eur, owner_id, created_at')
+      .order('created_at', { ascending: false }),
+    supabase.from('profiles').select('id, name'),
+  ]);
+  if (listingsResult.error) throw listingsResult.error;
+  if (profilesResult.error) throw profilesResult.error;
+
+  const names = new Map<string, string>();
+  for (const item of (profilesResult.data ?? []) as { id: string; name: string }[]) {
+    names.set(item.id, item.name);
+  }
+
+  return ((listingsResult.data ?? []) as ListingRaw[]).map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    status: row.status as ListingStatus,
+    priceEur: typeof row.price_eur === 'string' ? Number(row.price_eur) : row.price_eur,
+    ownerId: row.owner_id,
+    ownerName: names.get(row.owner_id) ?? 'Неизвестен',
+    createdAt: row.created_at,
+  }));
+}
+
+export async function setUserRole(userId: string, role: Role): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ role }).eq('id', userId);
+  if (error) throw error;
+}
+
+export async function setUserStatus(userId: string, status: UserStatus): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ status }).eq('id', userId);
+  if (error) throw error;
+}
+
+export async function setListingStatus(
+  listingId: string,
+  status: ListingStatus,
+): Promise<void> {
+  const { error } = await supabase.from('listings').update({ status }).eq('id', listingId);
+  if (error) throw error;
+}
+
+export async function deleteListing(listingId: string): Promise<void> {
+  const { error } = await supabase.from('listings').delete().eq('id', listingId);
+  if (error) throw error;
+}

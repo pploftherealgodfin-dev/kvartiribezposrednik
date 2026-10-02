@@ -1,0 +1,58 @@
+# Квартири под наем без посредник
+
+> Платформа за наем в България с едно обещание: обяви директно от собственик. Без брокери, без агенции, без комисион. Всяка обява минава проверка, а посредниците се филтрират активно чрез правила, доклади и доверителен рейтинг.
+
+Език: български. Валута: евро (EUR), с лев (BGN) като вторична (фиксиран курс 1.95583). Обхват: София, Пловдив, Варна, Бургас и останалите големи университетски градове.
+
+## Основни страници
+
+- [Начало](https://kvartiribezposrednik.com/): обещание на платформата, последни проверени обяви, търсене по град, квартал и университет.
+- [Търсене на обяви](https://kvartiribezposrednik.com/tarsene): филтри по град, квартал, университет, тип, цена, стаи, площ, етаж, обзавеждане и домашни любимци.
+- [Квартири под наем без посредник по градове](https://kvartiribezposrednik.com/kvartiri-bez-posrednik): национален преглед на всички покрити градове.
+- [Съвети и ръководства](https://kvartiribezposrednik.com/saveti): практически статии за наематели и собственици.
+- [Контакти](https://kvartiribezposrednik.com/kontakti): връзка с екипа на платформата.
+
+## Квартири под наем без посредник по градове
+
+- [София](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/sofia)
+- [Пловдив](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/plovdiv)
+- [Варна](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/varna)
+- [Бургас](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/burgas)
+- [Русе](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/ruse)
+- [Стара Загора](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/stara-zagora)
+- [Велико Търново](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/veliko-tarnovo)
+- [Благоевград](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/blagoevgrad)
+- [Плевен](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/pleven)
+- [Габрово](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/gabrovo)
+- [Шумен](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/shumen)
+- [Свищов](https://kvartiribezposrednik.com/kvartiri-bez-posrednik/svishov)
+
+## Ръководства
+
+- [Как да разпознаем брокер, който се представя за собственик](https://kvartiribezposrednik.com/saveti/kak-da-razpoznam-broker): червени флагове, подозрителни фрази и проверки преди оглед.
+- [От оглед до договор](https://kvartiribezposrednik.com/saveti/ot-ogled-do-dogovor): пълен наръчник за наем директно от собственик.
+- [Скритите такси и комисиони при наем](https://kvartiribezposrednik.com/saveti/skriti-taksi-i-komisioni): как да разпознаеш излишните разходи и да не ги плащаш.
+- [Как собственикът да отдаде апартамент сам](https://kvartiribezposrednik.com/saveti/naemodatel-bez-agencia): стъпка по стъпка без агенция.
+- [Квартира за студенти](https://kvartiribezposrednik.com/saveti/kvartira-za-studenti): локация, бюджет и как да не изгориш.
+
+## Как работи платформата
+
+- Разглеждането и търсенето са свободни за всички, без регистрация.
+- Регистрацията е нужна само за връзка със собственик или за публикуване на обява.
+- Наемателят може да пази обяви в любими и да докладва брокерски обяви.
+- Собственикът публикува обяви, следи гледанията и любимите, и управлява снимките.
+- Всяка обява получава доверителен рейтинг; съмнителните обяви отиват на ръчен преглед.
+
+## Политика срещу посредниците
+
+- Забранени са комисиони и такси за оглед, агенции и фирми „имоти“, дублирани снимки между акаунти и многоходови обяви от един телефон.
+- Разрешени са реален собственик, негов роднина и директна връзка с наемателя при нула комисион.
+- Всеки потребител може да докладва съмнителна обява; при достатъчно сигнали обявата се скрива автоматично до преглед.
+
+## Правни и информационни страници
+
+- [Общи условия](https://kvartiribezposrednik.com/obshi-usloviya)
+- [Политика за поверителност](https://kvartiribezposrednik.com/politika-za-poveritelnost)
+- [Политика за бисквитки](https://kvartiribezposrednik.com/biskvitki)
+- [Правила за съдържание](https://kvartiribezposrednik.com/pravila-za-sadarzhanie)
+- [Достъпност](https://kvartiribezposrednik.com/dostapnost)

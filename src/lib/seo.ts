@@ -1,0 +1,184 @@
+import type { ListingView } from './types';
+
+export interface PageMeta {
+  title: string;
+  description?: string;
+  /** Път без домейн, напр. "/kvartiri-bez-posrednik/sofia". */
+  canonicalPath?: string;
+  ogImage?: string;
+  /** OpenGraph тип — "website" по подразбиране, "article" за статии. */
+  ogType?: string;
+  /** "noindex, follow" за страници с малко съдържание или временни екрани. */
+  robots?: string;
+}
+
+/** Официално лого на бранда — ползва се за favicon, социални мрежи и онлайн идентичност. */
+export const BRAND_LOGO =
+  'https://storage.helloreaddy.io/project_files/ec55975f-5ed3-4d5b-8aa1-af26ca453ac6/7d9d0eb4-5a72-4191-8b88-a1adb8ecc3a0_compressed_logo-og-image-favicon-.webp';
+
+/** Снимка по подразбиране за социални мрежи (OpenGraph / Twitter). */
+export const DEFAULT_OG_IMAGE = BRAND_LOGO;
+
+export const SITE_LOCALE = 'bg_BG';
+
+function upsertMeta(attr: 'name' | 'property', key: string, content: string): void {
+  let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content);
+}
+
+function upsertCanonical(href: string): void {
+  let el = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!el) {
+    el = document.createElement('link');
+    el.setAttribute('rel', 'canonical');
+    document.head.appendChild(el);
+  }
+  el.setAttribute('href', href);
+}
+
+export function absoluteUrl(path: string): string {
+  if (/^https?:\/\//.test(path)) return path;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  return `${origin}${path}`;
+}
+
+/**
+ * Задава title, description, canonical, OpenGraph, Twitter и robots за текущата страница.
+ * Всички клиентски страници трябва да го викат, за да имат уникален SEO профил.
+ */
+export function applyPageMeta(meta: PageMeta): void {
+  document.title = meta.title;
+
+  const image = meta.ogImage ?? DEFAULT_OG_IMAGE;
+
+  // OpenGraph
+  upsertMeta('property', 'og:title', meta.title);
+  upsertMeta('property', 'og:site_name', 'Квартири под наем без посредник');
+  upsertMeta('property', 'og:locale', SITE_LOCALE);
+  upsertMeta('property', 'og:type', meta.ogType ?? 'website');
+  upsertMeta('property', 'og:image', image);
+
+  // Twitter
+  upsertMeta('name', 'twitter:card', 'summary_large_image');
+  upsertMeta('name', 'twitter:title', meta.title);
+  upsertMeta('name', 'twitter:image', image);
+
+  if (meta.description) {
+    upsertMeta('name', 'description', meta.description);
+    upsertMeta('property', 'og:description', meta.description);
+    upsertMeta('name', 'twitter:description', meta.description);
+  }
+  if (meta.canonicalPath) {
+    const url = absoluteUrl(meta.canonicalPath);
+    upsertCanonical(url);
+    upsertMeta('property', 'og:url', url);
+  }
+  upsertMeta('name', 'robots', meta.robots ?? 'index, follow');
+}
+
+export function setJsonLd(id: string, data: unknown): void {
+  let el = document.getElementById(id) as HTMLScriptElement | null;
+  if (!el) {
+    el = document.createElement('script');
+    el.type = 'application/ld+json';
+    el.id = id;
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify(data);
+}
+
+export function removeJsonLd(id: string): void {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+export function breadcrumbJsonLd(
+  items: { name: string; path: string }[],
+): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path),
+    })),
+  };
+}
+
+export function realEstateListingJsonLd(view: ListingView): Record<string, unknown> {
+  const { listing, city, neighborhood, owner } = view;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    name: listing.title,
+    description: listing.description,
+    datePosted: listing.createdAt,
+    url: absoluteUrl(`/obiava/${listing.slug}`),
+    numberOfRooms: listing.rooms,
+    floorSize: { '@type': 'QuantitativeValue', value: listing.areaM2, unitCode: 'MTK' },
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: city.name,
+      addressRegion: neighborhood?.name ?? undefined,
+      addressCountry: 'BG',
+    },
+    offers: {
+      '@type': 'Offer',
+      price: listing.priceEur,
+      priceCurrency: 'EUR',
+      availability:
+        listing.status === 'rented' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+      seller: { '@type': 'Person', name: owner.name },
+    },
+  };
+}
+
+export function faqJsonLd(
+  items: { question: string; answer: string }[],
+): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  };
+}
+
+/** Article JSON-LD за редакционните статии в „Съвети". */
+export function articleJsonLd(article: {
+  title: string;
+  description: string;
+  path: string;
+  image: string;
+  datePublished: string;
+  dateModified: string;
+  keywords: string[];
+}): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: article.title,
+    description: article.description,
+    image: [absoluteUrl(article.image)],
+    datePublished: article.datePublished,
+    dateModified: article.dateModified,
+    inLanguage: 'bg-BG',
+    keywords: article.keywords.join(', '),
+    mainEntityOfPage: { '@type': 'WebPage', '@id': absoluteUrl(article.path) },
+    author: { '@type': 'Organization', name: 'Квартири под наем без посредник' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'Квартири под наем без посредник',
+    },
+  };
+}

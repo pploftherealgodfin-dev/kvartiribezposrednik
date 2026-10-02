@@ -12,13 +12,7 @@ export default function CityHero({ city, listingCount }: CityHeroProps) {
 
   return (
     <section className="relative isolate w-full overflow-hidden">
-      <div className="absolute inset-0">
-        <img
-          src={city.heroImage}
-          alt={`Квартири под наем без посредник ${city.inPhrase}`}
-          title={`Квартири под наем без посредник ${city.inPhrase}`}
-          className="h-full w-full object-cover object-top"
-        />
+      <div className="absolute inset-0 bg-primary-900">
         <div className="absolute inset-0 bg-gradient-to-b from-foreground-950/60 via-foreground-950/45 to-foreground-950/70" />
       </div>
 

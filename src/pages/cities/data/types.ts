@@ -15,7 +15,7 @@ export interface CityContent {
   inPhrase: string;
   /** Област, напр. „Софийска област“. */
   region: string;
-  heroImage: string;
+  heroImage?: string;
   intro: string;
   about: string[];
   highlights: string[];

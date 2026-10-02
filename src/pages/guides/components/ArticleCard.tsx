@@ -11,18 +11,6 @@ export default function ArticleCard({ guide }: ArticleCardProps) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-lg border border-background-200 bg-background-50 transition-colors hover:border-primary-400">
-      <Link
-        to={`/saveti/${guide.slug}`}
-        className="block h-44 w-full overflow-hidden bg-background-200"
-        aria-label={guide.title}
-      >
-        <img
-          src={guide.heroImage}
-          alt={guide.title}
-          title={`${guide.title} — ${t('brand.name')}`}
-          className="h-full w-full object-cover object-top"
-        />
-      </Link>
 
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div className="flex flex-wrap items-center gap-2">

@@ -18,7 +18,7 @@ export interface Guide {
   readingMinutes: number;
   publishedAt: string;
   updatedAt: string;
-  heroImage: string;
+  heroImage?: string;
   keywords: string[];
   sections: GuideBlock[];
   faq?: GuideFaqItem[];

@@ -28,7 +28,7 @@ export default function ComingSoon({ title }: ComingSoonProps) {
             {title}
           </h1>
           <p className="mt-3 text-sm text-foreground-600">
-            [Текст] Тази страница се изгражда в следващата фаза от плана.
+            Тази страница се изгражда в следващата фаза от плана.
           </p>
         </div>
       </div>

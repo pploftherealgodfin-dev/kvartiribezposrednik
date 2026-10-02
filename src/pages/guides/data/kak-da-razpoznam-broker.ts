@@ -9,8 +9,6 @@ export const kakDaRazpoznamBroker: Guide = {
   readingMinutes: 6,
   publishedAt: '2026-08-12',
   updatedAt: '2026-10-01',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Modern%20bright%20rental%20apartment%20interior%20with%20sunlit%20living%20room%2C%20minimal%20Scandinavian%20furniture%2C%20warm%20neutral%20tones%2C%20large%20window%20with%20city%20view%2C%20clean%20editorial%20real%20estate%20photography%2C%20soft%20natural%20light%2C%20calm%20and%20trustworthy%20mood&width=1200&height=750&seq=guide-broker-01&orientation=landscape',
   keywords: ['брокер', 'собственик', 'наем без посредник', 'комисион', 'оглед'],
   sections: [
     {

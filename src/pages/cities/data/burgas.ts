@@ -5,8 +5,6 @@ export const burgas: CityContent = {
   name: 'Бургас',
   inPhrase: 'в Бургас',
   region: 'Бургаска област',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20seaside%20park%20and%20coastal%20cityscape%20of%20Burgas%20Bulgaria%20with%20lake%20and%20promenade%20at%20golden%20hour%2C%20warm%20cream%20and%20soft%20green%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-burgas-v1&orientation=landscape',
   intro:
     'Бургас съчетава спокоен крайбрежен начин на живот с работещ градски пазар на наеми. Тук се търсят както жилища за млади семейства, така и апартаменти за студенти от близките университети — директно от собственик.',
   about: [

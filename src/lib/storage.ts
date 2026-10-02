@@ -1,7 +1,9 @@
 import { supabase } from './supabase';
+import { inspectPhotoBytes, PHOTO_DIMENSIONS } from './photoInspection';
+import { LISTING_PHOTO_BUCKET as BUCKET, removePhotoObject } from './photoAccess';
+export { signPhotoPaths, refreshListingPhoto, removePhotoObject } from './photoAccess';
 
 /** Частно хранилище; достъпът до всяка снимка се проверява от RLS. */
-const BUCKET = 'listing-photos';
 
 export const PHOTO_LIMITS = {
   maxBytes: 5 * 1024 * 1024,
@@ -9,10 +11,11 @@ export const PHOTO_LIMITS = {
   allowedTypes: ['image/jpeg', 'image/png', 'image/webp'] as const,
 } as const;
 
-export type PhotoValidationError = 'unsupportedType' | 'tooLarge';
+export type PhotoValidationError = 'unsupportedType' | 'tooLarge' | 'empty';
 
 /** Проверява файл преди качване. Връща код на грешката или null, ако е валиден. */
 export function validatePhotoFile(file: File): PhotoValidationError | null {
+  if (!file.size) return 'empty';
   if (!PHOTO_LIMITS.allowedTypes.includes(file.type as (typeof PHOTO_LIMITS.allowedTypes)[number])) {
     return 'unsupportedType';
   }
@@ -51,20 +54,22 @@ const preparedPhotos = new WeakSet<File>();
 /** Decode before creating the listing; re-encode pixels to remove EXIF/GPS. */
 export async function prepareListingPhoto(file: File): Promise<File> {
   const problem = validatePhotoFile(file);
-  if (problem) throw new Error(problem === 'tooLarge' ? 'Снимката е над 5 MB.' : 'Използвайте JPEG, PNG или WebP.');
+  if (problem) throw new Error(problem === 'empty' ? 'Избраният файл е празен.' : problem === 'tooLarge' ? 'Снимката е над 5 MB.' : 'Използвайте JPEG, PNG или WebP.');
   if (preparedPhotos.has(file)) return file;
+  inspectPhotoBytes(new Uint8Array(await file.arrayBuffer()), file.type);
   const url = URL.createObjectURL(file);
   try {
     const picture = new Image(); picture.src = url; await picture.decode();
-    if (!picture.naturalWidth || !picture.naturalHeight || picture.naturalWidth * picture.naturalHeight > 40_000_000) throw new Error('Снимката е прекалено голяма за обработка.');
-    const scale = Math.min(1, 2560 / Math.max(picture.naturalWidth, picture.naturalHeight));
+    if (!picture.naturalWidth || !picture.naturalHeight || picture.naturalWidth > PHOTO_DIMENSIONS.maxSide || picture.naturalHeight > PHOTO_DIMENSIONS.maxSide || picture.naturalWidth * picture.naturalHeight > PHOTO_DIMENSIONS.maxPixels) throw new Error('Снимката е прекалено голяма за обработка.');
+    const scale = Math.min(1, PHOTO_DIMENSIONS.outputSide / Math.max(picture.naturalWidth, picture.naturalHeight));
     const canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(picture.naturalWidth * scale));
     canvas.height = Math.max(1, Math.round(picture.naturalHeight * scale));
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Браузърът не може да обработи снимката.');
     context.drawImage(picture, 0, 0, canvas.width, canvas.height);
-    const encoded = await new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Снимката не може да бъде обработена.')), file.type, 0.9));
+    const encoded = await new Promise<Blob>((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Снимката не може да бъде обработена.')), 'image/webp', 0.82));
+    if (!PHOTO_LIMITS.allowedTypes.includes(encoded.type as (typeof PHOTO_LIMITS.allowedTypes)[number]) || !encoded.size) throw new Error('Снимката не може да бъде обработена безопасно.');
     if (encoded.size > PHOTO_LIMITS.maxBytes) throw new Error('Обработената снимка е над 5 MB.');
     const prepared = new File([encoded], 'photo', { type: encoded.type });
     preparedPhotos.add(prepared);
@@ -108,24 +113,4 @@ export async function uploadListingPhotos(
     await Promise.allSettled(paths.map(removePhotoObject));
     throw error;
   }
-}
-/** URLs expire after five minutes; paths, not bearer URLs, are stored in Postgres. */
-export async function signPhotoPaths(paths: string[]): Promise<Map<string, string>> {
-  if (!paths.length) return new Map();
-  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrls([...new Set(paths)], 300);
-  if (error) throw error;
-  return new Map((data ?? []).filter(item => item.signedUrl && item.path).map(item => [item.path!, item.signedUrl]));
-}
-/** Recheck row access before refreshing an expired image URL. */
-export async function refreshListingPhoto(photoId: string): Promise<string> {
-  const { data, error } = await supabase.from('listing_photos').select('storage_path').eq('id', photoId).maybeSingle();
-  if (error) throw error;
-  if (!data) throw new Error('Снимката вече не е достъпна.');
-  const url = (await signPhotoPaths([data.storage_path])).get(data.storage_path);
-  if (!url) throw new Error('Снимката не се зареди.');
-  return url;
-}
-export async function removePhotoObject(path: string): Promise<void> {
-  const { error } = await supabase.storage.from(BUCKET).remove([path]);
-  if (error) throw error;
 }

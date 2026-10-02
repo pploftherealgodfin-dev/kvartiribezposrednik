@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatEur, formatNumber, formatShortDate } from '@/lib/format';
@@ -9,7 +9,7 @@ import {
   type OwnerListingRow,
 } from '@/lib/repository/owner';
 import type { ListingStatus } from '@/lib/types';
-import ListingPhotosManager from './ListingPhotosManager';
+const ListingPhotosManager = lazy(() => import('./ListingPhotosManager'));
 
 interface OwnerListingsProps {
   listings: OwnerListingRow[];
@@ -177,7 +177,7 @@ export default function OwnerListings({
                     {t('owner.managePhotos')}
                   </h3>
                   <div className="mt-3">
-                    {['draft','pending_review','rejected','deactivated','expired'].includes(status) ? <ListingPhotosManager listingId={item.id} ownerId={ownerId} onChanged={onChanged} /> : <p className="text-sm">За промяна на снимките първо деактивирай обявата. След редакция е необходим нов преглед.</p>}
+                    {['draft','pending_review','rejected','deactivated','expired'].includes(status) ? <Suspense fallback={<p role="status" className="min-h-24">Зареждаме управлението на снимките…</p>}><ListingPhotosManager listingId={item.id} ownerId={ownerId} onChanged={onChanged} /></Suspense> : <p className="text-sm">За промяна на снимките първо деактивирай обявата. След редакция е необходим нов преглед.</p>}
                   </div>
                 </div>
               )}

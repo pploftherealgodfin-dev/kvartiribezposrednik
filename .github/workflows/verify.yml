@@ -20,7 +20,7 @@ jobs:
     env:
       # Build-only values. These checks never deploy or connect to a real database.
       VITE_PUBLIC_SUPABASE_URL: https://build-only.example.invalid
-      VITE_PUBLIC_SUPABASE_ANON_KEY: build-only-no-network
+      VITE_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiJ9.eyJyb2xlIjoiYW5vbiJ9.build-only-no-network
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -31,6 +31,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm audit --audit-level=high
       - run: npm run verify
       - name: Verify direct hosting build
         run: npx vite build && npm run test:seo

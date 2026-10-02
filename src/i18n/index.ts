@@ -1,17 +1,16 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import messages from './local/index';
+import common from './local/bg/common';
+import shared from './shared';
 
 i18n
-  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     lng: 'bg',
     fallbackLng: 'bg',
     supportedLngs: ['bg'],
     debug: false,
-    resources: messages,
+    resources: { bg: { translation: { ...common, ...shared } } },
     interpolation: {
       escapeValue: false,
     },

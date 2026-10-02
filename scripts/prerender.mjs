@@ -18,6 +18,7 @@ export async function prerenderPublicSite(catalog, outDir = 'out') {
   await build({ build: { ssr: 'src/entry-server.tsx', outDir: '.prerender', emptyOutDir: false, rollupOptions: { output: { entryFileNames: 'entry-server.mjs' } } } });
   const { render } = await import(pathToFileURL(resolve('.prerender/entry-server.mjs')).href);
   const template = await readFile(`${outDir}/index.html`, 'utf8');
+  const defaultSocialImage = template.match(/<meta property="og:image" content="([^"]+)"\s*\/?>/)?.[1]?.replace(/&amp;/g, '&');
   const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const json = value => JSON.stringify(value).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
   const clean = template.replace(/<title>[^<]*<\/title>/g, '').replace(/<meta\s+(?:name|property)="(?:description|robots|og:[^"]+|twitter:[^"]+)"[^>]*>/g, '').replace(/<link\s+rel="canonical"[^>]*>/g, '').replace(/<link\s+rel="alternate"[^>]*>/g, '');
@@ -27,6 +28,7 @@ export async function prerenderPublicSite(catalog, outDir = 'out') {
   let markdownCount = 0;
   for (const path of [...publicPaths, '/404']) {
     const meta = getPageMeta(path);
+    const socialImage = meta.ogImage ?? defaultSocialImage;
     const canonical = `${SITE_ORIGIN}${meta.canonicalPath}`;
     const content = await render(path);
     const data = getPublicJsonLd(path);
@@ -51,10 +53,10 @@ export async function prerenderPublicSite(catalog, outDir = 'out') {
       `<meta property="og:type" content="${meta.ogType ?? 'website'}">`,
       `<meta property="og:locale" content="bg_BG">`,
       `<meta property="og:site_name" content="Квартири без посредник">`,
-      `<meta name="twitter:card" content="${meta.ogImage ? 'summary_large_image' : 'summary'}">`,
+      `<meta name="twitter:card" content="${socialImage ? 'summary_large_image' : 'summary'}">`,
       `<meta name="twitter:title" content="${escape(meta.title)}">`,
       `<meta name="twitter:description" content="${escape(meta.description)}">`,
-      ...(meta.ogImage ? [`<meta property="og:image" content="${escape(meta.ogImage)}">`, `<meta name="twitter:image" content="${escape(meta.ogImage)}">`] : []),
+      ...(socialImage ? [`<meta property="og:image" content="${escape(socialImage)}">`, `<meta name="twitter:image" content="${escape(socialImage)}">`] : []),
       ...(meta.markdownPath ? [`<link rel="alternate" type="text/markdown" href="${SITE_ORIGIN}${meta.markdownPath}">`] : []),
       ...(data.length ? [`<script id="ld-prerender" type="application/ld+json">${json(data)}</script>`] : []),
     ].join('');

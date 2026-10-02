@@ -1,4 +1,4 @@
-import { signPhotoPaths, removePhotoObject } from '@/lib/storage';
+import { signPhotoPaths, removePhotoObject } from '@/lib/photoAccess';
 import { supabase } from '@/lib/supabase';
 import type { ListingStatus, ListingType } from '@/lib/types';
 

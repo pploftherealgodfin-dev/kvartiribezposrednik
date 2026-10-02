@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ImgHTMLAttributes } from 'react';
-import { refreshListingPhoto } from '@/lib/storage';
+import { refreshListingPhoto } from '@/lib/photoAccess';
 
 /** Private storage URLs expire. One automatic refresh, then an explicit retry. */
 export default function ListingImage({ photoId, retryable = false, src = '', alt = '', className, ...props }: ImgHTMLAttributes<HTMLImageElement> & { photoId: string; retryable?: boolean }) {

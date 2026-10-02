@@ -175,3 +175,4 @@ export default function Contact() {
     </SiteLayout>
   );
 }
+import '@/i18n/legal';

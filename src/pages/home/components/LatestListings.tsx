@@ -31,16 +31,9 @@ export default function LatestListings({ listings, loading }: LatestListingsProp
         </div>
 
         {loading ? (
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-80 animate-pulse rounded-lg border border-background-200/70 bg-background-100"
-              />
-            ))}
-          </div>
+          <p role="status" className="mt-6 flex min-h-24 items-center justify-center rounded-lg border border-background-200 bg-background-100 text-sm text-foreground-600">Подготвяме последните обяви…</p>
         ) : listings.length === 0 ? (
-          <p className="mt-8 rounded-lg border border-background-200/70 bg-background-100 p-6 text-center text-sm text-foreground-600">
+          <p className="mt-6 flex min-h-24 items-center justify-center rounded-lg border border-background-200/70 bg-background-100 p-6 text-center text-sm text-foreground-600">
             {t('common.empty')}
           </p>
         ) : (

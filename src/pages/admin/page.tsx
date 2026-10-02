@@ -115,3 +115,4 @@ function AdminPanelContent() {
   );
 }
 export default function AdminPanelPage() { return <StaffMfaGate><AdminPanelContent /></StaffMfaGate>; }
+import '@/i18n/legal';

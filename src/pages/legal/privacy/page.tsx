@@ -53,6 +53,7 @@ export default function PrivacyPolicy() {
 
       <LegalSection title={t('privacy.s9.title')}>{t('privacy.s9.body')}</LegalSection>
       <LegalSection title={t('privacy.s10.title')}>{t('privacy.s10.body')}</LegalSection>
+      <LegalSection title="Чернова на обява"><p>При попълване текстът се запазва временно в текущия раздел на браузъра и може да се възстанови до 2 часа след последния запис. Черновата е за текущия акаунт и се изчиства при изход или смяна на акаунта. Снимките не се запазват в това локално хранилище. Можеш да изтриеш черновата от формата.</p></LegalSection>
     </LegalShell>
   );
 }

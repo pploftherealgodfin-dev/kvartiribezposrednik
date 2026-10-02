@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 import AutoImport from "unplugin-auto-import/vite";
 import { publicSeoPlugin } from './scripts/seo-plugin.ts';
+import { clientSecurityPlugin } from './scripts/security-plugin.ts';
 // import { readdyJsxRuntimeProxyPlugin } from "./vite.jsx-runtime-proxy";
 
 const base = process.env.BASE_PATH || "/";
@@ -19,6 +20,7 @@ export default defineConfig({
   },
   plugins: [
     // ...proxyPlugins,
+    clientSecurityPlugin(),
     publicSeoPlugin(),
     react(),
     AutoImport({
@@ -76,6 +78,9 @@ export default defineConfig({
     sourcemap: false,
     outDir: 'out',
     emptyOutDir: true,
+    manifest: true,
+    // CSP allows same-origin fonts; emit the small icon subset as a hashed file.
+    assetsInlineLimit: 0,
   },
   resolve: {
     alias: {

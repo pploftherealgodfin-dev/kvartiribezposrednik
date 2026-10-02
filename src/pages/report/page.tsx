@@ -30,3 +30,4 @@ export default function ReportContent() {
   const { user } = useAuth();
   return <SiteLayout><section className="mx-auto max-w-2xl px-4 py-12"><h1 className="text-3xl font-bold">Подай сигнал</h1><p className="mt-3">Опиши съмнителната обява или поведение. Сигналът влиза в модераторска опашка; подаването му не доказва нарушение.</p>{user ? <ReportForm key={user.id} /> : <p className="mt-6"><Link className="text-primary-700 underline" to="/vhod?next=%2Fdokladvane">Влез с потвърден профил</Link>, за да подадеш проследим сигнал.</p>}</section></SiteLayout>;
 }
+import '@/i18n/legal';

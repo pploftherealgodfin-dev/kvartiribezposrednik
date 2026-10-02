@@ -1,5 +1,5 @@
 import { referenceCache } from '@/lib/referenceCache';
-import { signPhotoPaths } from '@/lib/storage';
+import { signPhotoPaths } from '@/lib/photoAccess';
 import { LISTING_EXPIRY } from '@/lib/config';
 import { diffInDays } from '@/lib/date';
 import { isVisibleInSearch } from '@/lib/listingStateMachine';
@@ -198,13 +198,14 @@ class SupabaseRepository implements Repository {
     if (filter?.excludeId) query = query.neq('id', filter.excludeId);
     if (filter?.publicOnly) query = query.eq('status', 'active').gt('expires_at', new Date().toISOString());
     query = query.order('created_at', { ascending: false }).limit(filter?.limit ?? 50);
-    const [listingsResult, citiesResult, neighborhoodsResult] = await Promise.all([
-      query,
-      this.getCities().then(items => ({data:items.map(item=>({...item,is_university_city:item.isUniversityCity})),error:null})),
-      this.getNeighborhoods().then(items => ({ data: items.map(item => ({...item, city_id: item.cityId})), error: null })),
-    ]);
-
+    const listingsResult = await query;
     if (listingsResult.error) throw listingsResult.error;
+    if (!listingsResult.data?.length) return [];
+    const neighborhoodIds = [...new Set(listingsResult.data.map(row => row.neighborhood_id).filter(Boolean))];
+    const [citiesResult, neighborhoodsResult] = await Promise.all([
+      this.getCities().then(items => ({ data: items.map(item => ({ ...item, is_university_city: item.isUniversityCity })), error: null })),
+      neighborhoodIds.length ? supabase.from('neighborhoods').select('id,city_id,slug,name,lat,lng').in('id', neighborhoodIds) : Promise.resolve({ data: [], error: null }),
+    ]);
     if (citiesResult.error) throw citiesResult.error;
     if (neighborhoodsResult.error) throw neighborhoodsResult.error;
     const ownerIds = [...new Set((listingsResult.data ?? []).map(row => row.owner_id))];
@@ -258,10 +259,11 @@ class SupabaseRepository implements Repository {
   }
 
   async getNeighborhoods(cityId?: string): Promise<Neighborhood[]> {
-    const items = await referenceCache('neighborhoods',async()=>{
+    const items = await referenceCache('neighborhoods/' + (cityId ?? 'all'),async()=>{
     const rows: NeighborhoodRow[] = [];
     for (let offset = 0; ; offset += 1000) {
       let query = supabase.from('neighborhoods').select('*').order('id').range(offset, offset + 999);
+      if (cityId) query = query.eq('city_id', cityId);
       const { data, error } = await query;
       if (error) throw error;
       rows.push(...(data ?? []) as NeighborhoodRow[]);
@@ -273,8 +275,10 @@ class SupabaseRepository implements Repository {
   }
 
   async getUniversities(cityId?: string): Promise<University[]> {
-    const items = await referenceCache('universities',async()=>{
-    const { data, error } = await supabase.from('universities').select('*');
+    const items = await referenceCache('universities/' + (cityId ?? 'all'),async()=>{
+    let query = supabase.from('universities').select('*');
+    if (cityId) query = query.eq('city_id', cityId);
+    const { data, error } = await query;
     if (error) throw error;
     const rows = (data ?? []) as UniversityRow[];
     return rows.map((row) => ({

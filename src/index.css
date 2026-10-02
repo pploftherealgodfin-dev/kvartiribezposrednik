@@ -1,13 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Literata:wght@400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap');
+@import '@fontsource-variable/onest/wght.css';
+@import '@fontsource-variable/literata/wght.css';
+@import './styles/icons.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-heading: 'Literata', Georgia, 'Times New Roman', serif;
-  --font-body: 'Onest', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-label: 'Onest', system-ui, sans-serif;
+  --font-heading: 'Literata Variable', Georgia, 'Times New Roman', serif;
+  --font-body: 'Onest Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-label: 'Onest Variable', system-ui, sans-serif;
 
   /* background - warm ivory */
   --background-50: 0.986 0.007 92;

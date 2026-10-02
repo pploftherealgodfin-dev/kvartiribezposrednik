@@ -17,6 +17,7 @@ export { default as AdminUsers } from '../../src/pages/admin/components/AdminUse
 export { default as ModerationAction } from '../../src/components/feature/ModerationAction';
 export { default as ReportContent } from '../../src/pages/report/page';
 export { useFormSubmit } from '../../src/hooks/useFormSubmit';
+export { AppRoutes, navigatePromise } from '../../src/router';
 export * from '../../src/lib/repository/owner';
 export * from '../../src/lib/repository/reports';
 export * from '../../src/lib/searchParams';

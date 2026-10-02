@@ -5,6 +5,9 @@ export const ruse: CityContent = {
   name: 'Русе',
   inPhrase: 'в Русе',
   region: 'Русенска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Ruse_Bulgaria_center.jpg/1920px-Ruse_Bulgaria_center.jpg',
+  heroImageCredit: 'Снимка: Commentatora123, Wikimedia Commons',
   intro:
     'Русе е най-големият град на река Дунав и има собствен университет, който привлича студенти от целия регион. Наемният пазар тук е спокоен и предвидим — подходящ както за студенти, така и за семейства.',
   about: [

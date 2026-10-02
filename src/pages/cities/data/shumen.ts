@@ -5,6 +5,9 @@ export const shumen: CityContent = {
   name: 'Шумен',
   inPhrase: 'в Шумен',
   region: 'Шуменска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Shumen%2C_Bulgaria_-_panoramio_%2810%29.jpg/1920px-Shumen%2C_Bulgaria_-_panoramio_%2810%29.jpg',
+  heroImageCredit: 'Снимка: karel291, Wikimedia Commons',
   intro:
     'Шумен е университетски град в Североизточна България с дълга история и спокоен ритъм. Търсенето на наеми идва основно от студенти, а обявите са директно от собственик.',
   about: [

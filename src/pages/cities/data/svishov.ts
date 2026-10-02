@@ -5,6 +5,9 @@ export const svishov: CityContent = {
   name: 'Свищов',
   inPhrase: 'в Свищов',
   region: 'Великотърновска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Svishtov%2C_Bulgaria_2010.jpg/1920px-Svishtov%2C_Bulgaria_2010.jpg',
+  heroImageCredit: 'Снимка: Спасимир, Wikimedia Commons',
   intro:
     'Свищов е малък дунавски град с голяма студентска общност заради икономическия университет. Тук наемният пазар е силно свързан с учебната година, а обявите са директно от собственик.',
   about: [

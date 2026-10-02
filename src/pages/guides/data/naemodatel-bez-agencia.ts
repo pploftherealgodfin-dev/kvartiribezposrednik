@@ -9,6 +9,9 @@ export const naemodatelBezAgencia: Guide = {
   readingMinutes: 7,
   publishedAt: '2026-09-10',
   updatedAt: '2026-10-01',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Empty_apartment_living_room.jpg/1920px-Empty_apartment_living_room.jpg',
+  heroImageCredit: 'Снимка: Downtowngal, Wikimedia Commons',
   keywords: ['собственик', 'отдаване под наем', 'без агенция', 'договор', 'наемател'],
   sections: [
     {

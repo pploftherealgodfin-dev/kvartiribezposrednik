@@ -11,6 +11,10 @@ export default function ArticleCard({ guide }: ArticleCardProps) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-lg border border-background-200 bg-background-50 transition-colors hover:border-primary-400">
+      {guide.heroImage && <>
+        <Link to={`/saveti/${guide.slug}`} tabIndex={-1} aria-hidden="true" className="block aspect-[16/10] overflow-hidden bg-background-100"><img src={guide.heroImage} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform group-hover:scale-105" /></Link>
+        {guide.heroImageCredit && <p className="px-4 pt-2 text-[10px] leading-snug text-foreground-600 md:px-5">{guide.heroImageCredit}</p>}
+      </>}
 
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div className="flex flex-wrap items-center gap-2">

@@ -5,6 +5,9 @@ export const plovdiv: CityContent = {
   name: 'Пловдив',
   inPhrase: 'в Пловдив',
   region: 'Пловдивска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Plovdiv_-_Roman_Amphitheatre_-_panoramio.jpg/1920px-Plovdiv_-_Roman_Amphitheatre_-_panoramio.jpg',
+  heroImageCredit: 'Снимка: diego_cue, Wikimedia Commons',
   intro:
     'Пловдив е вторият по големина наемен пазар и е особено активен заради университетите и бизнеса. Тук можеш да намериш от стая в центъра до просторен апартамент в спокоен квартал — всичко директно от собственик, без комисион.',
   about: [

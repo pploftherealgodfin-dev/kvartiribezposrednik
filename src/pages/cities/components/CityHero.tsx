@@ -13,6 +13,7 @@ export default function CityHero({ city, listingCount }: CityHeroProps) {
   return (
     <section className="relative isolate w-full overflow-hidden">
       <div className="absolute inset-0 bg-primary-900">
+        {city.heroImage && <img src={city.heroImage} alt="" className="h-full w-full object-cover" fetchPriority="high" decoding="async" />}
         <div className="absolute inset-0 bg-gradient-to-b from-foreground-950/60 via-foreground-950/45 to-foreground-950/70" />
       </div>
 
@@ -67,6 +68,7 @@ export default function CityHero({ city, listingCount }: CityHeroProps) {
           </span>
         </div>
       </div>
+      {city.heroImage && city.heroImageCredit && <p className="absolute bottom-2 right-3 z-10 rounded bg-foreground-950/70 px-2 py-1 text-[10px] leading-snug text-background-50 md:bottom-3 md:right-4">{city.heroImageCredit}</p>}
     </section>
   );
 }

@@ -5,6 +5,9 @@ export const velikoTarnovo: CityContent = {
   name: 'Велико Търново',
   inPhrase: 'във Велико Търново',
   region: 'Великотърновска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/View_over_Fortress_-_Veliko_Tarnovo_-_Bulgaria_%2843199853991%29.jpg/1920px-View_over_Fortress_-_Veliko_Tarnovo_-_Bulgaria_%2843199853991%29.jpg',
+  heroImageCredit: 'Снимка: Adam Jones, Wikimedia Commons',
   intro:
     'Велико Търново е историческа столица и university град с подчертано студентско присъствие. Заради университета търсенето на стаи и малки апартаменти е постоянно през учебната година, а обявите са директно от собственик.',
   about: [

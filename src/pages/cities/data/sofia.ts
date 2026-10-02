@@ -5,6 +5,9 @@ export const sofia: CityContent = {
   name: 'София',
   inPhrase: 'в София',
   region: 'Софийска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/72/A_view_of_Sofia_city_center..JPG/1920px-A_view_of_Sofia_city_center..JPG',
+  heroImageCredit: 'Снимка: Rudolphfurtado, Wikimedia Commons (CC0)',
   intro:
     'София държи най-големия наемен пазар в страната. Тук се търсят едновременно студентски стаи, малки апартаменти за млади специалисти и семейни жилища в по-спокойни квартали. Платформата е за директен контакт без посредническа комисион. Провери статуса на конкретната обява и уточни условията преди оглед.',
   about: [

@@ -9,6 +9,9 @@ export const kvartiraZaStudenti: Guide = {
   readingMinutes: 6,
   publishedAt: '2026-09-18',
   updatedAt: '2026-10-01',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Female_student_writing_and_studying_at_dorm_room_desk.jpg/1920px-Female_student_writing_and_studying_at_dorm_room_desk.jpg',
+  heroImageCredit: 'Снимка: English106, Wikimedia Commons',
   keywords: ['студенти', 'квартира', 'наем', 'университет', 'съквартиранти'],
   sections: [
     {

@@ -5,6 +5,9 @@ export const burgas: CityContent = {
   name: 'Бургас',
   inPhrase: 'в Бургас',
   region: 'Бургаска област',
+  heroImage:
+    'https://upload.wikimedia.org/wikipedia/commons/1/18/View_of_Burgas11.jpg',
+  heroImageCredit: 'Снимка: Balkanregion, Wikimedia Commons',
   intro:
     'Бургас съчетава спокоен крайбрежен начин на живот с работещ градски пазар на наеми. Тук се търсят както жилища за млади семейства, така и апартаменти за студенти от близките университети — директно от собственик.',
   about: [

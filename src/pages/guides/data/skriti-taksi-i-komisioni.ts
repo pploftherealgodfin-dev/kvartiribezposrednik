@@ -9,6 +9,9 @@ export const skritiTaksiIKomisioni: Guide = {
   readingMinutes: 6,
   publishedAt: '2026-09-02',
   updatedAt: '2026-10-01',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/65/Euro_coins_and_banknotes.jpg/1920px-Euro_coins_and_banknotes.jpg',
+  heroImageCredit: 'Снимка: Avij, Wikimedia Commons (public domain)',
   keywords: ['комисион', 'такси', 'наем', 'депозит', 'разходи'],
   sections: [
     {

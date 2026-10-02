@@ -9,6 +9,9 @@ export const kakDaRazpoznamBroker: Guide = {
   readingMinutes: 6,
   publishedAt: '2026-08-12',
   updatedAt: '2026-10-01',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/Apartment_Living_Room_1_2018-09-28.jpg/1920px-Apartment_Living_Room_1_2018-09-28.jpg',
+  heroImageCredit: 'Снимка: Fastily, Wikimedia Commons',
   keywords: ['брокер', 'собственик', 'наем без посредник', 'комисион', 'оглед'],
   sections: [
     {

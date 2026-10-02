@@ -5,6 +5,9 @@ export const varna: CityContent = {
   name: 'Варна',
   inPhrase: 'във Варна',
   region: 'Варненска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c9/Varna%2C_Bulgaria_-_panoramio_%2825%29.jpg/1920px-Varna%2C_Bulgaria_-_panoramio_%2825%29.jpg',
+  heroImageCredit: 'Снимка: karel291, Wikimedia Commons',
   intro:
     'Варна е най-големият град по Черноморието и привлича студенти, млади семейства и хора, работещи в туризма, логистиката и технологиите. Наемите тук се търсят целогодишно, а летният сезон променя предлагането.',
   about: [

@@ -9,6 +9,9 @@ export const otOgledDoDogovor: Guide = {
   readingMinutes: 7,
   publishedAt: '2026-08-20',
   updatedAt: '2026-10-01',
+  heroImage:
+    'https://upload.wikimedia.org/wikipedia/commons/b/b3/Lease.jpg',
+  heroImageCredit: 'Снимка: Harshithapa436, Wikimedia Commons',
   keywords: ['оглед', 'договор за наем', 'депозит', 'наем без посредник', 'документи'],
   sections: [
     {

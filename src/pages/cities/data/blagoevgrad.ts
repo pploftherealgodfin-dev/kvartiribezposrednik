@@ -5,6 +5,9 @@ export const blagoevgrad: CityContent = {
   name: 'Благоевград',
   inPhrase: 'в Благоевград',
   region: 'Благоевградска област',
+  heroImage:
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Blagoevgrad_Panorama_01.jpg/1920px-Blagoevgrad_Panorama_01.jpg',
+  heroImageCredit: 'Снимка: Михал Орела, Wikimedia Commons',
   intro:
     'Благоевград е млад град с две големи университетски общности и забележително студентско присъствие. Търсенето на жилища е силно през учебната година, а обявите тук са директно от собственик.',
   about: [

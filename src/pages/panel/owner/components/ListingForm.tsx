@@ -316,7 +316,7 @@ export default function ListingForm({
         <div className="md:col-span-2">
           <span className={labelCls}>{t('owner.form.photos')}</span>
           <div className="mt-1.5">
-            <PhotoPicker files={photos} onChange={setPhotos} disabled={busy} />
+            <PhotoPicker photos={photos} onChange={setPhotos} disabled={busy} />
           </div>
         </div>
       </div>

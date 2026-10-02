@@ -5,8 +5,6 @@ export const staraZagora: CityContent = {
   name: 'Стара Загора',
   inPhrase: 'в Стара Загора',
   region: 'Старозагорска област',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20wide%20tree-lined%20boulevard%20cityscape%20of%20Stara%20Zagora%20Bulgaria%20at%20golden%20hour%2C%20warm%20cream%20and%20soft%20green%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-stara-zagora-v1&orientation=landscape',
   intro:
     'Стара Загора е един от най-зелените градове в България и има силен университет, който привлича студенти от региона. Наемите тук са достъпни, а обявите са директно от собственици.',
   about: [

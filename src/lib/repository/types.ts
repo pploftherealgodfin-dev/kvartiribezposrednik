@@ -10,7 +10,7 @@ export interface SearchParams {
 }
 
 /**
- * Единственият вход към данните. Днес е mock, утре — Supabase.
+ * Единственият вход към реалните данни в Supabase. Без демонстрационен fallback.
  * Страниците никога не говорят директно с базата, само с този интерфейс.
  */
 export interface Repository {

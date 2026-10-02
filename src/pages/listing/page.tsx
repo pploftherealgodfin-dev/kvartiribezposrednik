@@ -231,7 +231,7 @@ export default function ListingDetailPage() {
 
               <p className="mt-5 text-sm font-semibold text-foreground-900">{owner.name}</p>
               <p className="text-xs text-foreground-500">
-                {badges.verifiedOwner ? t('badges.verifiedOwner') : t('home.trustBadge')}
+                {badges.verifiedOwner ? t('badges.verifiedOwner') : t('badges.unverifiedOwner')}
               </p>
 
               <button

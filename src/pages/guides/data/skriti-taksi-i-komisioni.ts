@@ -9,8 +9,6 @@ export const skritiTaksiIKomisioni: Guide = {
   readingMinutes: 6,
   publishedAt: '2026-09-02',
   updatedAt: '2026-10-01',
-  heroImage:
-    'https://readdy.ai/api/search-image?query=Calculator%20with%20euro%20banknotes%20and%20a%20notebook%20on%20a%20clean%20white%20desk%2C%20top%20down%20minimal%20composition%2C%20soft%20shadows%2C%20warm%20neutral%20color%20palette%2C%20editorial%20finance%20lifestyle%20photography%2C%20calm%20and%20clear%20mood&width=1200&height=750&seq=guide-fees-03&orientation=landscape',
   keywords: ['комисион', 'такси', 'наем', 'депозит', 'разходи'],
   sections: [
     {

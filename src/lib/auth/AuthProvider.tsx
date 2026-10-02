@@ -39,8 +39,6 @@ async function ensureProfile(user: User): Promise<void> {
   const name =
     (typeof metadata.full_name === 'string' && metadata.full_name) ||
     (typeof metadata.name === 'string' && metadata.name) ||
-    user.email ||
-    user.phone ||
     'Потребител';
 
   await supabase
@@ -56,7 +54,7 @@ async function ensureProfile(user: User): Promise<void> {
     await supabase
       .from('profile_contacts')
       .upsert(
-        { id: user.id, phone, email, phone_verified: Boolean(phone) },
+        { id: user.id, phone, email },
         { onConflict: 'id' },
       );
   }

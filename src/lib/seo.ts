@@ -12,12 +12,8 @@ export interface PageMeta {
   robots?: string;
 }
 
-/** Официално лого на бранда — ползва се за favicon, социални мрежи и онлайн идентичност. */
-export const BRAND_LOGO =
-  'https://storage.helloreaddy.io/project_files/ec55975f-5ed3-4d5b-8aa1-af26ca453ac6/7d9d0eb4-5a72-4191-8b88-a1adb8ecc3a0_compressed_logo-og-image-favicon-.webp';
-
-/** Снимка по подразбиране за социални мрежи (OpenGraph / Twitter). */
-export const DEFAULT_OG_IMAGE = BRAND_LOGO;
+/** Няма демонстрационна снимка по подразбиране. */
+export const DEFAULT_OG_IMAGE = undefined;
 
 export const SITE_LOCALE = 'bg_BG';
 
@@ -61,12 +57,14 @@ export function applyPageMeta(meta: PageMeta): void {
   upsertMeta('property', 'og:site_name', 'Квартири под наем без посредник');
   upsertMeta('property', 'og:locale', SITE_LOCALE);
   upsertMeta('property', 'og:type', meta.ogType ?? 'website');
-  upsertMeta('property', 'og:image', image);
+  if (image) upsertMeta('property', 'og:image', image);
+  else document.head.querySelector('meta[property="og:image"]')?.remove();
 
   // Twitter
-  upsertMeta('name', 'twitter:card', 'summary_large_image');
+  upsertMeta('name', 'twitter:card', image ? 'summary_large_image' : 'summary');
   upsertMeta('name', 'twitter:title', meta.title);
-  upsertMeta('name', 'twitter:image', image);
+  if (image) upsertMeta('name', 'twitter:image', image);
+  else document.head.querySelector('meta[name="twitter:image"]')?.remove();
 
   if (meta.description) {
     upsertMeta('name', 'description', meta.description);
@@ -159,7 +157,7 @@ export function articleJsonLd(article: {
   title: string;
   description: string;
   path: string;
-  image: string;
+  image?: string;
   datePublished: string;
   dateModified: string;
   keywords: string[];
@@ -169,7 +167,7 @@ export function articleJsonLd(article: {
     '@type': 'Article',
     headline: article.title,
     description: article.description,
-    image: [absoluteUrl(article.image)],
+    ...(article.image ? { image: [absoluteUrl(article.image)] } : {}),
     datePublished: article.datePublished,
     dateModified: article.dateModified,
     inLanguage: 'bg-BG',

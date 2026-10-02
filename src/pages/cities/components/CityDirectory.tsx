@@ -20,14 +20,6 @@ export default function CityDirectory({ cities, title, subtitle }: CityDirectory
             to={`/kvartiri-bez-posrednik/${city.slug}`}
             className="group flex items-center gap-4 overflow-hidden rounded-lg border border-background-200 bg-background-50 p-3 transition-colors hover:border-primary-300"
           >
-            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-background-200">
-              <img
-                src={city.heroImage}
-                alt={`Квартири под наем без посредник ${city.inPhrase}`}
-                title={`Квартири под наем без посредник ${city.inPhrase}`}
-                className="h-full w-full object-cover object-top"
-              />
-            </div>
             <div className="min-w-0">
               <p className="truncate font-heading text-sm font-bold text-foreground-950 transition-colors group-hover:text-primary-700">
                 Квартири в {city.name}

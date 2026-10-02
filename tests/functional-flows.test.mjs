@@ -33,6 +33,7 @@ beforeEach(async()=>{
   if(root) await act(async()=>root.unmount());
   document.getElementById('test-root').innerHTML=''; root=createRoot(document.getElementById('test-root'));
   window.localStorage.clear(); window.sessionStorage.clear(); api.resetBackend(); lastAuth=null; lastFavorites=null;
+  api.setListingDraftSession('alice');
 });
 after(async()=>{ await act(async()=>root.unmount()); dom.window.close(); });
 
@@ -282,7 +283,7 @@ test('conversation drafts survive switching threads and ambiguous sends reuse th
 
 const catalog={cities:[{id:'sofia',slug:'sofia',name:'София',region:'София'}],neighborhoods:[],universities:[]};
 async function completeListingDetails(){
-  await click(document.getElementById('nf-city')); await click(document.getElementById('nf-city-option-1')); await submit(document.querySelector('form'));
+  await click(document.getElementById('nf-city')); await click(document.getElementById('nf-city-option-1'));
   await fill(document.getElementById('nf-title'),'Светло студио под наем');
   await fill(document.getElementById('nf-description'),'Жилището има отделна кухня и удобен градски транспорт. Огледи по уговорка.');
   for(const [id,value] of [['nf-price','450.50'],['nf-area','38'],['nf-rooms','1'],['nf-floor','0'],['nf-deposit','0'],['nf-available','2026-10-10']]) await fill(document.getElementById(id),value);
@@ -297,7 +298,7 @@ async function selectTestPhoto(){
   window.HTMLCanvasElement.prototype.getContext=()=>({drawImage:()=>{}});
   window.HTMLCanvasElement.prototype.toBlob=callback=>callback(new Blob([new Uint8Array([1,2,3])],{type:'image/png'}));
   try{
-    const input=document.querySelector('input[type="file"]'); Object.defineProperty(input,'files',{configurable:true,value:[new File([new Uint8Array([1,2,3])],'photo.png',{type:'image/png'})]});
+    const input=document.querySelector('input[type="file"]'); Object.defineProperty(input,'files',{configurable:true,value:[new File([pngHeader(640,480)],'photo.png',{type:'image/png'})]});
     await act(async()=>input.dispatchEvent(new Event('change',{bubbles:true}))); await flush();
   }finally{globalThis.Image=originalImage;URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;window.HTMLCanvasElement.prototype.getContext=originalContext;window.HTMLCanvasElement.prototype.toBlob=originalBlob;}
 }
@@ -345,4 +346,177 @@ test('a lost listing-insert response is recovered and changed retry data cannot 
   assert.equal((await api.createOwnerListing('alice',input,id)).id,id);
   await assert.rejects(api.createOwnerListing('alice',{...input,priceEur:500},id),/предишните данни/);
   assert.equal(api.calls.filter(c=>c.kind==='insert').length,1);
+});
+
+function pngHeader(width, height) {
+  const bytes=new Uint8Array(33), view=new DataView(bytes.buffer);
+  bytes.set([137,80,78,71,13,10,26,10]); view.setUint32(8,13); bytes.set([73,72,68,82],12);
+  view.setUint32(16,width); view.setUint32(20,height); bytes[24]=8; bytes[25]=2;
+  return bytes;
+}
+function webpHeader(width,height) {
+  const bytes=new Uint8Array(26),view=new DataView(bytes.buffer),encoder=new TextEncoder();
+  bytes.set(encoder.encode('RIFF'));view.setUint32(4,18,true);bytes.set(encoder.encode('WEBPVP8L'),8);
+  view.setUint32(16,5,true);bytes[20]=47;view.setUint32(21,(width-1)|((height-1)<<14),true);return bytes;
+}
+test('file inspection rejects disguised active content, mismatched types and malformed lengths',()=>{
+  for(const mime of ['image/jpeg','image/png','image/webp']) assert.throws(()=>api.inspectPhotoBytes(new TextEncoder().encode('<svg onload="alert(1)"></svg>'),mime));
+  assert.throws(()=>api.inspectPhotoBytes(pngHeader(640,480),'image/jpeg'));
+  const bad=pngHeader(640,480);new DataView(bad.buffer).setUint32(8,0xffffffff);assert.throws(()=>api.inspectPhotoBytes(bad,'image/png'));
+  const webp=webpHeader(640,480);new DataView(webp.buffer).setUint32(16,0xffffffff,true);assert.throws(()=>api.inspectPhotoBytes(webp,'image/webp'));
+});
+test('JPEG, PNG and WebP headers expose bounded dimensions before decoding',()=>{
+  assert.deepEqual(api.inspectPhotoBytes(pngHeader(640,480),'image/png'),{width:640,height:480});
+  assert.deepEqual(api.inspectPhotoBytes(webpHeader(1920,1080),'image/webp'),{width:1920,height:1080});
+  const jpeg=new Uint8Array([255,216,255,192,0,8,8,1,224,2,128,1]);
+  assert.deepEqual(api.inspectPhotoBytes(jpeg,'image/jpeg'),{width:640,height:480});
+  for(const bytes of [pngHeader(100000,1),pngHeader(8000,8000)]) assert.throws(()=>api.inspectPhotoBytes(bytes,'image/png'));
+  assert.throws(()=>api.inspectPhotoBytes(webpHeader(16000,16000),'image/webp'));
+});
+test('oversized pixel headers and empty files are rejected before allocating an Image',async()=>{
+  const original=globalThis.Image;let decoded=0;globalThis.Image=class{constructor(){decoded++;}};
+  try {
+    await assert.rejects(api.prepareListingPhoto(new File([pngHeader(12000,12000)],'large.png',{type:'image/png'})));
+    await assert.rejects(api.prepareListingPhoto(new File([],'empty.png',{type:'image/png'})));
+    assert.equal(decoded,0);assert.equal(api.calls.length,0);
+  } finally {globalThis.Image=original;}
+});
+test('animated uploads are rejected before rasterizing the first frame',()=>{
+  const bytes=new Uint8Array(45);bytes.set(pngHeader(640,480));const view=new DataView(bytes.buffer);
+  view.setUint32(33,0);bytes.set(new TextEncoder().encode('acTL'),37);
+  assert.throws(()=>api.inspectPhotoBytes(bytes,'image/png'),/анимация/);
+  const webp=new Uint8Array(30);webp.set(new TextEncoder().encode('RIFF'));new DataView(webp.buffer).setUint32(4,22,true);
+  webp.set(new TextEncoder().encode('WEBPVP8X'),8);new DataView(webp.buffer).setUint32(16,10,true);webp[20]=2;
+  assert.throws(()=>api.inspectPhotoBytes(webp,'image/webp'),/анимация/);
+});
+test('public configuration rejects server keys, user tokens and insecure endpoints',()=>{
+  const jwt=role=>'eyJhbGciOiJIUzI1NiJ9.'+Buffer.from(JSON.stringify({role})).toString('base64url')+'.fixture';
+  assert.equal(api.validatePublicSupabaseConfig('https://project.supabase.co',jwt('anon')),'https://project.supabase.co');
+  assert.equal(api.validatePublicSupabaseConfig('https://project.supabase.co','sb_publishable_fixture'),'https://project.supabase.co');
+  for(const key of ['sb_secret_fixture',jwt('service_role'),jwt('authenticated'),'garbage','']) assert.throws(()=>api.validatePublicSupabaseConfig('https://project.supabase.co',key));
+  for(const url of ['http://project.supabase.co','https://user:pass@project.supabase.co','https://project.supabase.co/?key=x','javascript:alert(1)','ftp://localhost']) assert.throws(()=>api.validatePublicSupabaseConfig(url,jwt('anon'),true));
+  assert.equal(api.validatePublicSupabaseConfig('http://localhost:54321',jwt('anon'),true),'http://localhost:54321');
+});
+const savedDraftValue=()=>({draft:{...api.emptyListingDraft(),cityId:'sofia',title:'Светло студио под наем',description:'Жилището е обзаведено и има отделна кухня и добър градски транспорт.',price:'450',area:'38'},step:2,requestId:'',createdId:''});
+test('draft storage is scoped to the current account, expires and never saves photo or contact fields',()=>{
+  const value=savedDraftValue();value.photos=['blob:private'];value.draft.email='private@example.invalid';
+  assert.equal(api.saveListingDraft('alice',value),true);
+  const serialized=window.sessionStorage.getItem('kb_listing_draft_v1');assert.ok(!serialized.includes('blob:private'));assert.ok(!serialized.includes('private@example.invalid'));
+  const draft=api.readListingDraft('alice');assert.equal(draft.draft.title,value.draft.title);
+  assert.equal(api.readListingDraft('bob'),null);
+  assert.equal(api.readListingDraft('alice',draft.updatedAt+api.DRAFT_TTL_MS),null);assert.equal(window.sessionStorage.length,0);
+  api.saveListingDraft('alice',value);api.setListingDraftSession('bob');assert.equal(window.sessionStorage.length,0);
+  api.saveListingDraft('bob',{...value,draft:{...value.draft,title:'Обява на Боб'}});
+  assert.equal(api.saveListingDraft('alice',value),false);api.clearListingDraft('alice');assert.equal(api.readListingDraft('bob').draft.title,'Обява на Боб');
+  api.setListingDraftSession(null);assert.equal(window.sessionStorage.length,0);assert.equal(api.saveListingDraft('bob',value),false);
+});
+test('malformed or future-dated saved drafts are discarded without trusting arbitrary fields',()=>{
+  for(const value of [{version:1,ownerId:'alice',updatedAt:Date.now()+120000,...savedDraftValue()}, {version:1,ownerId:'alice',updatedAt:Date.now(),...savedDraftValue(),draft:{title:{html:'attack'}}}, {version:1,ownerId:'alice',updatedAt:Date.now(),...savedDraftValue(),requestId:'not-a-uuid'}]){
+    window.sessionStorage.setItem('kb_listing_draft_v1',JSON.stringify(value));assert.equal(api.readListingDraft('alice'),null);assert.equal(window.sessionStorage.length,0);
+  }
+});
+test('the three-step form restores text but requires photos and a new review before publishing',async()=>{
+  api.saveListingDraft('alice',savedDraftValue());
+  await render(h(api.ListingForm,{ownerId:'alice',...catalog,onCreated:()=>{},onCancel:()=>{}}));await flush();
+  assert.equal(document.querySelectorAll('ol[aria-label="Стъпки за качване"] li').length,3);
+  assert.equal(document.getElementById('nf-title').value,'Светло студио под наем');assert.ok(text().includes('Възстановихме'));
+  assert.equal(document.querySelectorAll('img').length,0);
+  await submit(document.querySelector('form'));assert.equal(api.calls.filter(c=>c.kind==='insert').length,0);assert.equal(document.activeElement.id,'nf-photos');
+});
+test('a recorded publication survives reload as an existing record instead of a new submission',async()=>{
+  const id='018f2700-0000-4000-8000-000000000001';let canceled=0;
+  api.saveListingDraft('alice',{...savedDraftValue(),requestId:id,createdId:id});
+  await render(h(api.ListingForm,{ownerId:'alice',...catalog,onCreated:()=>assert.fail('not a new record'),onCancel:()=>{canceled++;}}));
+  assert.ok(text().includes('Обявата вече е записана'));await submit(document.querySelector('form'));assert.equal(canceled,1);assert.equal(api.calls.length,0);
+});
+test('a lost create response retains its UUID through reload and retries without inserting twice',async()=>{
+  let saved=null,failedRead=true,completed=0;
+  api.handlers.query=call=>{
+    if(call.name==='listings'&&call.kind==='insert'){assert.equal(saved,null);saved=call.args;return{data:null,error:{message:'connection lost'}};}
+    if(call.name==='listings')return{data:saved,error:saved&&failedRead?{message:'connection lost'}:null};
+    return{data:null,error:null};
+  };
+  await render(h(api.ListingForm,{ownerId:'alice',...catalog,onCreated:()=>{completed++;},onCancel:()=>{}}));
+  await completeListingDetails();await selectTestPhoto();await submit(document.querySelector('form'));await click(document.querySelector('fieldset:not([hidden]) input[type="checkbox"]'));await submit(document.querySelector('form'));await flush();
+  assert.equal(completed,0);assert.equal(api.readListingDraft('alice').requestId,saved.id);
+  await render(null);failedRead=false;
+  await render(h(api.ListingForm,{ownerId:'alice',...catalog,onCreated:()=>{completed++;},onCancel:()=>{}}));await flush();
+  await selectTestPhoto();await submit(document.querySelector('form'));await click(document.querySelector('fieldset:not([hidden]) input[type="checkbox"]'));await submit(document.querySelector('form'));await flush();
+  assert.equal(completed,1);assert.equal(api.calls.filter(c=>c.name==='listings'&&c.kind==='insert').length,1);assert.equal(api.readListingDraft('alice'),null);
+});
+test('auth refresh preserves a draft but sign-out clears it and fences old saves',async()=>{
+  api.handlers.auth=()=>({data:{session:{user:user('alice')}},error:null});
+  api.handlers.query=()=>({data:{id:'alice',role:'owner',name:'alice',owner_verified:false},error:null});
+  await render(h(api.AuthProvider,null,h(Observe)));await flush();api.saveListingDraft('alice',savedDraftValue());
+  await act(async()=>api.emitAuth({user:user('alice')},'TOKEN_REFRESHED'));assert.ok(api.readListingDraft('alice'));
+  await act(async()=>api.emitAuth(null,'SIGNED_OUT'));assert.equal(window.sessionStorage.length,0);assert.equal(api.saveListingDraft('alice',savedDraftValue()),false);
+});
+test('the home form requests only the selected city and ignores late results from another city',async()=>{
+  const old=deferred();
+  const cities=[{id:'city-home-sofia',slug:'sofia',name:'София'},{id:'city-home-varna',slug:'varna',name:'Варна'}];
+  api.handlers.query=call=>{
+    const city=eq(call,'city_id');assert.ok(city,'geographic reads are city scoped');
+    if(city==='city-home-sofia')return old.promise;
+    return{data:[{id:call.name+'-varna',city_id:city,slug:'varna-location',name:call.name==='neighborhoods'?'Квартал Варна':'Университет Варна',lat:null,lng:null}],error:null};
+  };
+  await render(h(api.HomeSearchForm,{cities}));assert.equal(api.calls.length,0);
+  await click(document.getElementById('home-search-city'));await click([...document.querySelectorAll('[role="option"]')].find(item=>item.textContent==='София'));
+  assert.equal(document.getElementById('home-search-city').value,'София');assert.equal(document.getElementById('home-search-neighborhood').disabled,true);
+  await click(document.getElementById('home-search-city'));await click([...document.querySelectorAll('[role="option"]')].find(item=>item.textContent==='Варна'));await flush();
+  assert.equal(document.getElementById('home-search-neighborhood').placeholder,'Всички квартали');assert.equal(document.getElementById('home-search-neighborhood').disabled,false);
+  await act(async()=>old.resolve({data:[{id:'old',city_id:'city-home-sofia',slug:'old',name:'Стар квартал София',lat:null,lng:null}],error:null}));await flush();
+  await click(document.getElementById('home-search-neighborhood'));assert.ok(text().includes('Квартал Варна'));assert.ok(!text().includes('Стар квартал'));
+});
+test('off-screen latest listings do not fetch until intersection and empty results skip all neighborhood reads',async()=>{
+  const original=globalThis.IntersectionObserver;let observe,disconnected=0;
+  globalThis.IntersectionObserver=class{constructor(callback){observe=callback;}observe(){}disconnect(){disconnected++;}};
+  api.handlers.query=()=>({data:[],error:null});
+  try{
+    await render(h(api.LatestListingsSection),auth(null));assert.equal(api.calls.length,0);
+    await act(async()=>observe([{isIntersecting:false}]));assert.equal(api.calls.length,0);
+    await act(async()=>observe([{isIntersecting:true}]));await flush();await flush();
+    assert.equal(api.calls.filter(c=>c.name==='listings').length,1);assert.equal(api.calls.filter(c=>c.name==='neighborhoods').length,0);assert.ok(text().includes('Няма намерени обяви'));assert.ok(disconnected>0);
+  }finally{globalThis.IntersectionObserver=original;}
+});
+
+test('returning to listing details keeps prepared photo previews alive and changes require a fresh confirmation',async()=>{
+  const original=URL.revokeObjectURL, released=[];
+  URL.revokeObjectURL=value=>released.push(value);
+  try{
+    await render(h(api.ListingForm,{ownerId:'alice',...catalog,onCreated:()=>{},onCancel:()=>{}}));
+    await completeListingDetails();await selectTestPhoto();const cover=document.querySelector('img').src;
+    await click(button('Назад'));assert.equal(released.length,0);
+    await submit(document.querySelector('form'));await submit(document.querySelector('form'));
+    assert.equal(document.querySelector('fieldset:not([hidden]) img').src,cover);
+    await click(document.querySelector('fieldset:not([hidden]) input[type="checkbox"]'));
+    await click(button('Редактирай жилището'));await fill(document.getElementById('nf-price'),'460');
+    await submit(document.querySelector('form'));await submit(document.querySelector('form'));
+    assert.equal(document.querySelector('fieldset:not([hidden]) input[type="checkbox"]').checked,false);
+  }finally{URL.revokeObjectURL=original;}
+});
+test('a late publication callback cannot overwrite another account draft or upload its photos',async()=>{
+  const waiting=deferred();let inserted=null;
+  api.handlers.query=call=>{
+    if(call.name==='listings'&&call.kind==='insert'){inserted=call.args;return waiting.promise;}
+    return{data:call.name==='listings'?null:[],error:null};
+  };
+  await render(h(api.ListingForm,{ownerId:'alice',...catalog,onCreated:()=>assert.fail('old page callback'),onCancel:()=>{}}));
+  await completeListingDetails();await selectTestPhoto();await submit(document.querySelector('form'));await click(document.querySelector('fieldset:not([hidden]) input[type="checkbox"]'));await submit(document.querySelector('form'));assert.ok(inserted);
+  api.setListingDraftSession('bob');api.saveListingDraft('bob',{...savedDraftValue(),draft:{...savedDraftValue().draft,title:'Чернова на Боб'}});
+  await render(null);await act(async()=>waiting.resolve({data:null,error:null}));await flush();
+  assert.equal(api.readListingDraft('bob').draft.title,'Чернова на Боб');assert.equal(api.calls.filter(c=>c.kind==='storage'&&c.name==='upload').length,0);
+});
+
+test('logout removes an authorized private listing before passive effects can clear old state',async()=>{
+  const original=api.repository.getListingViewBySlug, pending=deferred(), snapshots=[];
+  const view={listing:{id:'private-listing',slug:'private',title:'PRIVATE LISTING TITLE',description:'PRIVATE LISTING DETAILS',status:'pending_review',type:'studio',cityId:'sofia',neighborhoodId:null,photos:[],priceEur:450,areaM2:38,rooms:1,floor:null,totalFloors:null,deposit:null,availableFrom:'2026-10-10',minTermMonths:1,furnished:true,petsAllowed:false,utilitiesIncluded:false,nearbyUniversityIds:[]},city:{id:'sofia',name:'София',slug:'sofia'},neighborhood:null,owner:{id:'alice',name:'Private owner name',verifiedOwner:false,memberSince:'2026-10-02'},badges:{verifiedOwner:false,isNew:false,isRented:false}};
+  let reads=0;api.repository.getListingViewBySlug=()=>++reads===1?Promise.resolve(view):pending.promise;
+  function Probe({actor}){React.useLayoutEffect(()=>{snapshots.push({actor,value:text()});},[actor]);return null;}
+  const page=actor=>h(React.Fragment,null,h(api.ListingDetailPage),h(Probe,{actor}));
+  try{
+    await render(page('alice'),auth('alice','owner'),'/obiava/private');await flush();assert.ok(text().includes('PRIVATE LISTING TITLE'));
+    await render(page('guest'),auth(null),'/obiava/private');
+    const guest=snapshots.find(item=>item.actor==='guest');assert.ok(guest);assert.ok(!guest.value.includes('PRIVATE LISTING TITLE'));assert.ok(!guest.value.includes('Private owner name'));
+    await act(async()=>pending.resolve(null));await flush();
+  }finally{api.repository.getListingViewBySlug=original;}
 });

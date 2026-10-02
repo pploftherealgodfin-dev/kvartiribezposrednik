@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { clearPendingRole, readPendingRole } from '@/lib/roles';
+import { setListingDraftSession } from '@/lib/listingDraftSession';
 import type { Role } from '@/lib/types';
 
 
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!active) return;
       observedAuthEvent = true;
       const nextIdentity = nextSession?.user.id ?? null;
+      setListingDraftSession(nextIdentity);
       if (identity !== nextIdentity) setProfileState({ key: '', profile: null, error: false });
       identity = nextIdentity;
       // Keep this callback synchronous: awaiting Supabase here can deadlock Auth.
@@ -61,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(({ data }) => {
         if (!active || observedAuthEvent) return;
         identity = data.session?.user.id ?? null;
+        setListingDraftSession(identity);
         setSession(data.session);
         setLoading(false);
       })
@@ -138,6 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
+    setListingDraftSession(null);
     setSession(null); setProfileState({ key: '', profile: null, error: false });
   }, []);
 

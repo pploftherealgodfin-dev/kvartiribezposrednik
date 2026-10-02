@@ -73,6 +73,7 @@ export default function PhotoSortGrid({ items, onReorder, onRemove, disabled }: 
               src={item.url}
               alt=""
               draggable={false}
+              width={160} height={100} loading="lazy" decoding="async"
               className="h-20 w-full object-cover object-top"
             />
 

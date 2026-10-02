@@ -59,3 +59,4 @@ export function LegalSection({ title, children }: LegalSectionProps) {
     </section>
   );
 }
+import '@/i18n/legal';

@@ -19,6 +19,7 @@ interface PhotoPickerProps {
 const ERROR_KEY: Record<PhotoValidationError, string> = {
   unsupportedType: 'owner.form.photoBadType',
   tooLarge: 'owner.form.photoTooLarge',
+  empty: 'owner.form.photoBadType',
 };
 
 export default function PhotoPicker({ photos, onChange, disabled, onProcessingChange }: PhotoPickerProps) {
@@ -26,6 +27,7 @@ export default function PhotoPicker({ photos, onChange, disabled, onProcessingCh
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
   const processingRef = useRef(false);
   const mounted = useRef(true);
 
@@ -50,22 +52,23 @@ export default function PhotoPicker({ photos, onChange, disabled, onProcessingCh
     const accepted: PickedPhoto[] = [];
     let firstError = '';
     const room = Math.max(0, PHOTO_LIMITS.maxCount - photosRef.current.length);
-    for (const file of files) {
+    for (const [index, file] of files.entries()) {
       if (accepted.length >= room) {
         firstError ||= `Можеш да добавиш до ${PHOTO_LIMITS.maxCount} снимки. Останалите не са добавени.`;
         break;
       }
+      setProgress({ current: index + 1, total: Math.min(files.length, room) });
       const problem = validatePhotoFile(file);
       if (problem) {
-        firstError ||= t(ERROR_KEY[problem]);
+        firstError ||= problem === 'empty' ? 'Избраният файл е празен.' : t(ERROR_KEY[problem]);
         continue;
       }
       try {
         const prepared = await prepareListingPhoto(file);
         if (!mounted.current) break;
         accepted.push({ id: crypto.randomUUID(), file: prepared, url: URL.createObjectURL(prepared) });
-      } catch {
-        firstError ||= 'Една от снимките не може да се обработи. Избери валидна JPEG, PNG или WebP снимка до 5 MB и 40 мегапиксела.';
+      } catch (error) {
+        firstError ||= error instanceof Error && /^[А-Яа-я]/.test(error.message) ? error.message : 'Една от снимките не може да се обработи. Избери валидна JPEG, PNG или WebP снимка до 5 MB и 40 мегапиксела.';
       }
       if (!mounted.current) break;
     }
@@ -126,7 +129,8 @@ export default function PhotoPicker({ photos, onChange, disabled, onProcessingCh
 
       <p className="mt-2 text-xs text-foreground-500">{t('owner.form.photosHint')}</p>
       <p className="mt-1 text-xs text-foreground-500">{t('owner.form.reorderHint')}</p>
-      {processing && <p role="status" className="mt-2 text-sm text-primary-700">Подготвяме снимките…</p>}
+      {processing && <p role="status" className="mt-2 text-sm text-primary-700">Подготвяме снимка {progress.current} от {progress.total}…</p>}
+      <p className="mt-2 text-xs text-foreground-500">Намаляваме размера за бързо зареждане и премахваме EXIF данните за местоположение. Не качвай документи или снимки с лични данни.</p>
 
       {error && (
         <p role="alert" className="mt-2 text-xs font-medium text-accent-800">

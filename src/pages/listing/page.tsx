@@ -20,7 +20,7 @@ const TYPE_KEY: Record<string, string> = {
   house: 'type.house',
 };
 
-export default function ListingDetailPage() {
+function ListingDetailContent() {
   const { t } = useTranslation();
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -361,3 +361,11 @@ export default function ListingDetailPage() {
     </SiteLayout>
   );
 }
+
+/** Remove previously authorized data in the same render as an account change. */
+export default function ListingDetailPage() {
+  const { user } = useAuth();
+  const { slug } = useParams();
+  return <ListingDetailContent key={(user?.id ?? 'guest') + '|' + (slug ?? '')} />;
+}
+import '@/i18n/legal';

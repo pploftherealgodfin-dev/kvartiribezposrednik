@@ -10,7 +10,8 @@ export const naemodatelBezAgencia: Guide = {
   publishedAt: '2026-09-10',
   updatedAt: '2026-10-01',
   heroImage:
-    'https://readdy.ai/api/search-image?query=Person%20photographing%20a%20bright%20empty%20apartment%20room%20with%20a%20smartphone%2C%20moving%20boxes%20in%20the%20corner%2C%20large%20window%20with%20soft%20daylight%2C%20minimal%20Scandinavian%20interior%2C%20warm%20neutral%20tones%2C%20editorial%20real%20estate%20photography&width=1200&height=750&seq=guide-owner-04&orientation=landscape',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/15/Empty_apartment_living_room.jpg/1920px-Empty_apartment_living_room.jpg',
+  heroImageCredit: 'Снимка: Downtowngal, Wikimedia Commons',
   keywords: ['собственик', 'отдаване под наем', 'без агенция', 'договор', 'наемател'],
   sections: [
     {

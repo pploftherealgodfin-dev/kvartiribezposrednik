@@ -6,7 +6,8 @@ export const pleven: CityContent = {
   inPhrase: 'в Плевен',
   region: 'Плевенска област',
   heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20cityscape%20of%20Pleven%20Bulgaria%20with%20wide%20central%20square%20and%20park%20fountain%20at%20golden%20hour%2C%20warm%20cream%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-pleven-v1&orientation=landscape',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Pleven_Center%2C_Pleven%2C_Bulgaria_-_panoramio.jpg/1920px-Pleven_Center%2C_Pleven%2C_Bulgaria_-_panoramio.jpg',
+  heroImageCredit: 'Снимка: Красимир Косев, Wikimedia Commons',
   intro:
     'Плевен е голям град в Северна България с медицински университет, който привлича студенти от страната и чужбина. Наемният пазар е стабилен, а обявите са директно от собственик.',
   about: [

@@ -73,6 +73,10 @@ export default function CityHero({ city, listingCount }: CityHeroProps) {
           </span>
         </div>
       </div>
+
+      <p className="absolute bottom-2 right-3 z-10 text-[10px] leading-none text-background-50/70 md:bottom-3 md:right-4">
+        {city.heroImageCredit}
+      </p>
     </section>
   );
 }

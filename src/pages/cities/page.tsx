@@ -15,7 +15,8 @@ import CityDirectory from '@/pages/cities/components/CityDirectory';
 import CityGuides from '@/pages/cities/components/CityGuides';
 
 const HERO_IMAGE =
-  'https://readdy.ai/api/search-image?query=Stylized%20illustration%20of%20Bulgaria%20with%20several%20city%20skyline%20silhouettes%20Sofia%20Plovdiv%20Varna%20at%20golden%20hour%2C%20warm%20cream%20and%20soft%20green%20tones%2C%20clean%20editorial%20style%2C%20high%20detail&width=1600&height=900&seq=hub-national-v1&orientation=landscape';
+  'https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Varna_Panorama.jpg/1920px-Varna_Panorama.jpg';
+const HERO_CREDIT = 'Снимка: Sborisova, Wikimedia Commons';
 
 export default function CitiesHubPage() {
   const { t } = useTranslation();
@@ -129,6 +130,10 @@ export default function CitiesHubPage() {
             </Link>
           </div>
         </div>
+
+        <p className="absolute bottom-2 right-3 z-10 text-[10px] leading-none text-background-50/70 md:bottom-3 md:right-4">
+          {HERO_CREDIT}
+        </p>
       </section>
 
       <section className="border-b border-background-200 bg-background-50">

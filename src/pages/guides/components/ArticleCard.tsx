@@ -24,6 +24,10 @@ export default function ArticleCard({ guide }: ArticleCardProps) {
         />
       </Link>
 
+      <p className="px-4 pt-2 text-[10px] leading-none text-foreground-500 md:px-5">
+        {guide.heroImageCredit}
+      </p>
+
       <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
         <div className="flex flex-wrap items-center gap-2">
           <span className="whitespace-nowrap rounded-full bg-secondary-100 px-2.5 py-1 text-[11px] font-semibold text-secondary-900">

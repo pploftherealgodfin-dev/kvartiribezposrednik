@@ -143,6 +143,9 @@ export default function GuideArticlePage() {
               className="h-full w-full object-cover object-top"
             />
           </div>
+          <p className="mt-2 text-right text-[11px] text-foreground-500">
+            {guide.heroImageCredit}
+          </p>
         </div>
 
         <div className="mx-auto w-full max-w-3xl px-4 py-10 md:px-6 md:py-12">

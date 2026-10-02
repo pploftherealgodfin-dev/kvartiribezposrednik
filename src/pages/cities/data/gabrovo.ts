@@ -6,7 +6,8 @@ export const gabrovo: CityContent = {
   inPhrase: 'в Габрово',
   region: 'Габровска област',
   heroImage:
-    'https://readdy.ai/api/search-image?query=Stylized%20cityscape%20of%20Gabrovo%20Bulgaria%20in%20the%20Balkan%20mountains%20with%20a%20river%20running%20through%20at%20golden%20hour%2C%20warm%20cream%20and%20soft%20green%20tones%2C%20clean%20editorial%20illustration%20style%2C%20high%20detail&width=1600&height=900&seq=city-gabrovo-v1&orientation=landscape',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/94/Gabrovo%2C_Bulgaria_-_panoramio_%288%29.jpg/1920px-Gabrovo%2C_Bulgaria_-_panoramio_%288%29.jpg',
+  heroImageCredit: 'Снимка: Красимир Косев, Wikimedia Commons',
   intro:
     'Габрово е технически университетски център, разположен в подножието на Стара планина. Тук търсенето идва основно от студенти и специалисти в техническите професии, а обявите са директно от собственик.',
   about: [

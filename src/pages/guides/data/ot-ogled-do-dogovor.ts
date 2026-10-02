@@ -10,7 +10,8 @@ export const otOgledDoDogovor: Guide = {
   publishedAt: '2026-08-20',
   updatedAt: '2026-10-01',
   heroImage:
-    'https://readdy.ai/api/search-image?query=Flat%20lay%20of%20apartment%20rental%20keys%20and%20lease%20contract%20on%20a%20wooden%20table%20next%20to%20a%20laptop%2C%20warm%20natural%20morning%20light%2C%20minimal%20clean%20composition%2C%20soft%20green%20accents%2C%20editorial%20lifestyle%20photography%2C%20cozy%20and%20organized%20feel&width=1200&height=750&seq=guide-checklist-02&orientation=landscape',
+    'https://upload.wikimedia.org/wikipedia/commons/b/b3/Lease.jpg',
+  heroImageCredit: 'Снимка: Harshithapa436, Wikimedia Commons',
   keywords: ['оглед', 'договор за наем', 'депозит', 'наем без посредник', 'документи'],
   sections: [
     {

@@ -10,7 +10,8 @@ export const kvartiraZaStudenti: Guide = {
   publishedAt: '2026-09-18',
   updatedAt: '2026-10-01',
   heroImage:
-    'https://readdy.ai/api/search-image?query=Cozy%20student%20apartment%20room%20near%20a%20university%20campus%20with%20desk%2C%20books%2C%20plants%20and%20bicycle%20by%20the%20window%2C%20bright%20daylight%2C%20minimal%20warm%20interior%2C%20editorial%20lifestyle%20photography%2C%20youthful%20and%20friendly%20mood&width=1200&height=750&seq=guide-students-05&orientation=landscape',
+    'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5b/Female_student_writing_and_studying_at_dorm_room_desk.jpg/1920px-Female_student_writing_and_studying_at_dorm_room_desk.jpg',
+  heroImageCredit: 'Снимка: English106, Wikimedia Commons',
   keywords: ['студенти', 'квартира', 'наем', 'университет', 'съквартиранти'],
   sections: [
     {
